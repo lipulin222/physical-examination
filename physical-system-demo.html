@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>各系统健康状态 - SVG 还原（v4 按坐标）</title>
+  <style>
+    body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #e9ebef; margin: 0; padding: 24px; }
+    .wrap { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 24px; padding: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+    h1 { font-size: 18px; color: #5b616e; margin: 0 0 12px; font-weight: 600; }
+    .svg-host { width: 100%; }
+    .svg-host svg { display: block; width: 100%; height: auto; }
+    .controls { margin-top: 12px; font-size: 12px; color: #9aa0ac; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>各系统健康状态 · 纯 SVG（v4 按坐标绘制）</h1>
+    <div class="svg-host">
+      <svg viewBox="0 0 1212 842" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            .box { fill: #ffffff; }
+            .box--warn { fill: #fdf3d8; }        /* 需关注：浅黄 */
+            .box--good { fill: #e6f4ec; }         /* 正常：浅绿 */
+            .box--none { fill: #f0f1f3; }         /* 无数据：浅灰 */
+            .box-text {
+              font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+              font-size: 38px; font-weight: 500; fill: #1a1a1a;
+              text-anchor: middle; dominant-baseline: middle;
+            }
+            .lead { fill: none; stroke: #a5aab0; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; }
+            .end-dot { fill: #a5aab0; }
+          </style>
+          <!-- 阴影：左侧卡片投向右（dx=2），右侧卡片投向左（dx=-2） -->
+          <filter id="shadowRight" x="-20%" y="-20%" width="150%" height="150%">
+            <feDropShadow dx="2" dy="0" stdDeviation="2" flood-color="#000000" flood-opacity="0.12" />
+          </filter>
+          <filter id="shadowLeft" x="-20%" y="-20%" width="150%" height="150%">
+            <feDropShadow dx="-2" dy="0" stdDeviation="2" flood-color="#000000" flood-opacity="0.12" />
+          </filter>
+        </defs>
+
+        <!-- ============ 卡片 ============ -->
+        <rect class="box box--warn" filter="url(#shadowRight)" x="40"  y="20"  width="320" height="156" rx="36" />
+        <text class="box-text" x="200" y="98">基础代谢</text>
+        <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="216" width="320" height="156" rx="36" />
+        <text class="box-text" x="200" y="294">呼吸系统</text>
+        <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="412" width="320" height="156" rx="36" />
+        <text class="box-text" x="200" y="490">肾与泌尿</text>
+        <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="608" width="320" height="156" rx="36" />
+        <text class="box-text" x="200" y="686">血液与营养</text>
+
+        <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="20"  width="320" height="156" rx="36" />
+        <text class="box-text" x="1012" y="98">内分泌系统</text>
+        <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="216" width="320" height="156" rx="36" />
+        <text class="box-text" x="1012" y="294">心血管系统</text>
+        <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="412" width="320" height="156" rx="36" />
+        <text class="box-text" x="1012" y="490">消化系统</text>
+        <rect class="box box--none" filter="url(#shadowLeft)" x="852" y="608" width="320" height="156" rx="36" />
+        <text class="box-text" x="1012" y="686">生殖系统</text>
+
+        <!-- ============ 折线指引（终点实心圆，拐点无标记） ============ -->
+
+        <!-- ① 内分泌(左, y=100)：360,100 → 600,100 -->
+        <polyline class="lead" points="360,100 600,100" />
+        <circle class="end-dot" cx="600" cy="100" r="6" />
+
+        <!-- ② 心血管(左, y=300)：360,300 → 450,300 → 450,250 → 600,250 -->
+        <polyline class="lead" points="360,300 450,300 450,250 600,250" />
+        <circle class="end-dot" cx="600" cy="250" r="6" />
+
+        <!-- ③ 肾与泌尿(左, y=480)：360,480 → 450,480 → 450,380 → 600,380 -->
+        <polyline class="lead" points="360,480 450,480 450,380 600,380" />
+        <circle class="end-dot" cx="600" cy="380" r="6" />
+
+        <!-- ④ 血液与营养(左, y=680)：360,680 → 600,680 -->
+        <polyline class="lead" points="360,680 600,680" />
+        <circle class="end-dot" cx="600" cy="680" r="6" />
+
+        <!-- ⑤ 基础代谢(右, y=100)：852,100 → 750,100 → 750,180 → 650,180 -->
+        <polyline class="lead" points="852,100 750,100 750,180 650,180" />
+        <circle class="end-dot" cx="650" cy="180" r="6" />
+
+        <!-- ⑥ 呼吸(右, y=300)：852,300 → 750,300 → 750,250 → 650,250 -->
+        <polyline class="lead" points="852,300 750,300 750,250 650,250" />
+        <circle class="end-dot" cx="650" cy="250" r="6" />
+
+        <!-- ⑦ 消化(右, y=480)：852,480 → 750,480 → 750,400 → 650,400 -->
+        <polyline class="lead" points="852,480 750,480 750,400 650,400" />
+        <circle class="end-dot" cx="650" cy="400" r="6" />
+
+        <!-- ⑧ 生殖(右, y=680)：852,680 → 650,680 → 650,450（1 拐） -->
+        <polyline class="lead" points="852,680 650,680 650,450" />
+        <circle class="end-dot" cx="650" cy="450" r="6" />
+      </svg>
+    </div>
+    <p class="controls">v4：严格按你给的坐标绘制。左线端点收拢在 x=600，右线端点收拢在 x=650，拐点 450/750。</p>
+  </div>
+</body>
+</html>
