@@ -194,6 +194,66 @@
     return item.querySelector('p');
   }
 
+  // 从 AI 回复中解析选择题选项（列表式为主，行内兜底）
+  function parseOptions(text) {
+    // 1) 列表式：按行识别 "1.xxx" / "A.xxx" / "1、xxx" 等
+    const lines = text.split('\n');
+    const bodyLines = [];
+    const options = [];
+    const lineRe = /^\s*(?:(\d{1,2})|([A-Ha-h]))\s*[.、)）:：]\s*(\S.*)$/;
+    for (const line of lines) {
+      const m = line.match(lineRe);
+      if (m && m[3]) options.push(m[3].trim());
+      else bodyLines.push(line);
+    }
+    if (options.length > 0) {
+      return { body: bodyLines.join('\n').trim(), options };
+    }
+
+    // 2) 行内兜底："1.了解病情 2.寻求建议" 按选项标记切分
+    const parts = text.split(/(?:[1-9]\d{0,1}|[A-Ha-h])[.、)）]/);
+    if (parts.length >= 3) {
+      const opts = parts.slice(1).map((s) => s.trim()).filter(Boolean);
+      if (opts.length >= 2) {
+        return { body: parts[0].trim(), options: opts };
+      }
+    }
+
+    return { body: text, options: [] };
+  }
+
+  // 渲染 AI 回复：正文 + 可点击选项按钮
+  function renderBotReply(typingEl, reply) {
+    const { body, options } = parseOptions(reply);
+    const bubble = typingEl.closest('.chat__bubble');
+
+    if (body) {
+      typingEl.textContent = body;
+    } else {
+      // 只有选项没有正文时隐藏气泡，直接展示选项按钮
+      bubble.style.display = 'none';
+    }
+
+    if (options.length > 0) {
+      const content = typingEl.closest('.chat__content');
+      const list = document.createElement('div');
+      list.className = 'option-list';
+      options.forEach((opt) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-list__item';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => {
+          // 禁用整组，防止重复点击
+          list.querySelectorAll('.option-list__item').forEach((b) => { b.disabled = true; });
+          sendPrompt(opt, true);
+        });
+        list.appendChild(btn);
+      });
+      content.appendChild(list);
+    }
+  }
+
   // 发送一条消息到接口；showUser=false 时不展示用户气泡（用于进入页面后 AI 自动开场）
   async function sendPrompt(content, showUser = true) {
     if (!content) return;
@@ -228,7 +288,7 @@
         : '抱歉，暂时没有收到有效回复，请稍后再试。';
 
       messages.push({ role: 'assistant', content: reply });
-      typing.textContent = reply;
+      renderBotReply(typing, reply);
       scrollToBottom();
     } catch (err) {
       typing.textContent = '回复失败：' + err.message + ' 请稍后重试。';

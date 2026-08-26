@@ -282,6 +282,41 @@ ul {
   align-self: flex-end;
 }
 
+/* AI 回复中的可点击选项按钮 */
+.option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: flex-start;
+  width: 100%;
+  max-width: 240px;
+}
+
+.option-list__item {
+  text-align: left;
+  background: #fff;
+  border: 1px solid #d9efef;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #0e8f8f;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.option-list__item:active {
+  background: #e6f7f7;
+  transform: scale(0.98);
+}
+
+.option-list__item:disabled {
+  opacity: 0.55;
+  cursor: default;
+  border-color: #e0e0e0;
+  color: #999;
+  background: #f5f5f5;
+}
+
 /* 快捷入口网格 */
 .quick-grid {
   display: flex;
