@@ -77,12 +77,12 @@
       return m ? m[1].trim() : fallback;
     };
     return {
-      name: grab(/姓名[：:]\s*(\S+)/),
-      age: grab(/年龄[：:]\s*(\S+)/),
-      gender: grab(/性别[：:]\s*(\S+)/),
+      name: grab(/姓名[：:\s]+(\S+)/),
+      age: grab(/年龄[：:\s]+(\d+(?:\.\d+)?)\s*岁?/),
+      gender: grab(/性别[：:\s]+(\S+)/),
       height: grab(/身高[^\d]{0,3}(\d+(?:\.\d+)?)\s*cm/i),
       weight: grab(/体重[^\d]{0,3}(\d+(?:\.\d+)?)\s*kg/i),
-      bmi: grab(/BMI[：: ]\s*(\d+(?:\.\d+)?)/i),
+      bmi: grab(/BMI[^\d]{0,3}(\d+(?:\.\d+)?)/i),
       waist: grab(/腰围[^\d]{0,3}(\d+(?:\.\d+)?)\s*cm/i),
       bp: grab(/(\d{2,3}\/\d{2,3})\s*mmHg/)
     };
