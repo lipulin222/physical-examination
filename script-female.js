@@ -1,4 +1,6 @@
 // 体检报告解读 · 交互脚本（女性版）
+window.REPORT_PROFILE = 'female36';
+
 const SYS_INFO = {
   endo: {
     name: '内分泌系统', status: '需关注', warn: true,
@@ -55,7 +57,19 @@ const SYS_INFO = {
     interpretTitle: '解读',
     paragraphs: [
       '血红蛋白和铁蛋白都偏低，说明身体里的"铁储备"已经见底，造血的原料不够用了。这和吃进来的铁不够、以及每月月经流失铁都有关系。好在程度不算重，**优先通过红肉、动物肝脏、蛋黄和深绿色蔬菜补铁，3 个月后复查**，多数能明显改善。'
-    ]
+    ],
+    // 供 AI 深度解析使用的结构化血液/营养指标块
+    lab: {
+      indicators: [
+        { name: '血红蛋白 Hb', value: '112 g/L', flag: '↓', normal: '115–150 g/L' },
+        { name: '红细胞计数', value: '3.78×10¹²/L', flag: '↓', normal: '3.8–5.1×10¹²/L' },
+        { name: 'MCV', value: '82 fL', flag: '正常下限', normal: '82–100 fL' },
+        { name: '铁蛋白 Ferritin', value: '14 ng/mL', flag: '↓', normal: '15–150 ng/mL' },
+        { name: '血清铁', value: '10.2 μmol/L', flag: '正常', normal: '7.5–26 μmol/L' },
+        { name: '转铁蛋白饱和度', value: '16%', flag: '正常低值', normal: '15–45%' }
+      ],
+      analysisText: '血红蛋白和铁蛋白都偏低，说明身体里的"铁储备"已经见底，造血的原料不够用了。这和吃进来的铁不够、以及每月月经流失铁都有关系。好在程度不算重，优先通过红肉、动物肝脏、蛋黄和深绿色蔬菜补铁，3 个月后复查，多数能明显改善。'
+    }
   },
   kidney: {
     name: '肾与泌尿', status: '良好', warn: false,

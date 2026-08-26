@@ -1,4 +1,6 @@
 // 体检报告解读 · 交互脚本（儿童版）
+window.REPORT_PROFILE = 'child8';
+
 const SYS_INFO = {
   growth: {
     name: '生长发育', status: '需关注', warn: true,

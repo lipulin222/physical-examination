@@ -1,6 +1,30 @@
 // 体检报告解读 · 公共交互逻辑
 // 各版本页面脚本只需：定义 SYS_INFO，再调用 initReport(SYS_INFO, '默认系统key')
 function initReport(SYS_INFO, defaultKey) {
+  // 05 生活方式卡片 → 关联病症/系统（按版本配置，可扩展）
+  const LIFESTYLE_SYSTEM = {
+    male38: {
+      'lifestyle-diet': { key: 'heart', disease: '血脂超标' },
+      'lifestyle-exercise': { key: 'heart', disease: '血脂超标' },
+      'lifestyle-alcohol': { key: 'liver', disease: '轻度脂肪肝' }
+    },
+    female36: {
+      'lifestyle-diet': { key: 'blood', disease: '缺铁性贫血' },
+      'lifestyle-exercise': { key: 'heart', disease: '血脂轻度超标' },
+      'lifestyle-iron': { key: 'blood', disease: '缺铁性贫血' }
+    },
+    child8: {
+      'lifestyle-diet': { key: 'growth', disease: '体重长得有点快（接近肥胖）' },
+      'lifestyle-exercise': { key: 'growth', disease: '体重长得有点快（接近肥胖）' },
+      'lifestyle-oral': { key: 'oral', disease: '龋齿（恒磨牙龋坏）' }
+    },
+    elder68: {
+      'lifestyle-exercise': { key: 'bone', disease: '骨头开始变"松"' },
+      'lifestyle-diet': { key: 'heart', disease: '血管里长了斑块' },
+      'lifestyle-kidney': { key: 'kidney', disease: '肾脏功能比从前弱了一点' }
+    }
+  };
+
   document.addEventListener('DOMContentLoaded', () => {
     // 04 模块：趋势图标切换
     const trendTabs = document.querySelectorAll('.trend__tab');
@@ -33,6 +57,9 @@ function initReport(SYS_INFO, defaultKey) {
     const sysDetailCtaBlock = document.getElementById('sysDetailCtaBlock');
     const sysDetailCta = document.getElementById('sysDetailCta');
     const sysDetailAiCta = document.getElementById('sysDetailAiCta');
+
+    // 当前打开的 03 系统 key（供 AI深度解析跳转携带上下文）
+    let currentKey = defaultKey;
 
     // 渲染段落（支持 **粗体** 标记）
     const renderParas = (container, paras) => {
@@ -88,6 +115,7 @@ function initReport(SYS_INFO, defaultKey) {
     const openDetail = (key, scroll = true) => {
       const info = SYS_INFO[key];
       if (!info) return;
+      currentKey = key;
       zones.forEach((z) => z.classList.remove('is-active'));
       document.querySelector(`.sysmap__zone[data-key="${key}"]`)?.classList.add('is-active');
       clearTipPops();
@@ -189,14 +217,39 @@ function initReport(SYS_INFO, defaultKey) {
       alert('已为您生成专项检查预约意向，请确认预约信息。');
     });
 
-    // 详情卡底部 AI 深度解析按钮：跳转到智能体对话页
+    // 从 02 卡片标题取病症名（03 详情卡没有独立标题时使用）
+    const getIssueTitle = (key) => {
+      const link = document.querySelector(`.issue__link[data-key="${key}"]`);
+      if (!link) return '';
+      const card = link.closest('.issue');
+      const title = card && card.querySelector('.issue__summary');
+      return title ? title.textContent.trim() : '';
+    };
+
+    // 保存跳转上下文到 sessionStorage，供 agent 页构建 System Prompt
+    const saveReportCtx = (key, diseaseOverride) => {
+      const info = SYS_INFO[key];
+      const disease = diseaseOverride || getIssueTitle(key) || (info && info.name) || '健康问题';
+      sessionStorage.setItem('reportCtx', JSON.stringify({
+        profile: window.REPORT_PROFILE || '',
+        disease,
+        key,
+        lab: (info && info.lab) || null
+      }));
+    };
+
+    // 详情卡底部 AI 深度解析按钮：携带当前系统上下文跳转到智能体对话页
     sysDetailAiCta.addEventListener('click', () => {
+      saveReportCtx(currentKey);
       window.location.href = 'agent-page/index.html';
     });
 
-    // 05 部分 AI深度建议按钮：跳转到智能体对话页
+    // 05 部分 AI深度建议按钮：按版本映射卡片 → 病症/系统，携带上下文跳转
     document.querySelectorAll('.lifestyle__more').forEach((btn) => {
       btn.addEventListener('click', () => {
+        const card = btn.closest('.lifestyle');
+        const cfg = (LIFESTYLE_SYSTEM[window.REPORT_PROFILE] || {})[card ? card.id : ''];
+        saveReportCtx(cfg ? cfg.key : currentKey, cfg ? cfg.disease : undefined);
         window.location.href = 'agent-page/index.html';
       });
     });

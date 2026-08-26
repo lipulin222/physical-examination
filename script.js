@@ -1,4 +1,6 @@
 // 体检报告解读 · 交互脚本（男性版）
+window.REPORT_PROFILE = 'male38';
+
 const SYS_INFO = {
   endo: {
     name: '内分泌系统', status: '需关注', warn: true,

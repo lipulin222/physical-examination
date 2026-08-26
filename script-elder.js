@@ -1,4 +1,6 @@
 // 体检报告解读 · 交互脚本（老年版）
+window.REPORT_PROFILE = 'elder68';
+
 const SYS_INFO = {
   heart: {
     name: '心血管系统', status: '需关注', warn: true,
