@@ -173,6 +173,28 @@
   const sendBtn = document.getElementById('sendBtn');
   const toast = document.getElementById('toast');
 
+  // ===== 对话历史本地持久化 =====
+  const storagePrefix = 'reportAgent_';
+  // 按"版本 + 病症"生成存储 key，同一份报告的对话可跨次继续
+  function storageKey(profile, disease) {
+    const p = (profile || '').replace(/[^\w-]/g, '_');
+    const d = (disease || 'general').replace(/[^\w\u4e00-\u9fa5-]/g, '_');
+    return storagePrefix + p + '_' + d;
+  }
+  function loadHistory(profile, disease) {
+    try {
+      const raw = localStorage.getItem(storageKey(profile, disease));
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+  function saveHistory(messages, profile, disease) {
+    try {
+      // 限制条数，避免无限增长；保留 system + 最近 40 条
+      const toSave = messages.length > 41 ? [messages[0]].concat(messages.slice(-40)) : messages;
+      localStorage.setItem(storageKey(profile, disease), JSON.stringify(toSave));
+    } catch (e) { /* 存储满时静默失败 */ }
+  }
+
   // 通用轻提示
   function showToast(message, duration = 1800) {
     toast.textContent = message;
@@ -225,6 +247,8 @@
 
   // 对话上下文：初始化时构建 systemPrompt（含用户信息与病症上下文）
   let messages = [];
+  // 当前上下文（含 profile/disease），用于持久化 key
+  let currentCtx = null;
 
   // 追加"正在思考"占位气泡，返回其文本节点以便稍后替换
   function appendTyping() {
@@ -387,6 +411,33 @@
     }
   }
 
+  // 渲染一条历史消息（仅显示文本，不渲染选项按钮；AI 消息保留 markdown 格式）
+  function renderHistoryMessage(msg) {
+    if (msg.role === 'system') return;
+    if (msg.role === 'user') {
+      appendMessage(msg.content, true);
+    } else if (msg.role === 'assistant') {
+      const { body } = parseOptions(msg.content);
+      const text = body || msg.content;
+      const item = document.createElement('div');
+      item.className = 'chat__item chat__item--bot';
+      item.innerHTML = `
+        <div class="chat__avatar">
+          <svg viewBox="0 0 48 48" fill="none">
+            <rect x="6" y="6" width="36" height="36" rx="8" fill="#16b2b2"/>
+            <circle cx="18" cy="22" r="3" fill="#fff"/>
+            <circle cx="30" cy="22" r="3" fill="#fff"/>
+            <rect x="20" y="30" width="8" height="2" rx="1" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="chat__content">
+          <div class="chat__bubble chat__bubble--bot"><div class="chat__bubble-text">${mdToHtml(text)}</div></div>
+        </div>
+      `;
+      chatList.appendChild(item);
+    }
+  }
+
   // 发送一条消息到接口；showUser=false 时不展示用户气泡（用于进入页面后 AI 自动开场）
   async function sendPrompt(content, showUser = true) {
     if (!content) return;
@@ -423,6 +474,8 @@
       messages.push({ role: 'assistant', content: reply });
       renderBotReply(typing, reply);
       scrollToBottom();
+      // 成功后持久化对话历史
+      if (currentCtx) saveHistory(messages, currentCtx.version, currentCtx.disease);
     } catch (err) {
       typing.textContent = '回复失败：' + err.message + ' 请稍后重试。';
       scrollToBottom();
@@ -470,7 +523,18 @@
       ctx = { disease: '健康问题', profile: {}, lab: null };
     }
 
+    currentCtx = ctx;
     messages = [{ role: 'system', content: buildSystemPrompt(ctx) }];
+
+    // 尝试恢复本地历史对话（同一版本+病症）；有历史则不重新自动开场
+    const history = loadHistory(ctx.version, ctx.disease);
+    if (history && history.length > 0) {
+      // 校验首条是 system，且用最新 systemPrompt（信息可能变化）
+      messages = [messages[0]].concat(history.filter((m) => m.role !== 'system'));
+      messages.forEach(renderHistoryMessage);
+      scrollToBottom();
+      return { ...ctx, restored: true };
+    }
     return ctx;
   }
 
@@ -509,9 +573,9 @@
   // 初始滚动
   scrollToBottom();
 
-  // 异步初始化：构建 System Prompt；若从体检页携带病症进入，自动发起第一条咨询，让 AI 主动开口
+  // 异步初始化：构建 System Prompt；若从体检页携带病症进入且无历史，自动发起第一条咨询让 AI 主动开口
   init().then((ctx) => {
-    if (ctx && ctx.disease && ctx.disease !== '健康问题') {
+    if (ctx && !ctx.restored && ctx.disease && ctx.disease !== '健康问题') {
       sendPrompt('你好，我刚做完体检，针对【' + ctx.disease + '】的问题想进一步咨询。', false);
     }
   });
