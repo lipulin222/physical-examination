@@ -194,9 +194,9 @@
     return item.querySelector('p');
   }
 
-  // 从 AI 回复中解析选择题选项（列表式为主，行内兜底）
+  // 从 AI 回复中解析选择题选项（多种格式兜底）
   function parseOptions(text) {
-    // 1) 列表式：按行识别 "1.xxx" / "A.xxx" / "1、xxx" 等
+    // 1) 列表式：按行识别 "1.xxx" / "A.xxx" / "1、xxx" / "1）xxx" 等
     const lines = text.split('\n');
     const bodyLines = [];
     const options = [];
@@ -210,12 +210,27 @@
       return { body: bodyLines.join('\n').trim(), options };
     }
 
-    // 2) 行内兜底："1.了解病情 2.寻求建议" 按选项标记切分
-    const parts = text.split(/(?:[1-9]\d{0,1}|[A-Ha-h])[.、)）]/);
-    if (parts.length >= 3) {
-      const opts = parts.slice(1).map((s) => s.trim()).filter(Boolean);
-      if (opts.length >= 2) {
-        return { body: parts[0].trim(), options: opts };
+    // 2) 行内列表标记："1.xxx 2.xxx" / "A:xxx B:xxx"
+    {
+      const parts = text.split(/(?:[1-9]\d{0,1}|[A-Ha-h])[.、)）:：]/);
+      if (parts.length >= 3) {
+        const opts = parts.slice(1).map((s) => s.trim()).filter(Boolean);
+        if (opts.length >= 2) {
+          return { body: parts[0].trim(), options: opts };
+        }
+      }
+    }
+
+    // 3) 中文"或者"或"还是"分隔的并列结构（识别为选项）
+    if (/或者|还是/.test(text)) {
+      // 拆分"你想了解A，还是B，还是C"
+      const m = text.match(/^([^，？。\?:：]+?)[，：:]?\s*([^，？。\?:：]+?)\s*或者\s*([^？。\?:：]+?)(?:\s*或者\s*([^？。\?:：]+?))?(?:\s*或者\s*([^？。\?:：]+?))?\??$/);
+      if (m) {
+        const intro = m[1].trim() + '：';
+        const opts = [m[2], m[3], m[4], m[5]].filter(Boolean).map((s) => s.trim());
+        if (opts.length >= 2) {
+          return { body: intro, options: opts };
+        }
       }
     }
 
