@@ -185,14 +185,11 @@
     return item.querySelector('p');
   }
 
-  async function sendUserMessage() {
-    const text = messageInput.value.trim();
-    if (!text) return;
-
-    appendMessage(text, true);
-    messageInput.value = '';
-    updateSendButton();
-    messages.push({ role: 'user', content: text });
+  // 发送一条消息到接口；showUser=false 时不展示用户气泡（用于进入页面后 AI 自动开场）
+  async function sendPrompt(content, showUser = true) {
+    if (!content) return;
+    if (showUser) appendMessage(content, true);
+    messages.push({ role: 'user', content });
 
     const typing = appendTyping();
 
@@ -230,6 +227,14 @@
     }
   }
 
+  function sendUserMessage() {
+    const text = messageInput.value.trim();
+    if (!text) return;
+    messageInput.value = '';
+    updateSendButton();
+    sendPrompt(text);
+  }
+
   function updateSendButton() {
     if (messageInput.value.trim()) {
       sendBtn.classList.remove('is-disabled');
@@ -262,6 +267,7 @@
     }
 
     messages = [{ role: 'system', content: buildSystemPrompt(ctx) }];
+    return ctx;
   }
 
   // 快捷入口
@@ -299,6 +305,10 @@
   // 初始滚动
   scrollToBottom();
 
-  // 异步初始化（构建 System Prompt）
-  init();
+  // 异步初始化：构建 System Prompt；若从体检页携带病症进入，自动发起第一条咨询，让 AI 主动开口
+  init().then((ctx) => {
+    if (ctx && ctx.disease && ctx.disease !== '健康问题') {
+      sendPrompt('你好，我刚做完体检，针对【' + ctx.disease + '】的问题想进一步咨询。', false);
+    }
+  });
 })();
