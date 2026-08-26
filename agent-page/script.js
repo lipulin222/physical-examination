@@ -222,35 +222,38 @@
     return { body: text, options: [] };
   }
 
-  // 渲染 AI 回复：正文 + 可点击选项按钮
+  // 渲染 AI 回复：选项作为整体气泡的一部分（更紧凑、一体感更强）
   function renderBotReply(typingEl, reply) {
     const { body, options } = parseOptions(reply);
     const bubble = typingEl.closest('.chat__bubble');
+    // 清空气泡原有 p（保留 p 作为正文容器）
+    bubble.innerHTML = '';
 
     if (body) {
-      typingEl.textContent = body;
-    } else {
-      // 只有选项没有正文时隐藏气泡，直接展示选项按钮
-      bubble.style.display = 'none';
+      const p = document.createElement('p');
+      p.className = 'chat__bubble-text';
+      p.textContent = body;
+      bubble.appendChild(p);
     }
 
     if (options.length > 0) {
-      const content = typingEl.closest('.chat__content');
       const list = document.createElement('div');
       list.className = 'option-list';
-      options.forEach((opt) => {
+      options.forEach((opt, i) => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'option-list__item';
-        btn.textContent = opt;
+        // 序号 + 选项文字 + 箭头，强化"可点选"感知
+        btn.innerHTML = '<span class="option-list__index">' + (i + 1) + '</span>' +
+                        '<span class="option-list__text">' + escapeHtml(opt) + '</span>' +
+                        '<span class="option-list__arrow">›</span>';
         btn.addEventListener('click', () => {
-          // 禁用整组，防止重复点击
           list.querySelectorAll('.option-list__item').forEach((b) => { b.disabled = true; });
           sendPrompt(opt, true);
         });
         list.appendChild(btn);
       });
-      content.appendChild(list);
+      bubble.appendChild(list);
     }
   }
 
