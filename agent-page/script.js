@@ -1,8 +1,7 @@
 (() => {
   // ===== AI 问答接口配置 =====
-  // 通过同源代理 /api/chat 转发，绕开浏览器 CORS 限制（本地服务器 _serve_tcp.ps1 已内置代理）。
-  // 若后端已开启 CORS，可直接改为：const API_URL = 'http://106.54.13.148:3000/v1/chat/completions';
-  const API_URL = '/api/chat';
+  // 直连远端接口；后端已对 github.io 域名开启 CORS，部署到 GitHub Pages 可直接访问。
+  const API_URL = 'http://106.54.13.148:3000/v1/chat/completions';
   const API_KEY = 'Bearer pulinli222666uiqo';
   const SYSTEM_PROMPT = '你是"小卓"健康智能体，一位专业、亲切的体检报告解读助手。请用通俗易懂的语言回答用户的健康问题；涉及用药、治疗等建议时，提醒用户以医生的诊断为准。';
 
