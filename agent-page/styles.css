@@ -264,12 +264,16 @@ ul {
   border-radius: 14px;
   font-size: 15px;
   line-height: 1.55;
-  word-break: break-word;
-  /* 短内容（如"正在思考…"、简短回复）也能撑到较宽的尺寸 */
-  min-width: 220px;
+  /* 优先按词换行；只有溢出时才拆字，避免短内容被强制竖排 */
+  overflow-wrap: break-word;
+  word-break: normal;
+  max-width: 100%;
 }
 
+/* Bot 气泡：短内容（如"正在思考…"、单行回复）也能稳定显示 */
 .chat__bubble--bot {
+  min-width: 220px;
+  max-width: 78%;
   background: #fff;
   color: #1a1a1a;
   border-top-left-radius: 4px;
