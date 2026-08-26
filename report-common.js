@@ -244,12 +244,15 @@ function initReport(SYS_INFO, defaultKey) {
       window.location.href = 'agent-page/index.html';
     });
 
-    // 05 部分 AI深度建议按钮：按版本映射卡片 → 病症/系统，携带上下文跳转
+    // 05 部分 AI深度建议按钮：按版本映射卡片 → 系统，病症从卡片"针对"行动态读取
     document.querySelectorAll('.lifestyle__more').forEach((btn) => {
       btn.addEventListener('click', () => {
         const card = btn.closest('.lifestyle');
         const cfg = (LIFESTYLE_SYSTEM[window.REPORT_PROFILE] || {})[card ? card.id : ''];
-        saveReportCtx(cfg ? cfg.key : currentKey, cfg ? cfg.disease : undefined);
+        const targetEl = card ? card.querySelector('.lifestyle__target') : null;
+        const targetText = targetEl ? targetEl.textContent.replace(/^针对[：:]\s*/, '').trim() : '';
+        const disease = targetText || (cfg ? cfg.disease : undefined);
+        saveReportCtx(cfg ? cfg.key : currentKey, disease);
         window.location.href = 'agent-page/index.html';
       });
     });

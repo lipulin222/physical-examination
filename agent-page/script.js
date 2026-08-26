@@ -62,6 +62,15 @@
   };
   const DEFAULT_DISEASE_MODULES = ['userBasic', 'physique'];
 
+  // 解析病症对应的模块组合：精确匹配优先，其次按贫血相关关键词命中血液模块
+  function resolveModules(disease) {
+    if (DISEASE_MODULES[disease]) return DISEASE_MODULES[disease];
+    if (/贫血|血红蛋白|铁蛋白|铁储备|缺铁/.test(disease)) {
+      return ['userBasic', 'physique', 'bloodNutrition'];
+    }
+    return DEFAULT_DISEASE_MODULES;
+  }
+
   // ===== 版本标识 → info 目录 txt 文件名 =====
   const INFO_FILES = {
     male38: '体检报告解读案例-男38.txt',
@@ -91,7 +100,7 @@
   // 配置化构建 System Prompt：不写死 replace 链，按模块注册表逐个替换
   function buildSystemPrompt(ctx) {
     const disease = ctx.disease || '健康问题';
-    const modules = DISEASE_MODULES[disease] || DEFAULT_DISEASE_MODULES;
+    const modules = resolveModules(disease);
     let prompt = SYSTEM_PROMPT_TEMPLATE.replace('{DISEASE}', disease);
     for (const name of modules) {
       const mod = MODULES[name];
