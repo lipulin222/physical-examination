@@ -265,6 +265,8 @@ ul {
   font-size: 15px;
   line-height: 1.55;
   word-break: break-word;
+  /* 短内容（如"正在思考…"、简短回复）也能撑到较宽的尺寸 */
+  min-width: 220px;
 }
 
 .chat__bubble--bot {
