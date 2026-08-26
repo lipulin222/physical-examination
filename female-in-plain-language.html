@@ -9,6 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* 女性版：系统图人像放大 5%（仅本页面） */
+    .sysmap__body-img { height: 100%; }
+  </style>
 </head>
 <body>
   <div class="phone">
@@ -51,16 +55,16 @@
         <div class="overview">
           <div class="overview__head">
             <span class="overview__eyebrow">2026 年度健康评估</span>
-            <h1 class="overview__name">张先生 · 38 岁</h1>
+            <h1 class="overview__name">李女士 · 36 岁</h1>
             <p class="overview__meta">综合体检 · 报告日期 2026-08-18</p>
             <div class="overview__tags">
               <span class="tag tag--good">整体良好</span>
-              <span class="tag tag--warn">3 项需关注</span>
+              <span class="tag tag--warn">4 项需关注</span>
             </div>
           </div>
 
           <div class="overview__ai">
-            <p class="overview__ai-text">本次体检整体可控，但已出现<b>以体重增加为核心的代谢风险聚集</b>：超重、血脂与尿酸偏高、轻度脂肪肝，糖代谢指标处于临界；甲状腺超声发现一枚 TI-RADS 3 类低回声结节（良性可能性大），建议定期复查。优先通过控制体重和调整生活方式改善，3 个月后复查相关指标。</p>
+            <p class="overview__ai-text">本次体检整体情况良好，核心问题是<b>铁储备不足导致的缺铁性贫血，同时血脂轻度偏高，乳腺与甲状腺超声各发现一枚小结节</b>（分级 3 类，良性可能性大）。各项异常均处于早期阶段，具体分析与建议见下方各模块；通过调整饮食和生活方式，多数可以改善，建议 3 个月后复查相关指标。</p>
           </div>
         </div>
       </section>
@@ -73,24 +77,35 @@
 
         <article class="issue">
           <header class="issue__head">
-            <h3 class="issue__summary">血脂超标</h3>
+            <h3 class="issue__summary">缺铁性贫血</h3>
           </header>
 
           <div class="issue__block">
-            <p>总胆固醇 5.72 mmol/L 高于参考上限，同时甘油三酯 2.38 mmol/L、LDL-C 3.56 mmol/L 也超过参考范围，提示<b>血脂多项超标</b>，多与高脂饮食、缺乏运动及超重等代谢因素相关，整体风险可控但需要干预。</p>
+            <p><b>血红蛋白 112 g/L、铁蛋白 14 ng/mL 均低于参考范围，提示缺铁性贫血</b>，多与膳食铁摄入不足、月经期失血等因素有关。目前程度较轻，通过增加红肉、动物肝脏、菠菜等含铁食物，多数可以改善。</p>
+          </div>
+          <a class="issue__link" href="#" data-key="blood">查看详情</a>
+        </article>
+
+        <article class="issue">
+          <header class="issue__head">
+            <h3 class="issue__summary">血脂轻度超标</h3>
+          </header>
+
+          <div class="issue__block">
+            <p><b>总胆固醇 5.46 mmol/L 略高于参考上限，LDL-C 3.42 mmol/L 处于临界水平</b>，多与高脂饮食、运动不足有关。目前幅度不大、风险可控，通过调整饮食和增加运动，多数可以改善。</p>
           </div>
           <a class="issue__link" href="#" data-key="heart">查看详情</a>
         </article>
 
         <article class="issue">
           <header class="issue__head">
-            <h3 class="issue__summary">轻度脂肪肝</h3>
+            <h3 class="issue__summary">乳腺结节</h3>
           </header>
 
           <div class="issue__block">
-            <p>ALT 68 U/L、GGT 86 U/L 升高，提示肝细胞存在轻度损伤；结合腹部超声提示的<b>轻度脂肪肝</b>，多与超重、血脂超标及生活方式相关。</p>
+            <p>右乳外上象限发现一个约 7×5 毫米的结节，分级 BI-RADS 3 类，提示<b>良性可能性大</b>，未见明显异常血流，无需过度担心。建议定期复查乳腺超声。</p>
           </div>
-          <a class="issue__link" href="#" data-key="liver">查看详情</a>
+          <a class="issue__link" href="#" data-key="repro">查看详情</a>
         </article>
 
         <article class="issue">
@@ -99,7 +114,7 @@
           </header>
 
           <div class="issue__block">
-            <p>超声发现甲状腺右叶低回声结节，大小约 6×5 mm，TI-RADS 3 级提示<b>良性可能性大</b>，目前无恶变征象。</p>
+            <p>甲状腺左叶发现一个约 5×4 毫米的结节，分级 TI-RADS 3 类，提示<b>良性可能性大</b>，未见明显钙化。建议定期复查甲状腺超声。</p>
           </div>
           <a class="issue__link" href="#" data-key="endo">查看详情</a>
         </article>
@@ -146,16 +161,16 @@
               <text class="box-text" x="200" y="294">呼吸系统</text>
               <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="412" width="320" height="156" rx="36" />
               <text class="box-text" x="200" y="490">肾与泌尿</text>
-              <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="608" width="320" height="156" rx="36" />
+              <rect class="box box--warn" filter="url(#shadowRight)" x="40"  y="608" width="320" height="156" rx="36" />
               <text class="box-text" x="200" y="686">血液与营养</text>
 
               <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="20"  width="320" height="156" rx="36" />
               <text class="box-text" x="1012" y="98">内分泌系统</text>
               <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="216" width="320" height="156" rx="36" />
               <text class="box-text" x="1012" y="294">心血管系统</text>
-              <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="412" width="320" height="156" rx="36" />
+              <rect class="box box--good" filter="url(#shadowLeft)" x="852" y="412" width="320" height="156" rx="36" />
               <text class="box-text" x="1012" y="490">消化系统</text>
-              <rect class="box box--none" filter="url(#shadowLeft)" x="852" y="608" width="320" height="156" rx="36" />
+              <rect class="box box--good" filter="url(#shadowLeft)" x="852" y="608" width="320" height="156" rx="36" />
               <text class="box-text" x="1012" y="686">生殖系统</text>
 
               <!-- 折线指引（终点实心圆，拐点无标记） -->
@@ -191,7 +206,7 @@
 
           <!-- 人像：叠在图片下方，保持重叠效果 -->
           <div class="sysmap__body">
-            <img src="pic/亚裔青年男性全身像_副本.png" alt="人体示意图" class="sysmap__body-img" />
+            <img src="pic/短发亚裔青年女性全身像_副本.png" alt="人体示意图" class="sysmap__body-img" />
           </div>
         </div>
 
@@ -245,10 +260,10 @@
           <h2 class="module__title"><span class="module__num">04</span>健康趋势</h2>
         </div>
 
-        <!-- 回溯文案 + 指标切换 + 图表，同一张白卡 -->
+        <!-- 回溯文案 + 指标切换 + 当前值对比，同一张白卡 -->
         <div class="trend">
           <div class="trend__summary">
-            <p>回溯近期三次体检报告，您的体重由 76 kg 增长至 84 kg、腰围由 88 cm 增长至 96 cm，血脂、尿酸与肝酶同步走高；血压处于正常高值，糖代谢指标处于临界。整体呈现<b>“代谢负担逐年上升”</b>的趋势。</p>
+            <p>本次为首次系统体检，暂无往年数据可对比。从本次结果看，体重处于正常高值、血脂轻度偏高，血压与腰围正常。<b>建议以本次为基线</b>，在后续年度体检中重点观察体重、血脂与铁指标的变化。</p>
           </div>
 
           <div class="trend__tabs">
@@ -269,70 +284,26 @@
           <div class="trend__panel is-active" data-panel="weight">
             <div class="trend__head">
               <div class="trend__legend">
-                <span class="trend__key"><i class="trend__dot trend__dot--warn"></i>体重</span>
+                <span class="trend__key"><i class="trend__dot trend__dot--warn"></i>体重（BMI）</span>
               </div>
-              <span class="trend__delta">较 2023 ↑ 8.0 kg</span>
+              <span class="trend__delta">本次 23.6</span>
             </div>
-            <svg class="trend__chart" viewBox="0 0 320 170" preserveAspectRatio="none" role="img" aria-label="体重趋势图">
-              <line x1="36" y1="30" x2="312" y2="30" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="70" x2="312" y2="70" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="110" x2="312" y2="110" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="150" x2="312" y2="150" stroke="#eef0f3" stroke-width="1"/>
-              <text x="30" y="34" text-anchor="end" class="trend__axis">85</text>
-              <text x="30" y="74" text-anchor="end" class="trend__axis">80</text>
-              <text x="30" y="114" text-anchor="end" class="trend__axis">75</text>
-              <polyline class="trend__line" points="70,106 152,90 234,66 300,42" />
-              <circle cx="70" cy="106" r="4" class="trend__point"/>
-              <circle cx="152" cy="90" r="4" class="trend__point"/>
-              <circle cx="234" cy="66" r="4" class="trend__point"/>
-              <circle cx="300" cy="42" r="5" class="trend__point trend__point--last"/>
-              <text x="70" y="94" text-anchor="middle" class="trend__data">76</text>
-              <text x="152" y="78" text-anchor="middle" class="trend__data">78</text>
-              <text x="234" y="54" text-anchor="middle" class="trend__data">81</text>
-              <text x="300" y="30" text-anchor="middle" class="trend__data trend__data--hot">84</text>
-              <text x="70" y="166" text-anchor="middle" class="trend__axis">2023</text>
-              <text x="152" y="166" text-anchor="middle" class="trend__axis">2024</text>
-              <text x="234" y="166" text-anchor="middle" class="trend__axis">2025</text>
-              <text x="300" y="166" text-anchor="middle" class="trend__axis trend__axis--hot">2026</text>
-            </svg>
             <div class="trend__compare">
-              <div class="trend__cmp"><span class="trend__cmp-label">2023</span><span class="trend__cmp-val">76.0 <em>kg</em></span><span class="trend__cmp-flag is-good">—</span></div>
-              <div class="trend__cmp"><span class="trend__cmp-label">2026</span><span class="trend__cmp-val">84.0 <em>kg</em></span><span class="trend__cmp-flag is-warn">↑ 8.0</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">本次</span><span class="trend__cmp-val">23.6 <em>kg/m²</em></span><span class="trend__cmp-flag is-warn">正常高值</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">健康目标</span><span class="trend__cmp-val">18.5–23.9 <em>kg/m²</em></span><span class="trend__cmp-flag is-good">—</span></div>
             </div>
           </div>
 
           <div class="trend__panel" data-panel="waist">
             <div class="trend__head">
               <div class="trend__legend">
-                <span class="trend__key"><i class="trend__dot trend__dot--warn"></i>腰围</span>
+                <span class="trend__key"><i class="trend__dot trend__dot--good"></i>腰围</span>
               </div>
-              <span class="trend__delta">较 2023 ↑ 8.0 cm</span>
+              <span class="trend__delta">本次 80 cm</span>
             </div>
-            <svg class="trend__chart" viewBox="0 0 320 170" preserveAspectRatio="none" role="img" aria-label="腰围趋势图">
-              <line x1="36" y1="30" x2="312" y2="30" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="70" x2="312" y2="70" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="110" x2="312" y2="110" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="150" x2="312" y2="150" stroke="#eef0f3" stroke-width="1"/>
-              <text x="30" y="34" text-anchor="end" class="trend__axis">100</text>
-              <text x="30" y="74" text-anchor="end" class="trend__axis">95</text>
-              <text x="30" y="114" text-anchor="end" class="trend__axis">90</text>
-              <polyline class="trend__line" points="70,130 152,114 234,90 300,66" />
-              <circle cx="70" cy="130" r="4" class="trend__point"/>
-              <circle cx="152" cy="114" r="4" class="trend__point"/>
-              <circle cx="234" cy="90" r="4" class="trend__point"/>
-              <circle cx="300" cy="66" r="5" class="trend__point trend__point--last"/>
-              <text x="70" y="118" text-anchor="middle" class="trend__data">88</text>
-              <text x="152" y="102" text-anchor="middle" class="trend__data">90</text>
-              <text x="234" y="78" text-anchor="middle" class="trend__data">93</text>
-              <text x="300" y="54" text-anchor="middle" class="trend__data trend__data--hot">96</text>
-              <text x="70" y="166" text-anchor="middle" class="trend__axis">2023</text>
-              <text x="152" y="166" text-anchor="middle" class="trend__axis">2024</text>
-              <text x="234" y="166" text-anchor="middle" class="trend__axis">2025</text>
-              <text x="300" y="166" text-anchor="middle" class="trend__axis trend__axis--hot">2026</text>
-            </svg>
             <div class="trend__compare">
-              <div class="trend__cmp"><span class="trend__cmp-label">2023</span><span class="trend__cmp-val">88.0 <em>cm</em></span><span class="trend__cmp-flag is-good">—</span></div>
-              <div class="trend__cmp"><span class="trend__cmp-label">2026</span><span class="trend__cmp-val">96.0 <em>cm</em></span><span class="trend__cmp-flag is-warn">↑ 8.0</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">本次</span><span class="trend__cmp-val">80 <em>cm</em></span><span class="trend__cmp-flag is-good">正常</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">健康目标</span><span class="trend__cmp-val">&lt; 85 <em>cm</em></span><span class="trend__cmp-flag is-good">—</span></div>
             </div>
           </div>
 
@@ -342,69 +313,24 @@
                 <span class="trend__key"><i class="trend__dot trend__dot--warn"></i>总胆固醇</span>
                 <span class="trend__key"><i class="trend__dot trend__dot--target"></i>健康目标</span>
               </div>
-              <span class="trend__delta">较 2023 ↑ 0.52</span>
+              <span class="trend__delta">本次 5.46</span>
             </div>
-            <svg class="trend__chart" viewBox="0 0 320 170" preserveAspectRatio="none" role="img" aria-label="总胆固醇趋势图">
-              <line x1="36" y1="30" x2="312" y2="30" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="70" x2="312" y2="70" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="110" x2="312" y2="110" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="150" x2="312" y2="150" stroke="#eef0f3" stroke-width="1"/>
-              <text x="30" y="34" text-anchor="end" class="trend__axis">7.0</text>
-              <text x="30" y="74" text-anchor="end" class="trend__axis">6.0</text>
-              <text x="30" y="114" text-anchor="end" class="trend__axis">5.0</text>
-              <line x1="36" y1="118" x2="312" y2="118" stroke="#2f9e6b" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.7"/>
-              <polyline class="trend__line" points="70,106 152,100 234,94 300,85" />
-              <circle cx="70" cy="106" r="4" class="trend__point"/>
-              <circle cx="152" cy="100" r="4" class="trend__point"/>
-              <circle cx="234" cy="94" r="4" class="trend__point"/>
-              <circle cx="300" cy="85" r="5" class="trend__point trend__point--last"/>
-              <text x="70" y="94" text-anchor="middle" class="trend__data">5.20</text>
-              <text x="152" y="88" text-anchor="middle" class="trend__data">5.42</text>
-              <text x="234" y="82" text-anchor="middle" class="trend__data">5.55</text>
-              <text x="300" y="73" text-anchor="middle" class="trend__data trend__data--hot">5.72</text>
-              <text x="70" y="166" text-anchor="middle" class="trend__axis">2023</text>
-              <text x="152" y="166" text-anchor="middle" class="trend__axis">2024</text>
-              <text x="234" y="166" text-anchor="middle" class="trend__axis">2025</text>
-              <text x="300" y="166" text-anchor="middle" class="trend__axis trend__axis--hot">2026</text>
-            </svg>
             <div class="trend__compare">
-              <div class="trend__cmp"><span class="trend__cmp-label">2023</span><span class="trend__cmp-val">5.20 <em>mmol/L</em></span><span class="trend__cmp-flag is-good">—</span></div>
-              <div class="trend__cmp"><span class="trend__cmp-label">2026</span><span class="trend__cmp-val">5.72 <em>mmol/L</em></span><span class="trend__cmp-flag is-warn">↑ 0.52</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">本次</span><span class="trend__cmp-val">5.46 <em>mmol/L</em></span><span class="trend__cmp-flag is-warn">偏高</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">健康目标</span><span class="trend__cmp-val">&lt; 5.20 <em>mmol/L</em></span><span class="trend__cmp-flag is-good">—</span></div>
             </div>
           </div>
 
           <div class="trend__panel" data-panel="sbp">
             <div class="trend__head">
               <div class="trend__legend">
-                <span class="trend__key"><i class="trend__dot trend__dot--warn"></i>收缩压</span>
+                <span class="trend__key"><i class="trend__dot trend__dot--good"></i>血压</span>
               </div>
-              <span class="trend__delta">较 2023 ↑ 6</span>
+              <span class="trend__delta">本次 118/76</span>
             </div>
-            <svg class="trend__chart" viewBox="0 0 320 170" preserveAspectRatio="none" role="img" aria-label="收缩压趋势图">
-              <line x1="36" y1="30" x2="312" y2="30" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="70" x2="312" y2="70" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="110" x2="312" y2="110" stroke="#eef0f3" stroke-width="1"/>
-              <line x1="36" y1="150" x2="312" y2="150" stroke="#eef0f3" stroke-width="1"/>
-              <text x="30" y="34" text-anchor="end" class="trend__axis">140</text>
-              <text x="30" y="74" text-anchor="end" class="trend__axis">130</text>
-              <text x="30" y="114" text-anchor="end" class="trend__axis">120</text>
-              <polyline class="trend__line" points="70,90 152,82 234,74 300,66" />
-              <circle cx="70" cy="90" r="4" class="trend__point"/>
-              <circle cx="152" cy="82" r="4" class="trend__point"/>
-              <circle cx="234" cy="74" r="4" class="trend__point"/>
-              <circle cx="300" cy="66" r="5" class="trend__point trend__point--last"/>
-              <text x="70" y="78" text-anchor="middle" class="trend__data">126</text>
-              <text x="152" y="70" text-anchor="middle" class="trend__data">128</text>
-              <text x="234" y="62" text-anchor="middle" class="trend__data">130</text>
-              <text x="300" y="54" text-anchor="middle" class="trend__data trend__data--hot">132</text>
-              <text x="70" y="166" text-anchor="middle" class="trend__axis">2023</text>
-              <text x="152" y="166" text-anchor="middle" class="trend__axis">2024</text>
-              <text x="234" y="166" text-anchor="middle" class="trend__axis">2025</text>
-              <text x="300" y="166" text-anchor="middle" class="trend__axis trend__axis--hot">2026</text>
-            </svg>
             <div class="trend__compare">
-              <div class="trend__cmp"><span class="trend__cmp-label">2023</span><span class="trend__cmp-val">126 <em>mmHg</em></span><span class="trend__cmp-flag is-good">—</span></div>
-              <div class="trend__cmp"><span class="trend__cmp-label">2026</span><span class="trend__cmp-val">132 <em>mmHg</em></span><span class="trend__cmp-flag is-warn">正常高值</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">本次</span><span class="trend__cmp-val">118/76 <em>mmHg</em></span><span class="trend__cmp-flag is-good">正常</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">健康目标</span><span class="trend__cmp-val">&lt; 140/90 <em>mmHg</em></span><span class="trend__cmp-flag is-good">—</span></div>
             </div>
           </div>
         </div>
@@ -419,21 +345,21 @@
         <article class="lifestyle" id="lifestyle-diet">
           <header class="lifestyle__head">
             <span class="lifestyle__ico"><img src="pic/饮食 icon.png" alt="饮食" /></span>
-            <h3 class="lifestyle__title">先从“少喝糖、少吃油”开始</h3>
+            <h3 class="lifestyle__title">先从“补铁、控油”开始</h3>
           </header>
-          <p class="lifestyle__target"><b>针对</b>：体重偏高、血脂超标、脂肪肝、尿酸偏高</p>
+          <p class="lifestyle__target"><b>针对</b>：缺铁性贫血、血脂轻度超标</p>
 
           <h4 class="lifestyle__h">怎么做</h4>
-          <p class="lifestyle__p">先不要求严格计算热量，把最容易超标的食物减下来：</p>
+          <p class="lifestyle__p">不必严格计算营养，先从最容易做到的开始：</p>
           <ul class="lifestyle__list">
-            <li>含糖饮料、奶茶、果汁：<b>尽量不喝</b></li>
-            <li>油炸食品、肥肉、动物油：<b>减少到偶尔吃</b></li>
-            <li>米饭、面条等精制主食：每餐少吃一些，部分换成玉米、燕麦、杂粮饭等全谷物</li>
-            <li>每餐增加一份蔬菜，蛋白质优先选择鱼虾、鸡肉、蛋、奶、豆制品</li>
+            <li>红肉、动物肝脏、动物血、菠菜等含铁食物：每周适量吃几次</li>
+            <li>橙子、猕猴桃等富含维 C 的水果：随餐吃，帮助铁吸收</li>
+            <li>油炸食品、肥肉：<b>减少到偶尔吃</b></li>
+            <li>奶茶、含糖饮料：<b>尽量不喝</b></li>
           </ul>
 
           <h4 class="lifestyle__h">为什么有帮助</h4>
-          <p class="lifestyle__p">减少糖和高热量食物，可以降低额外能量摄入和甘油三酯合成；持续控制能量摄入，有助于减轻体重并减少肝脏脂肪堆积。</p>
+          <p class="lifestyle__p">增加含铁食物，可逐步改善贫血；减少油脂和糖的摄入，有助于血脂回落。</p>
 
           <button type="button" class="lifestyle__more">进一步了解</button>
         </article>
@@ -443,11 +369,11 @@
             <span class="lifestyle__ico"><img src="pic/运动 icon.png" alt="运动" /></span>
             <h3 class="lifestyle__title">不急着跑，先把走路变成习惯</h3>
           </header>
-          <p class="lifestyle__target"><b>针对</b>：体重偏高、血脂超标、目前运动不足</p>
+          <p class="lifestyle__target"><b>针对</b>：体重正常高值、血脂轻度超标、运动不足</p>
 
           <h4 class="lifestyle__h">怎么做</h4>
-          <p class="lifestyle__p">先从快走、散步、骑车等低冲击运动开始，不要求跑步，也不需要一开始就追求高强度。</p>
-          <p class="lifestyle__p">运动时以身体微微发热、呼吸加快，但还能正常说话为宜。</p>
+          <p class="lifestyle__p">先从快走、散步、骑车等低强度运动开始，不必追求跑步或高强度训练。</p>
+          <p class="lifestyle__p">运动以身体微微发热、呼吸加快，但还能正常交谈为宜。</p>
 
           <h4 class="lifestyle__h">做到什么程度</h4>
           <div class="lifestyle__stage">
@@ -457,28 +383,27 @@
           </div>
 
           <h4 class="lifestyle__h">为什么有帮助</h4>
-          <p class="lifestyle__p">规律活动可以增加每天的能量消耗，并改善脂质和糖代谢。对于目前缺乏运动习惯的人，<b>先建立持续运动的习惯，比一开始追求运动量更重要。</b></p>
+          <p class="lifestyle__p">规律运动可增加能量消耗，改善脂质代谢。对长期缺乏运动者，<b>先建立持续运动的习惯，比一开始追求运动量更重要</b>，有助于避免半途而废。</p>
 
           <button type="button" class="lifestyle__more">进一步了解</button>
         </article>
 
-        <article class="lifestyle" id="lifestyle-alcohol">
+        <article class="lifestyle" id="lifestyle-iron">
           <header class="lifestyle__head">
-            <span class="lifestyle__ico"><img src="pic/饮酒 icon.png" alt="饮酒" /></span>
-            <h3 class="lifestyle__title">给肝脏减负：尽量不喝酒</h3>
+            <span class="lifestyle__ico"><img src="pic/饮品 icon.png" alt="饮品" /></span>
+            <h3 class="lifestyle__title">让铁更好吸收：避开吃饭时的浓茶和咖啡</h3>
           </header>
-          <p class="lifestyle__target"><b>针对</b>：脂肪肝、肝功能指标异常</p>
+          <p class="lifestyle__target"><b>针对</b>：缺铁性贫血</p>
 
           <h4 class="lifestyle__h">怎么做</h4>
-          <p class="lifestyle__p">如果平时有饮酒习惯，优先减少饮酒频率和每次饮酒量；在脂肪肝改善期间，最好暂时不饮酒。</p>
-
-          <h4 class="lifestyle__h">做到什么程度</h4>
-          <div class="lifestyle__note">
-            <p>以“0 酒精”为阶段目标，至少坚持到下一次肝功能复查。如果目前饮酒频率较高，可以先从减少饮酒次数开始，逐步做到完全停止。</p>
-          </div>
+          <ul class="lifestyle__list">
+            <li>浓茶、咖啡里的“鞣酸”会妨碍铁吸收：<b>尽量不在吃饭时喝</b></li>
+            <li>茶和咖啡与正餐间隔 1–2 小时</li>
+            <li>月经期注意补充营养，必要时请医生评估是否需要补铁剂</li>
+          </ul>
 
           <h4 class="lifestyle__h">为什么有帮助</h4>
-          <p class="lifestyle__p">酒精需要经过肝脏代谢，减少酒精摄入可以降低肝脏代谢负担；对于脂肪肝的人，有助于减少进一步的肝脏损伤。</p>
+          <p class="lifestyle__p">避开干扰因素，让吃进去的铁能被身体更好地利用，帮助贫血恢复。</p>
 
           <button type="button" class="lifestyle__more">进一步了解</button>
         </article>
@@ -497,18 +422,18 @@
             </span>
             <h3 class="lifestyle__title">接下来什么时候看效果？</h3>
           </header>
-          <p class="lifestyle__p">不用每天盯着指标变化，先给身体 3 个月的调整时间。</p>
+          <p class="lifestyle__p">不必每日监测指标变化，建议给身体 3 个月的调整时间。</p>
 
           <p class="lifestyle__p"><b>约 3 个月后</b></p>
           <ul class="lifestyle__list">
-            <li>复查血脂、肝功能</li>
-            <li>复查尿酸、空腹血糖（HbA1c）</li>
+            <li>复查血常规、铁蛋白，看贫血是否改善</li>
+            <li>复查血脂</li>
             <li>记录体重、腰围变化</li>
           </ul>
-          <p class="lifestyle__p">重点看：体重有没有下降、血脂和肝功能有没有改善。</p>
+          <p class="lifestyle__p">重点观察：血红蛋白和铁蛋白有没有回升、血脂有没有下降。</p>
 
-          <p class="lifestyle__p" id="followup-thyroid"><b>约 6–12 个月后</b></p>
-          <p class="lifestyle__p">复查甲状腺超声，观察结节大小及影像变化。</p>
+          <p class="lifestyle__p" id="followup-nodule"><b>约 6–12 个月后</b></p>
+          <p class="lifestyle__p">复查乳腺超声、甲状腺超声，观察结节变化。</p>
 
           <button type="button" class="lifestyle__cta">预约下次复查</button>
         </div>
@@ -519,7 +444,7 @@
   </div>
 
   <script src="report-common.js"></script>
-  <script src="script.js"></script>
+  <script src="script-female.js"></script>
   <script src="topbar-menu.js"></script>
 </body>
 </html>

@@ -1,0 +1,214 @@
+// 体检报告解读 · 公共交互逻辑
+// 各版本页面脚本只需：定义 SYS_INFO，再调用 initReport(SYS_INFO, '默认系统key')
+function initReport(SYS_INFO, defaultKey) {
+  document.addEventListener('DOMContentLoaded', () => {
+    // 04 模块：趋势图标切换
+    const trendTabs = document.querySelectorAll('.trend__tab');
+    const trendPanels = document.querySelectorAll('.trend__panel');
+    trendTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const key = tab.dataset.trend;
+        trendTabs.forEach((t) => t.classList.remove('is-active'));
+        tab.classList.add('is-active');
+        trendPanels.forEach((p) => p.classList.toggle('is-active', p.dataset.panel === key));
+      });
+    });
+
+    // 03 模块：图片热区 → 显示系统详情解读
+    const zones = document.querySelectorAll('.sysmap__zone');
+    const detailBox = document.getElementById('sysDetail');
+    const detailName = document.getElementById('sysDetailName');
+    const detailBadge = document.getElementById('sysDetailBadge');
+    const detailMetrics = document.getElementById('sysDetailMetrics');
+    const detailNote = document.getElementById('sysDetailNote');
+    const overallBlock = document.getElementById('overallBlock');
+    const overallDot = document.getElementById('overallDot');
+    const sysDetailOverall = document.getElementById('sysDetailOverall');
+    const descBlock = document.getElementById('descBlock');
+    const sysDetailDesc = document.getElementById('sysDetailDesc');
+    const extraDescBlock = document.getElementById('extraDescBlock');
+    const sysDetailExtra = document.getElementById('sysDetailExtra');
+    const metricsTitle = document.getElementById('metricsTitle');
+    const interpretTitle = document.getElementById('interpretTitle');
+    const sysDetailCtaBlock = document.getElementById('sysDetailCtaBlock');
+    const sysDetailCta = document.getElementById('sysDetailCta');
+    const sysDetailAiCta = document.getElementById('sysDetailAiCta');
+
+    // 渲染段落（支持 **粗体** 标记）
+    const renderParas = (container, paras) => {
+      container.innerHTML = '';
+      paras.forEach((p) => {
+        const para = document.createElement('p');
+        para.innerHTML = p.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        container.appendChild(para);
+      });
+    };
+
+    // 移除所有正在显示的指标问号气泡
+    const clearTipPops = () => {
+      document.querySelectorAll('.sysmap__metric-tip-pop').forEach((t) => t.remove());
+    };
+
+    // 渲染一组指标
+    const renderMetrics = (list, container) => {
+      container.innerHTML = '';
+      list.forEach((m) => {
+        const li = document.createElement('li');
+        li.className = 'sysmap__metric';
+
+        const name = document.createElement('span');
+        name.className = 'sysmap__metric-name';
+        if (m.tip) {
+          name.innerHTML = '<span>' + m.name + '</span><button type="button" class="sysmap__metric-tip" data-tip="' + m.tip + '" title="' + m.tip + '" aria-label="解释缩写">?</button>';
+        } else {
+          name.textContent = m.name;
+        }
+
+        const val = document.createElement('span');
+        val.className = 'sysmap__metric-val';
+        val.textContent = m.value;
+
+        const flag = document.createElement('span');
+        flag.className = 'sysmap__metric-flag ' + (m.flag === '正常' ? 'is-good' : (m.flag === '临界' ? 'is-mid' : 'is-warn'));
+        flag.textContent = m.flag;
+
+        const normal = document.createElement('span');
+        normal.className = 'sysmap__metric-normal';
+        normal.textContent = m.normal;
+
+        li.appendChild(name);
+        li.appendChild(val);
+        li.appendChild(flag);
+        li.appendChild(normal);
+        container.appendChild(li);
+      });
+    };
+
+    // 打开某个系统的详情解读（scroll=true 时滚动到详情区）
+    const openDetail = (key, scroll = true) => {
+      const info = SYS_INFO[key];
+      if (!info) return;
+      zones.forEach((z) => z.classList.remove('is-active'));
+      document.querySelector(`.sysmap__zone[data-key="${key}"]`)?.classList.add('is-active');
+      clearTipPops();
+
+      detailName.textContent = info.name;
+      detailBadge.textContent = info.status;
+      const tone = info.tone || (info.warn ? 'warn' : 'good');
+      detailBadge.className = 'sysmap__detail-badge is-' + tone;
+
+      // 整体状态（可选）
+      if (info.overall) {
+        overallBlock.hidden = false;
+        overallDot.className = 'sysmap__overall-dot is-' + info.overall.color;
+        sysDetailOverall.textContent = info.overall.text;
+      } else {
+        overallBlock.hidden = true;
+      }
+
+      // 指标前描述（可选）
+      if (info.desc && info.desc.length) {
+        descBlock.hidden = false;
+        renderParas(sysDetailDesc, info.desc);
+      } else {
+        descBlock.hidden = true;
+      }
+
+      // 重置块可见性
+      const metricsWrap = metricsTitle.closest('.sysmap__detail-block');
+      const noteWrap = interpretTitle.closest('.sysmap__detail-block');
+      metricsWrap.hidden = false;
+      noteWrap.hidden = false;
+      extraDescBlock.hidden = true;
+      extraDescBlock.querySelectorAll('.sysmap__metrics').forEach((el) => el.remove());
+
+      // 第一组指标
+      if (info.metrics && info.metrics.length) {
+        if (info.metricsTitle) {
+          metricsTitle.textContent = info.metricsTitle;
+          metricsTitle.style.display = '';
+        } else {
+          metricsTitle.style.display = 'none';
+        }
+        renderMetrics(info.metrics, detailMetrics);
+      } else {
+        metricsWrap.hidden = true;
+      }
+
+      // 指标后补充描述（可选，作为第二组的标题/分隔）
+      if (info.extraDesc && info.extraDesc.length) {
+        extraDescBlock.hidden = false;
+        renderParas(sysDetailExtra, info.extraDesc);
+      }
+
+      // 第二组指标（可选，如内分泌的甲状腺功能/甲状腺结节）
+      if (info.metrics2 && info.metrics2.length) {
+        const list = document.createElement('ul');
+        list.className = 'sysmap__metrics';
+        renderMetrics(info.metrics2, list);
+        extraDescBlock.appendChild(list);
+      }
+
+      // 解读标题 + 段落
+      if (info.paragraphs && info.paragraphs.length) {
+        interpretTitle.textContent = info.interpretTitle || '解读';
+        renderParas(detailNote, info.paragraphs);
+      } else {
+        noteWrap.hidden = true;
+      }
+
+      // 系统级 CTA 按钮组（按 info.cta 决定显隐，两个按钮文案固定）
+      if (info.cta) {
+        sysDetailCtaBlock.hidden = false;
+      } else {
+        sysDetailCtaBlock.hidden = true;
+      }
+
+      detailBox.hidden = false;
+      if (scroll) detailBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    zones.forEach((zone) => {
+      zone.addEventListener('click', () => openDetail(zone.dataset.key));
+    });
+
+    // 02 重点问题卡：查看详情 → 打开 03 对应系统详情并直接滚动到详情卡
+    document.querySelectorAll('.issue__link').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        openDetail(link.dataset.key, false);
+        // 等 DOM 更新后再滚动，详情卡置于视口顶部，总览图留在上方
+        requestAnimationFrame(() => {
+          detailBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    });
+
+    // 详情卡底部 CTA 按钮：跳转到专项检查预约
+    sysDetailCta.addEventListener('click', () => {
+      alert('已为您生成专项检查预约意向，请确认预约信息。');
+    });
+
+    // 详情卡底部 AI 深度解析按钮（暂为占位）
+    sysDetailAiCta.addEventListener('click', () => {
+      alert('AI深度解析功能开发中，敬请期待。');
+    });
+
+    // 页面加载时默认打开指定系统（不滚动）
+    openDetail(defaultKey, false);
+
+    // 指标缩写问号：点击弹出全称气泡
+    document.addEventListener('click', (e) => {
+      const tipBtn = e.target.closest('.sysmap__metric-tip');
+      if (tipBtn) {
+        clearTipPops();
+        const pop = document.createElement('span');
+        pop.className = 'sysmap__metric-tip-pop';
+        pop.textContent = tipBtn.dataset.tip;
+        tipBtn.appendChild(pop);
+      } else {
+        clearTipPops();
+      }
+    });
+  });
+}
