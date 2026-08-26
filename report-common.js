@@ -1,27 +1,27 @@
 // 体检报告解读 · 公共交互逻辑
 // 各版本页面脚本只需：定义 SYS_INFO，再调用 initReport(SYS_INFO, '默认系统key')
 function initReport(SYS_INFO, defaultKey) {
-  // 05 生活方式卡片 → 关联病症/系统（按版本配置，可扩展）
+  // 05 生活方式卡片 → 关联 03 系统 key（用于取该系统的 lab 指标等上下文；病症名从卡片"针对"行动态读取）
   const LIFESTYLE_SYSTEM = {
     male38: {
-      'lifestyle-diet': { key: 'heart', disease: '血脂超标' },
-      'lifestyle-exercise': { key: 'heart', disease: '血脂超标' },
-      'lifestyle-alcohol': { key: 'liver', disease: '轻度脂肪肝' }
+      'lifestyle-diet': 'heart',
+      'lifestyle-exercise': 'heart',
+      'lifestyle-alcohol': 'liver'
     },
     female36: {
-      'lifestyle-diet': { key: 'blood', disease: '缺铁性贫血' },
-      'lifestyle-exercise': { key: 'heart', disease: '血脂轻度超标' },
-      'lifestyle-iron': { key: 'blood', disease: '缺铁性贫血' }
+      'lifestyle-diet': 'blood',
+      'lifestyle-exercise': 'heart',
+      'lifestyle-iron': 'blood'
     },
     child8: {
-      'lifestyle-diet': { key: 'growth', disease: '体重长得有点快（接近肥胖）' },
-      'lifestyle-exercise': { key: 'growth', disease: '体重长得有点快（接近肥胖）' },
-      'lifestyle-oral': { key: 'oral', disease: '龋齿（恒磨牙龋坏）' }
+      'lifestyle-diet': 'growth',
+      'lifestyle-exercise': 'growth',
+      'lifestyle-oral': 'oral'
     },
     elder68: {
-      'lifestyle-exercise': { key: 'bone', disease: '骨头开始变"松"' },
-      'lifestyle-diet': { key: 'heart', disease: '血管里长了斑块' },
-      'lifestyle-kidney': { key: 'kidney', disease: '肾脏功能比从前弱了一点' }
+      'lifestyle-exercise': 'bone',
+      'lifestyle-diet': 'heart',
+      'lifestyle-kidney': 'kidney'
     }
   };
 
@@ -244,15 +244,15 @@ function initReport(SYS_INFO, defaultKey) {
       window.location.href = 'agent-page/index.html';
     });
 
-    // 05 部分 AI深度建议按钮：按版本映射卡片 → 系统，病症从卡片"针对"行动态读取
+    // 05 部分 AI深度建议按钮：病症从卡片"针对"行动态读取，系统 key 由映射表提供
     document.querySelectorAll('.lifestyle__more').forEach((btn) => {
       btn.addEventListener('click', () => {
         const card = btn.closest('.lifestyle');
-        const cfg = (LIFESTYLE_SYSTEM[window.REPORT_PROFILE] || {})[card ? card.id : ''];
+        const key = (LIFESTYLE_SYSTEM[window.REPORT_PROFILE] || {})[card ? card.id : ''] || currentKey;
         const targetEl = card ? card.querySelector('.lifestyle__target') : null;
         const targetText = targetEl ? targetEl.textContent.replace(/^针对[：:]\s*/, '').trim() : '';
-        const disease = targetText || (cfg ? cfg.disease : undefined);
-        saveReportCtx(cfg ? cfg.key : currentKey, disease);
+        // disease 传动态读取的"针对"内容；为空时 saveReportCtx 内部自动回退到 02 标题/系统名
+        saveReportCtx(key, targetText);
         window.location.href = 'agent-page/index.html';
       });
     });
