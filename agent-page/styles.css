@@ -282,6 +282,35 @@ ul {
   align-self: flex-end;
 }
 
+/* AI 气泡正文的 Markdown 渲染 */
+.chat__bubble-text p {
+  margin: 0 0 8px;
+}
+.chat__bubble-text p:last-child { margin-bottom: 0; }
+.chat__bubble-text h1, .chat__bubble-text h2, .chat__bubble-text h3,
+.chat__bubble-text h4, .chat__bubble-text h5, .chat__bubble-text h6 {
+  margin: 10px 0 6px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+.chat__bubble-text h1 { font-size: 17px; }
+.chat__bubble-text h2 { font-size: 16px; }
+.chat__bubble-text h3 { font-size: 15px; }
+.chat__bubble-text ul, .chat__bubble-text ol {
+  margin: 4px 0 8px;
+  padding-left: 20px;
+}
+.chat__bubble-text li { margin: 2px 0; }
+.chat__bubble-text strong { font-weight: 700; }
+.chat__bubble-text em { font-style: italic; }
+.chat__bubble-text code {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
 /* AI 回复中的可点击选项（与气泡融为一体，带序号+箭头强化可点感知） */
 .option-list {
   display: flex;
@@ -348,6 +377,42 @@ ul {
 .option-list__item:disabled .option-list__index,
 .option-list__item:disabled .option-list__arrow {
   color: #bbb;
+}
+
+/* 多选选中态 */
+.option-list__item.is-selected {
+  background: rgba(14, 143, 143, 0.16);
+  border-color: #0e8f8f;
+  color: #0a7a7a;
+}
+.option-list__item.is-selected .option-list__index {
+  color: #fff;
+  background: #0e8f8f;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  display: inline-block;
+}
+
+/* 多选确认按钮 */
+.option-list__confirm {
+  align-self: flex-end;
+  background: #0e8f8f;
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  padding: 7px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.option-list__confirm:active { transform: scale(0.96); }
+.option-list__confirm:disabled {
+  background: #cfe9e9;
+  color: #fff;
+  cursor: default;
 }
 
 /* 快捷入口网格 */

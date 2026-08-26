@@ -242,18 +242,58 @@
     return { body: text, options: [] };
   }
 
-  // 渲染 AI 回复：选项作为整体气泡的一部分（更紧凑、一体感更强）
+  // 判断 AI 回复是否为多选（含"多选/选多项"等关键词）
+  function isMultiSelect(reply) {
+    return /多选|选多项|多项选择|可多选/.test(reply);
+  }
+
+  // 轻量 Markdown 渲染：标题、加粗、斜体、行内代码、无序/有序列表、段落
+  function mdToHtml(text) {
+    const lines = text.split('\n');
+    let html = '';
+    let inList = false;
+    let listType = '';
+    const closeList = () => { if (inList) { html += '</' + listType + '>'; inList = false; } };
+    const inline = (s) => s
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+    for (const raw of lines) {
+      const line = escapeHtml(raw).trim();
+      if (line === '') { closeList(); continue; }
+      const h = line.match(/^(#{1,6})\s+(.*)$/);
+      if (h) { closeList(); const l = h[1].length; html += '<h' + l + '>' + inline(h[2]) + '</h' + l + '>'; continue; }
+      const ul = line.match(/^[-*+]\s+(.*)$/);
+      if (ul) { if (!inList || listType !== 'ul') { closeList(); html += '<ul>'; inList = true; listType = 'ul'; } html += '<li>' + inline(ul[1]) + '</li>'; continue; }
+      const ol = line.match(/^\d+[.、)]\s+(.*)$/);
+      if (ol) { if (!inList || listType !== 'ol') { closeList(); html += '<ol>'; inList = true; listType = 'ol'; } html += '<li>' + inline(ol[1]) + '</li>'; continue; }
+      closeList(); html += '<p>' + inline(line) + '</p>';
+    }
+    closeList();
+    return html;
+  }
+
+  // 多选模式：更新确认按钮可用态
+  function updateConfirmBtn(list) {
+    const confirm = list.querySelector('.option-list__confirm');
+    if (!confirm) return;
+    const selected = list.querySelectorAll('.option-list__item.is-selected').length;
+    confirm.disabled = selected === 0;
+  }
+
+  // 渲染 AI 回复：正文 markdown 渲染 + 选项按钮（支持单选/多选）
   function renderBotReply(typingEl, reply) {
     const { body, options } = parseOptions(reply);
+    const multi = isMultiSelect(reply);
     const bubble = typingEl.closest('.chat__bubble');
-    // 清空气泡原有 p（保留 p 作为正文容器）
     bubble.innerHTML = '';
 
     if (body) {
-      const p = document.createElement('p');
-      p.className = 'chat__bubble-text';
-      p.textContent = body;
-      bubble.appendChild(p);
+      const div = document.createElement('div');
+      div.className = 'chat__bubble-text';
+      div.innerHTML = mdToHtml(body);
+      bubble.appendChild(div);
     }
 
     if (options.length > 0) {
@@ -263,16 +303,37 @@
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'option-list__item';
-        // 序号 + 选项文字 + 箭头，强化"可点选"感知
         btn.innerHTML = '<span class="option-list__index">' + (i + 1) + '</span>' +
                         '<span class="option-list__text">' + escapeHtml(opt) + '</span>' +
                         '<span class="option-list__arrow">›</span>';
         btn.addEventListener('click', () => {
-          list.querySelectorAll('.option-list__item').forEach((b) => { b.disabled = true; });
-          sendPrompt(opt, true);
+          if (multi) {
+            btn.classList.toggle('is-selected');
+            updateConfirmBtn(list);
+          } else {
+            list.querySelectorAll('.option-list__item').forEach((b) => { b.disabled = true; });
+            sendPrompt(opt, true);
+          }
         });
         list.appendChild(btn);
       });
+
+      if (multi) {
+        const confirm = document.createElement('button');
+        confirm.type = 'button';
+        confirm.className = 'option-list__confirm';
+        confirm.textContent = '确认';
+        confirm.disabled = true;
+        confirm.addEventListener('click', () => {
+          const selected = Array.from(list.querySelectorAll('.option-list__item.is-selected'))
+            .map((b) => b.querySelector('.option-list__text').textContent);
+          if (!selected.length) return;
+          list.querySelectorAll('.option-list__item, .option-list__confirm').forEach((b) => { b.disabled = true; });
+          sendPrompt(selected.join('、'), true);
+        });
+        list.appendChild(confirm);
+      }
+
       bubble.appendChild(list);
     }
   }
