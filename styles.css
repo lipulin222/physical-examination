@@ -436,7 +436,6 @@ body {
 .lifestyle__stage-do { color: var(--ink); font-weight: 600; text-align: right; }
 
 .issue__cta,
-.lifestyle__more,
 .lifestyle__cta {
   margin-top: 14px; width: 100%; border: none; cursor: pointer;
   background: linear-gradient(135deg, #14a3a3 0%, var(--accent) 55%, var(--accent-deep) 100%);
@@ -446,13 +445,25 @@ body {
   transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
 }
 .issue__cta:active,
-.lifestyle__more:active,
 .lifestyle__cta:active { transform: scale(0.98); box-shadow: 0 4px 10px rgba(13, 138, 138, 0.18); filter: brightness(0.97); }
+
+/* 05 部分"AI深度建议"按钮：与 03 详情卡 AI深度解析 同款次级描边样式 */
+.lifestyle__more {
+  margin-top: 14px; width: 100%; border: none; cursor: pointer;
+  background: #fff; color: var(--accent);
+  border-radius: 14px; padding: 13px; font-size: 14.5px; font-weight: 600;
+  font-family: var(--font); letter-spacing: 0.3px;
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+  transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+}
+.lifestyle__more:hover { background: rgba(13, 138, 138, 0.06); }
+.lifestyle__more:active { transform: scale(0.98); }
 .lifestyle__cta { margin-top: 16px; }
 
-/* 重点问题卡：查看详情文字链接（科普弱入口，锚到05生活方式卡/06随访） */
+/* 重点问题卡：查看详情文字链接，位于卡片右上角与标题同行 */
 .issue__link {
-  display: block; margin-top: 12px; text-align: right;
+  display: inline-flex; align-items: center; margin-left: auto; flex-shrink: 0;
+  padding-left: 12px;
   color: var(--accent); text-decoration: underline; text-underline-offset: 3px;
   font-size: 13.5px; font-weight: 600; cursor: pointer;
   transition: color .15s ease;

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>小卓健康智能体</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page">
+    <!-- 顶部导航 -->
+    <header class="app-header">
+      <button class="app-header__btn" id="backBtn" aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <h1 class="app-header__title">小卓健康智能体</h1>
+      <div class="app-header__actions">
+        <button class="app-header__btn" id="moreBtn" aria-label="更多">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="12" r="2" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- 聊天主体 -->
+    <main class="chat" id="chat">
+      <div class="chat__date">今天 11:39</div>
+
+      <div class="chat__list" id="chatList">
+        <!-- 机器人欢迎消息 -->
+        <div class="chat__item chat__item--bot">
+          <div class="chat__avatar">
+            <svg viewBox="0 0 48 48" fill="none">
+              <rect x="6" y="6" width="36" height="36" rx="8" fill="#16b2b2"/>
+              <circle cx="18" cy="22" r="3" fill="#fff"/>
+              <circle cx="30" cy="22" r="3" fill="#fff"/>
+              <rect x="20" y="30" width="8" height="2" rx="1" fill="#fff"/>
+            </svg>
+          </div>
+          <div class="chat__content">
+            <div class="chat__bubble chat__bubble--bot">
+              <p>hi，我是小卓智能客服，很高兴为您服务</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 底部功能区 -->
+    <div class="footer-actions">
+      <button class="chip" data-action="records">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 9H16M8 13H16M8 17H12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span>诊疗记录</span>
+      </button>
+      <button class="chip" data-action="human">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z" stroke="currentColor" stroke-width="1.8"/><path d="M6 20C6 16.6863 8.68629 14 12 14C15.3137 14 18 16.6863 18 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>人工客服</span>
+      </button>
+    </div>
+
+    <!-- 输入栏 -->
+    <div class="input-bar">
+      <div class="input-bar__wrap">
+        <input type="text" class="input-bar__field" id="messageInput" placeholder="请输入想问的问题~" autocomplete="off" />
+        <button class="input-bar__send" id="sendBtn" aria-label="发送">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3 12L21 4L13 22L11 14L3 12Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 轻提示 -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

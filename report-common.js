@@ -189,9 +189,16 @@ function initReport(SYS_INFO, defaultKey) {
       alert('已为您生成专项检查预约意向，请确认预约信息。');
     });
 
-    // 详情卡底部 AI 深度解析按钮（暂为占位）
+    // 详情卡底部 AI 深度解析按钮：跳转到智能体对话页
     sysDetailAiCta.addEventListener('click', () => {
-      alert('AI深度解析功能开发中，敬请期待。');
+      window.location.href = 'agent-page/index.html';
+    });
+
+    // 05 部分 AI深度建议按钮：跳转到智能体对话页
+    document.querySelectorAll('.lifestyle__more').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        window.location.href = 'agent-page/index.html';
+      });
     });
 
     // 页面加载时默认打开指定系统（不滚动）
