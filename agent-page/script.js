@@ -1,7 +1,7 @@
 (() => {
   // ===== AI 问答接口配置 =====
   // 直连远端接口；后端已对 github.io 域名开启 CORS，部署到 GitHub Pages 可直接访问。
-  const API_URL = 'http://106.54.13.148:3000/v1/chat/completions';
+  const API_URL = 'https://api.inner-book.top:3000/v1/chat/completions';
   const API_KEY = 'Bearer pulinli222666uiqo';
 
   // ===== System Prompt 模板（独立常量，与逻辑分离）=====
