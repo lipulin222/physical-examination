@@ -602,9 +602,9 @@
   // 初始滚动
   scrollToBottom();
 
-  // 异步初始化：构建 System Prompt；若从体检页携带病症进入且无历史，自动发起第一条咨询让 AI 主动开口
+  // 异步初始化：构建 System Prompt；从体检页携带病症进入时（含恢复历史）都自动发起咨询，让 AI 主动开口
   init().then((ctx) => {
-    if (ctx && !ctx.restored && ctx.disease && ctx.disease !== '健康问题') {
+    if (ctx && ctx.disease && ctx.disease !== '健康问题') {
       sendPrompt('你好，我刚做完体检，针对【' + ctx.disease + '】的问题想进一步咨询。', false);
     }
   });
