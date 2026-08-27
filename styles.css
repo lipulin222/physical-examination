@@ -50,20 +50,6 @@ body {
 }
 
 /* 状态栏 */
-.statusbar {
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 22px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink);
-  background: var(--bg);
-}
-.statusbar__icons { display: flex; align-items: center; gap: 6px; }
-.statusbar__icons svg { height: 12px; }
-
 /* 顶部导航 */
 .topbar {
   height: 52px;
