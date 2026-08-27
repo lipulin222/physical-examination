@@ -199,18 +199,17 @@ ul {
   word-break: normal;
 }
 
-/* Bot 气泡：短内容（如"正在思考…"、单行回复）也能稳定显示 */
+/* Bot 气泡：短内容（如"正在思考…"、单行回复）也能稳定显示；四角统一圆角 */
 .chat__bubble--bot {
   min-width: 220px;
   max-width: 78%;
   background: #fff;
   color: #1a1a1a;
-  border-top-left-radius: 4px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   align-self: flex-start;
 }
 
-/* 用户气泡：统一组件 UserBubble 的固定规则（手动输入与点击选项共用） */
+/* 用户气泡：统一组件 UserBubble 的固定规则（手动输入与点击选项共用）；四角统一圆角 */
 .chat__bubble--user {
   box-sizing: border-box;
   align-self: flex-end;   /* 右对齐，宽度自适应内容 */
@@ -224,7 +223,6 @@ ul {
   word-break: normal;
   background: #10b5b5;
   color: #fff;
-  border-top-right-radius: 4px;
 }
 
 /* AI 气泡正文的 Markdown 渲染 */
