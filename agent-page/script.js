@@ -558,11 +558,11 @@
   updateSendButton();
 
   // 顶部按钮：返回上一页
-  document.getElementById('backBtn').addEventListener('click', () => {
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      window.location.href = '../index.html';
+  // 返回按钮：浏览器后退（顶部返回按钮已移除）
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (window.history.length > 1) window.history.back();
+      else window.location.href = '../index.html';
     }
   });
   document.getElementById('moreBtn').addEventListener('click', () => {

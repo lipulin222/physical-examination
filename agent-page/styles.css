@@ -22,6 +22,11 @@ button, input {
   -webkit-tap-highlight-color: transparent;
 }
 
+p {
+  margin: 0;
+  padding: 0;
+}
+
 button {
   cursor: pointer;
 }
@@ -40,91 +45,6 @@ ul {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-}
-
-/* 系统状态栏 */
-.status-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px 4px;
-  background: #f5f6f8;
-  font-size: 13px;
-  font-weight: 600;
-  color: #1a1a1a;
-  position: relative;
-  z-index: 10;
-}
-
-.status-bar__time {
-  width: 48px;
-}
-
-.status-bar__notch {
-  position: absolute;
-  left: 50%;
-  top: 6px;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.status-bar__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #1a1a1a;
-  opacity: 0.5;
-}
-
-.status-bar__bar {
-  width: 48px;
-  height: 5px;
-  border-radius: 3px;
-  background: #1a1a1a;
-  opacity: 0.85;
-}
-
-.status-bar__icons {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.status-bar__icon {
-  width: 18px;
-  height: 18px;
-  color: #1a1a1a;
-}
-
-.status-bar__battery {
-  width: 22px;
-  height: 11px;
-  border: 1px solid #1a1a1a;
-  border-radius: 3px;
-  padding: 1.5px;
-  position: relative;
-}
-
-.status-bar__battery span {
-  display: block;
-  width: 75%;
-  height: 100%;
-  background: #1a1a1a;
-  border-radius: 1px;
-}
-
-.status-bar__battery::after {
-  content: "";
-  position: absolute;
-  right: -3px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2px;
-  height: 4px;
-  background: #1a1a1a;
-  border-radius: 0 1px 1px 0;
 }
 
 /* 顶部导航 */
@@ -232,9 +152,12 @@ ul {
   align-self: flex-start;
 }
 
+/* 用户消息：全宽行容器，右对齐内容（统一规则，避免竖排） */
 .chat__item--user {
-  align-self: flex-end;
-  flex-direction: row-reverse;
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: flex-start;
 }
 
 .chat__avatar {
@@ -252,11 +175,13 @@ ul {
   display: block;
 }
 
+/* 内容容器：不超过父容器右对齐靠右 */
 .chat__content {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-width: calc(100% - 56px);
+  max-width: 100%;
+  min-width: 0;
 }
 
 .chat__bubble {
@@ -264,10 +189,13 @@ ul {
   border-radius: 14px;
   font-size: 15px;
   line-height: 1.55;
-  /* 优先按词换行；只有溢出时才拆字，避免短内容被强制竖排 */
-  overflow-wrap: break-word;
-  word-break: normal;
+  box-sizing: border-box;
+  width: auto;
+  min-width: 0;
   max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 /* Bot 气泡：短内容（如"正在思考…"、单行回复）也能稳定显示 */
@@ -281,7 +209,16 @@ ul {
   align-self: flex-start;
 }
 
+/* 用户气泡：严格遵循统一规则（手动输入与点击选项共用） */
 .chat__bubble--user {
+  width: auto;
+  min-width: 0;
+  max-width: min(78%, 680px);
+  padding: 10px 14px;
+  border-radius: 16px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
   background: #10b5b5;
   color: #fff;
   border-top-right-radius: 4px;
