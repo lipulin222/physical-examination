@@ -22,6 +22,12 @@ function initReport(SYS_INFO, defaultKey) {
       'lifestyle-exercise': 'bone',
       'lifestyle-diet': 'heart',
       'lifestyle-kidney': 'kidney'
+    },
+    lichenghua: {
+      'lifestyle-diet': 'endo',
+      'lifestyle-exercise': 'endo',
+      'lifestyle-heart': 'heart',
+      'lifestyle-kidney': 'kidney'
     }
   };
 

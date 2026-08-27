@@ -124,7 +124,8 @@
     male38: '体检报告解读案例-男38.txt',
     female36: '体检报告解读案例-女36.txt',
     child8: '儿童体检报告解读案例-男童8.txt',
-    elder68: '体检报告解读案例-老人68.txt'
+    elder68: '体检报告解读案例-老人68.txt',
+    lichenghua: '体检报告解读案例-李承华66.txt'
   };
 
   // 从 txt 文本中解析用户基本情况（name/age/gender）与体格数据（height/weight/bmi/waist/bp）
@@ -148,7 +149,8 @@
   // 版本 → 专属提示词模板（儿童版面向家长、老年版更通俗简洁），未配置版本用通用模板
   const PROMPT_TEMPLATES = {
     child8: SYSTEM_PROMPT_TEMPLATE_CHILD,
-    elder68: SYSTEM_PROMPT_TEMPLATE_ELDER
+    elder68: SYSTEM_PROMPT_TEMPLATE_ELDER,
+    lichenghua: SYSTEM_PROMPT_TEMPLATE_ELDER
   };
 
   // 配置化构建 System Prompt：不写死 replace 链，按模块注册表逐个替换

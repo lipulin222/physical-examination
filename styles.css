@@ -384,6 +384,8 @@ body {
 .trend__cmp-flag { font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 999px; }
 .trend__cmp-flag.is-warn { color: var(--warn); background: var(--warn-soft); }
 .trend__cmp-flag.is-good { color: var(--good); background: var(--good-soft); }
+.trend__note { font-size: 12.5px; line-height: 1.8; color: var(--ink-2); margin-top: 12px; }
+.trend__note b { color: var(--ink); font-weight: 600; }
 
 /* 生活方式管理 */
 .lifestyle {

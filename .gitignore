@@ -12,3 +12,9 @@ desktop.ini
 # 日志与临时
 *.log
 *.tmp
+
+# 汇报PPT构建产物
+report-deck/
+
+# Word临时文件
+~$*
