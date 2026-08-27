@@ -424,12 +424,13 @@
 
   // 渲染一条历史消息（保留选项文本为只读列表；AI 消息保留 markdown 格式）
   function renderHistoryMessage(msg) {
-    if (msg.role === 'system') return;
+    if (!msg || msg.role === 'system') return;
+    const content = typeof msg.content === 'string' ? msg.content : '';
     if (msg.role === 'user') {
-      appendMessage(msg.content, true);
+      appendMessage(content, true);
     } else if (msg.role === 'assistant') {
-      const { body, options } = parseOptions(msg.content);
-      const text = body || msg.content;
+      const { body, options } = parseOptions(content);
+      const text = body || content;
       const item = document.createElement('div');
       item.className = 'chat__item chat__item--bot';
       item.innerHTML = `
@@ -551,14 +552,26 @@
     }
 
     currentCtx = ctx;
-    messages = [{ role: 'system', content: buildSystemPrompt(ctx) }];
+    try {
+      messages = [{ role: 'system', content: buildSystemPrompt(ctx) }];
+    } catch (e) {
+      messages = [{ role: 'system', content: SYSTEM_PROMPT_TEMPLATE.replace('{DISEASE}', ctx.disease || '健康问题') }];
+    }
 
     // 尝试恢复本地历史对话（同一版本+病症）；有历史则不重新自动开场
-    const history = loadHistory(ctx.version);
-    if (history && history.length > 0) {
+    let history = null;
+    try {
+      history = loadHistory(ctx.version);
+    } catch (e) { history = null; }
+
+    if (Array.isArray(history) && history.length > 0) {
       // 校验首条是 system，且用最新 systemPrompt（信息可能变化）
-      messages = [messages[0]].concat(history.filter((m) => m.role !== 'system'));
-      messages.forEach(renderHistoryMessage);
+      const restored = history.filter((m) => m && m.role !== 'system');
+      messages = [messages[0]].concat(restored);
+      // 逐条渲染，单条异常不中断整体
+      restored.forEach((m) => {
+        try { renderHistoryMessage(m); } catch (e) { /* 忽略单条渲染失败 */ }
+      });
       // 直接定位到最新对话（立即 + 渲染稳定后二次定位）
       jumpToBottom();
       requestAnimationFrame(() => { jumpToBottom(); });
@@ -604,8 +617,10 @@
 
   // 异步初始化：构建 System Prompt；从体检页携带病症进入时（含恢复历史）都自动发起咨询，让 AI 主动开口
   init().then((ctx) => {
-    if (ctx && ctx.disease && ctx.disease !== '健康问题') {
-      sendPrompt('你好，我刚做完体检，针对【' + ctx.disease + '】的问题想进一步咨询。', false);
-    }
-  });
+    try {
+      if (ctx && ctx.disease && ctx.disease !== '健康问题') {
+        sendPrompt('你好，我刚做完体检，针对【' + ctx.disease + '】的问题想进一步咨询。', false);
+      }
+    } catch (e) { /* 自动开场失败不阻断页面 */ }
+  }).catch(() => { /* 初始化失败兜底，避免静默中断 */ });
 })();
