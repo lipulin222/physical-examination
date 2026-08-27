@@ -95,7 +95,8 @@
         const lab = ctx.lab;
         if (!lab || !lab.indicators || !lab.indicators.length) return null;
         const rows = lab.indicators.map((i) => `${i.name}　${i.value}　${i.flag}　${i.normal}`).join('\n');
-        return `【血常规及铁代谢】\n${rows}\n【分析】\n${lab.analysisText || ''}`;
+        // 标题由 lab 提供（不同系统可携带不同指标块，如血脂、肝功等）
+        return `【${lab.title || '主要指标'}】\n${rows}\n【分析】\n${lab.analysisText || ''}`;
       }
     }
   };
@@ -154,6 +155,10 @@
   function buildSystemPrompt(ctx) {
     const disease = ctx.disease || '健康问题';
     const modules = resolveModules(disease);
+    // 若跳转的系统携带了 lab 指标数据，自动附带指标模块（血脂/肝功/血压等病症无需逐个配置）
+    if (ctx.lab && ctx.lab.indicators && ctx.lab.indicators.length && !modules.includes('bloodNutrition')) {
+      modules.push('bloodNutrition');
+    }
     const template = PROMPT_TEMPLATES[ctx.version] || SYSTEM_PROMPT_TEMPLATE;
     let prompt = template.replace('{DISEASE}', disease);
     for (const name of modules) {
@@ -188,8 +193,15 @@
   }
   function saveHistory(messages, profile) {
     try {
-      // 限制条数，避免无限增长；保留 system + 最近 40 条
-      const toSave = messages.length > 41 ? [messages[0]].concat(messages.slice(-40)) : messages;
+      // 限制条数，避免无限增长；保留 system + 最近 40 条，且从最近的 assistant 边界截齐，保证 user/assistant 成对
+      const MAX_TAIL = 40;
+      let toSave = messages;
+      if (messages.length > MAX_TAIL + 1) {
+        let tail = messages.slice(-MAX_TAIL);
+        // 若尾部第一帧是 user（说明半对被截断），丢弃它，保证从 assistant 开始
+        if (tail.length && tail[0].role === 'user') tail = tail.slice(1);
+        toSave = [messages[0]].concat(tail);
+      }
       localStorage.setItem(storageKey(profile), JSON.stringify(toSave));
     } catch (e) { /* 存储满时静默失败 */ }
   }
@@ -232,7 +244,7 @@
           </svg>
         </div>
         <div class="chat__content">
-          <div class="chat__bubble chat__bubble--bot"><p>${escapeHtml(text)}</p></div>
+          <div class="chat__bubble chat__bubble--bot"><div class="chat__bubble-text"><p>${escapeHtml(text)}</p></div></div>
         </div>
       `;
     }
@@ -285,18 +297,22 @@
 
   // 从 AI 回复中解析选择题选项（多种格式兜底）
   function parseOptions(text) {
-    // 1) 列表式：按行识别 "1.xxx" / "A.xxx" / "1、xxx" / "1）xxx" 等
+    // 1) 列表式：仅识别"位于回复末尾的连续选项块"，避免误拆正文中的数字列举
     const lines = text.split('\n');
-    const bodyLines = [];
-    const options = [];
     const lineRe = /^\s*(?:(\d{1,2})|([A-Ha-h]))\s*[.、)）:：]\s*(\S.*)$/;
-    for (const line of lines) {
-      const m = line.match(lineRe);
-      if (m && m[3]) options.push(m[3].trim());
-      else bodyLines.push(line);
+    let i = lines.length - 1;
+    // 跳过末尾空行
+    while (i >= 0 && lines[i].trim() === '') i--;
+    // 从后往前收集连续选项行
+    const options = [];
+    while (i >= 0) {
+      const m = lines[i].match(lineRe);
+      if (m && m[3]) { options.unshift(m[3].trim()); i--; }
+      else break;
     }
-    if (options.length > 0) {
-      return { body: bodyLines.join('\n').trim(), options };
+    if (options.length >= 2) {
+      const body = lines.slice(0, i + 1).join('\n').trim();
+      return { body, options };
     }
 
     // 2) 行内列表标记："1.xxx 2.xxx" / "A:xxx B:xxx"

@@ -40,7 +40,18 @@ const SYS_INFO = {
     interpretTitle: '解读',
     paragraphs: [
       '心血管本身没查出问题，主要是血脂轻度偏高。这个阶段完全不用紧张，但值得认真对待——**调整饮食结构、每周规律运动几次**，血脂大多能回到正常，也是给以后的血管健康提前打基础。'
-    ]
+    ],
+    // 供 AI 深度解析使用的结构化血脂指标块
+    lab: {
+      title: '血脂指标',
+      indicators: [
+        { name: '总胆固醇', value: '5.46 mmol/L', flag: '↑', normal: '正常值 <5.20' },
+        { name: 'LDL-C', value: '3.42 mmol/L', flag: '临界', normal: '正常值 <3.40' },
+        { name: '甘油三酯', value: '1.46 mmol/L', flag: '正常', normal: '正常值 <1.70' },
+        { name: 'HDL-C', value: '1.42 mmol/L', flag: '正常', normal: '正常值 ≥1.3' }
+      ],
+      analysisText: '心血管本身没查出问题，主要是血脂轻度偏高，属于刚亮黄灯的阶段。不用紧张，但值得认真对待——调整饮食结构、每周规律运动几次，血脂大多能回到正常。'
+    }
   },
   blood: {
     name: '血液与营养', status: '需关注', warn: true,
@@ -61,6 +72,7 @@ const SYS_INFO = {
     ],
     // 供 AI 深度解析使用的结构化血液/营养指标块
     lab: {
+      title: '血常规及铁代谢',
       indicators: [
         { name: '血红蛋白 Hb', value: '112 g/L', flag: '↓', normal: '115–150 g/L' },
         { name: '红细胞计数', value: '3.78×10¹²/L', flag: '↓', normal: '3.8–5.1×10¹²/L' },

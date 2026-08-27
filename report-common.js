@@ -76,6 +76,13 @@ function initReport(SYS_INFO, defaultKey) {
       document.querySelectorAll('.sysmap__metric-tip-pop').forEach((t) => t.remove());
     };
 
+    // 指标 flag 的语义化颜色分类：正常→绿、临界/接近→黄、异常→橙红
+    const flagTone = (flag) => {
+      if (/正常|—|无异常|良好|未见明显/.test(flag)) return 'is-good';
+      if (/临界|接近|高值|低值|尚可|中上|边缘|轻微|轻度/.test(flag)) return 'is-mid';
+      return 'is-warn';
+    };
+
     // 渲染一组指标
     const renderMetrics = (list, container) => {
       container.innerHTML = '';
@@ -96,7 +103,7 @@ function initReport(SYS_INFO, defaultKey) {
         val.textContent = m.value;
 
         const flag = document.createElement('span');
-        flag.className = 'sysmap__metric-flag ' + (m.flag === '正常' ? 'is-good' : (m.flag === '临界' ? 'is-mid' : 'is-warn'));
+        flag.className = 'sysmap__metric-flag ' + flagTone(m.flag);
         flag.textContent = m.flag;
 
         const normal = document.createElement('span');

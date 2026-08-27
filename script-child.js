@@ -61,7 +61,18 @@ const SYS_INFO = {
     interpretTitle: '解读',
     paragraphs: [
       '肝功能正常，腹部超声未见脂肪肝；但甘油三酯已接近偏高水平，与含糖饮料摄入较多、体重偏重有关，建议开始调整饮食和增加运动。'
-    ]
+    ],
+    // 供 AI 深度解析使用的结构化消化代谢指标块
+    lab: {
+      title: '消化代谢指标',
+      indicators: [
+        { name: '甘油三酯', value: '1.42 mmol/L', flag: '接近偏高', normal: '正常值 <1.70' },
+        { name: '空腹血糖', value: '4.9 mmol/L', flag: '正常', normal: '正常值 3.9–6.1' },
+        { name: 'ALT', tip: '丙氨酸氨基转移酶 / 谷丙转氨酶', value: '24 U/L', flag: '正常', normal: '正常值 7–40 U/L' },
+        { name: 'AST', tip: '天冬氨酸氨基转移酶 / 谷草转氨酶', value: '25 U/L', flag: '正常', normal: '正常值 13–35 U/L' }
+      ],
+      analysisText: '孩子出现甘油三酯接近偏高，属于典型的"吃出来的信号"，多半是含糖饮料、油炸零食和运动太少叠加的结果。肝功能正常，腹部超声未见脂肪肝。调整饮食习惯后几个月内就能回到正常。'
+    }
   },
   blood: {
     name: '血液与营养', status: '良好', warn: false,

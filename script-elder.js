@@ -19,7 +19,18 @@ const SYS_INFO = {
     interpretTitle: '解读',
     paragraphs: [
       '血管里已经长了“斑块”（像水管内壁的水垢），目前水管还没堵、也没发生过心脑血管事件。重点是继续管好血压、血脂和体重，别再让它长大；不要自行停药，必要时请医生评估降脂目标。'
-    ]
+    ],
+    // 供 AI 深度解析使用的结构化心血管指标块
+    lab: {
+      title: '血压血脂指标',
+      indicators: [
+        { name: '血压', value: '136/78 mmHg', flag: '控制尚可', normal: '正常值 <140/90' },
+        { name: '总胆固醇', value: '5.18 mmol/L', flag: '正常', normal: '正常值 <5.2' },
+        { name: 'LDL-C', value: '2.86 mmol/L', flag: '正常', normal: '正常值 <3.4' },
+        { name: 'HDL-C', value: '1.28 mmol/L', flag: '↓', normal: '正常值 ≥1.3' }
+      ],
+      analysisText: '颈动脉超声发现右侧分叉处一枚斑块（约 8×2.1 毫米），管腔未见明显狭窄。血压控制尚可，血脂基本达标，但"好胆固醇"略低。重点是继续管好血压、血脂和体重，别再让斑块长大；不要自行停药，必要时请医生评估降脂目标。'
+    }
   },
   bone: {
     name: '骨骼肌肉', status: '需关注', warn: true,
