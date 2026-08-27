@@ -323,6 +323,21 @@ ul {
   color: #bbb;
 }
 
+/* 历史选项（只读）：保留文本，弱化视觉，表示不可再点击 */
+.option-list--readonly .option-list__item {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.06);
+  color: #666;
+  cursor: default;
+}
+.option-list--readonly .option-list__index {
+  color: #999;
+}
+.option-list--readonly .option-list__item:active {
+  background: rgba(0, 0, 0, 0.03);
+  transform: none;
+}
+
 /* 多选选中态 */
 .option-list__item.is-selected {
   background: rgba(14, 143, 143, 0.16);

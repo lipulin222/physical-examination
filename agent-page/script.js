@@ -251,6 +251,11 @@
     chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
   }
 
+  // 立即定位到底部（无动画），用于恢复历史对话后确保直接看到最新消息
+  function jumpToBottom() {
+    chat.scrollTop = chat.scrollHeight;
+  }
+
   // 对话上下文：初始化时构建 systemPrompt（含用户信息与病症上下文）
   let messages = [];
   // 当前上下文（含 profile/disease），用于持久化 key
@@ -417,13 +422,13 @@
     }
   }
 
-  // 渲染一条历史消息（仅显示文本，不渲染选项按钮；AI 消息保留 markdown 格式）
+  // 渲染一条历史消息（保留选项文本为只读列表；AI 消息保留 markdown 格式）
   function renderHistoryMessage(msg) {
     if (msg.role === 'system') return;
     if (msg.role === 'user') {
       appendMessage(msg.content, true);
     } else if (msg.role === 'assistant') {
-      const { body } = parseOptions(msg.content);
+      const { body, options } = parseOptions(msg.content);
       const text = body || msg.content;
       const item = document.createElement('div');
       item.className = 'chat__item chat__item--bot';
@@ -440,6 +445,22 @@
           <div class="chat__bubble chat__bubble--bot"><div class="chat__bubble-text">${mdToHtml(text)}</div></div>
         </div>
       `;
+
+      // 历史选项：保留文本，仅作展示，不可再点击
+      if (options.length > 0) {
+        const bubble = item.querySelector('.chat__bubble');
+        const list = document.createElement('div');
+        list.className = 'option-list option-list--readonly';
+        options.forEach((opt, i) => {
+          const row = document.createElement('div');
+          row.className = 'option-list__item';
+          row.innerHTML = '<span class="option-list__index">' + (i + 1) + '</span>' +
+                          '<span class="option-list__text">' + escapeHtml(opt) + '</span>';
+          list.appendChild(row);
+        });
+        bubble.appendChild(list);
+      }
+
       chatList.appendChild(item);
     }
   }
@@ -538,7 +559,9 @@
       // 校验首条是 system，且用最新 systemPrompt（信息可能变化）
       messages = [messages[0]].concat(history.filter((m) => m.role !== 'system'));
       messages.forEach(renderHistoryMessage);
-      scrollToBottom();
+      // 直接定位到最新对话（立即 + 渲染稳定后二次定位）
+      jumpToBottom();
+      requestAnimationFrame(() => { jumpToBottom(); });
       return { ...ctx, restored: true };
     }
     return ctx;
