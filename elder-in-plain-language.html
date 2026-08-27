@@ -140,22 +140,22 @@
                 </filter>
               </defs>
 
-              <!-- 卡片（需关注=浅黄 / 正常=浅绿） -->
-              <rect class="box box--warn" filter="url(#shadowRight)" x="40"  y="20"  width="320" height="156" rx="36" />
-              <text class="box-text" x="200" y="98">心血管系统</text>
+              <!-- 卡片（需关注=浅橙 / 正常=浅绿） -->
+              <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="20"  width="320" height="156" rx="36" />
+              <text class="box-text" x="200" y="98">血液与营养</text>
               <rect class="box box--warn" filter="url(#shadowRight)" x="40"  y="216" width="320" height="156" rx="36" />
-              <text class="box-text" x="200" y="294">骨骼肌肉</text>
+              <text class="box-text" x="200" y="294">心血管系统</text>
               <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="412" width="320" height="156" rx="36" />
               <text class="box-text" x="200" y="490">消化系统</text>
-              <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="608" width="320" height="156" rx="36" />
-              <text class="box-text" x="200" y="686">血液与营养</text>
+              <rect class="box box--warn" filter="url(#shadowRight)" x="40"  y="608" width="320" height="156" rx="36" />
+              <text class="box-text" x="200" y="686">骨骼肌肉</text>
 
               <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="20"  width="320" height="156" rx="36" />
-              <text class="box-text" x="1012" y="98">肾与泌尿</text>
+              <text class="box-text" x="1012" y="98">内分泌代谢</text>
               <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="216" width="320" height="156" rx="36" />
               <text class="box-text" x="1012" y="294">呼吸系统</text>
               <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="412" width="320" height="156" rx="36" />
-              <text class="box-text" x="1012" y="490">内分泌代谢</text>
+              <text class="box-text" x="1012" y="490">肾与泌尿</text>
 
               <!-- 折线指引（终点实心圆，拐点无标记） -->
               <polyline class="lead" points="360,100 600,100" />
@@ -176,13 +176,13 @@
             </svg>
 
             <!-- 热区：覆盖在 SVG 卡片位置上 -->
-            <button type="button" class="sysmap__zone" data-key="heart"  style="left:3.3%;  top:2.4%;  width:26.4%; height:18.5%" aria-label="心血管系统"></button>
-            <button type="button" class="sysmap__zone" data-key="bone"   style="left:3.3%;  top:25.7%; width:26.4%; height:18.5%" aria-label="骨骼肌肉"></button>
+            <button type="button" class="sysmap__zone" data-key="blood"  style="left:3.3%;  top:2.4%;  width:26.4%; height:18.5%" aria-label="血液与营养"></button>
+            <button type="button" class="sysmap__zone" data-key="heart"  style="left:3.3%;  top:25.7%; width:26.4%; height:18.5%" aria-label="心血管系统"></button>
             <button type="button" class="sysmap__zone" data-key="liver"  style="left:3.3%;  top:48.9%; width:26.4%; height:18.5%" aria-label="消化系统"></button>
-            <button type="button" class="sysmap__zone" data-key="blood"  style="left:3.3%;  top:72.2%; width:26.4%; height:18.5%" aria-label="血液与营养"></button>
-            <button type="button" class="sysmap__zone" data-key="kidney" style="left:70.3%; top:2.4%;  width:26.4%; height:18.5%" aria-label="肾与泌尿"></button>
+            <button type="button" class="sysmap__zone" data-key="bone"   style="left:3.3%;  top:72.2%; width:26.4%; height:18.5%" aria-label="骨骼肌肉"></button>
+            <button type="button" class="sysmap__zone" data-key="endo"   style="left:70.3%; top:2.4%;  width:26.4%; height:18.5%" aria-label="内分泌代谢"></button>
             <button type="button" class="sysmap__zone" data-key="lung"   style="left:70.3%; top:25.7%; width:26.4%; height:18.5%" aria-label="呼吸系统"></button>
-            <button type="button" class="sysmap__zone" data-key="endo"   style="left:70.3%; top:48.9%; width:26.4%; height:18.5%" aria-label="内分泌代谢"></button>
+            <button type="button" class="sysmap__zone" data-key="kidney" style="left:70.3%; top:48.9%; width:26.4%; height:18.5%" aria-label="肾与泌尿"></button>
           </div>
 
           <!-- 人像：叠在图片下方，保持重叠效果（待替换为老年女性人像素材） -->
