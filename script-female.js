@@ -4,7 +4,7 @@ window.REPORT_PROFILE = 'female36';
 const SYS_INFO = {
   endo: {
     name: '内分泌系统', status: '需关注', warn: true,
-    overall: { text: '甲状腺功能正常，左叶发现小结节', color: 'warn' },
+    overall: { text: '甲状腺功能正常，左叶、右乳各发现小结节', color: 'warn' },
     cta: '预约内分泌检查',
     metricsTitle: '甲状腺功能',
     metrics: [
@@ -12,14 +12,15 @@ const SYS_INFO = {
       { name: 'FT4', tip: '游离甲状腺素', value: '15.8 pmol/L', flag: '正常', normal: '正常值 12–22 pmol/L' },
       { name: 'FT3', tip: '游离三碘甲状腺原氨酸', value: '4.6 pmol/L', flag: '正常', normal: '正常值 3.1–6.8 pmol/L' }
     ],
-    extraDesc: ['甲状腺超声提示：'],
+    extraDesc: ['超声提示（甲状腺、乳腺）：'],
     metrics2: [
-      { name: '左叶结节', value: '5×4 mm', flag: 'TI-RADS 3 类', normal: '良性可能性大，建议定期复查' }
+      { name: '甲状腺左叶结节', value: '5×4 mm', flag: 'TI-RADS 3 类', normal: '良性可能性大，建议定期复查' },
+      { name: '右乳结节', value: '7×5 mm', flag: 'BI-RADS 3 类', normal: '良性可能性大，建议定期复查' }
     ],
     interpretTitle: '解读',
     paragraphs: [
       '甲状腺功能指标都在正常范围，功能没有问题。',
-      '超声发现左叶有一枚约 5×4 毫米的小结节，分级 3 类，绝大多数是良性的，不用紧张。按医生建议定期复查超声、看它有没有变化就行。'
+      '甲状腺左叶和右乳各有一枚小结节，分级都是 3 类，绝大多数是良性的，不用紧张。按医生建议定期复查超声、看它们有没有变化就行。'
     ]
   },
   heart: {
