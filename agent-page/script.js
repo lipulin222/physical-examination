@@ -203,18 +203,25 @@
     }, duration);
   }
 
-  // 创建消息 DOM
-  function appendMessage(text, isUser = false) {
-    const item = document.createElement('div');
-    item.className = `chat__item chat__item--${isUser ? 'user' : 'bot'}`;
-
-    if (isUser) {
-      item.innerHTML = `
+  // ===== UserBubble 组件（唯一用户气泡渲染入口）=====
+  // 外层 .flex.w-full.justify-end；内层固定宽度规则，手动输入与点击选项共用
+  function UserBubble(text) {
+    return `
+      <div class="chat__item chat__item--user">
         <div class="chat__content">
           <div class="chat__bubble chat__bubble--user"><p>${escapeHtml(text)}</p></div>
         </div>
-      `;
+      </div>`;
+  }
+
+  // 创建消息 DOM；用户消息统一走 UserBubble
+  function appendMessage(text, isUser = false) {
+    const item = document.createElement('div');
+    if (isUser) {
+      item.className = 'chat__item chat__item--user';
+      item.innerHTML = UserBubble(text);
     } else {
+      item.className = 'chat__item chat__item--bot';
       item.innerHTML = `
         <div class="chat__avatar">
           <svg viewBox="0 0 48 48" fill="none">

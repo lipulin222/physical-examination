@@ -175,12 +175,12 @@ ul {
   display: block;
 }
 
-/* 内容容器：不超过父容器右对齐靠右 */
+/* 内容容器：撑满行容器，作为气泡百分比基准 */
 .chat__content {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-width: 100%;
+  width: 100%;
   min-width: 0;
 }
 
@@ -209,11 +209,13 @@ ul {
   align-self: flex-start;
 }
 
-/* 用户气泡：严格遵循统一规则（手动输入与点击选项共用） */
+/* 用户气泡：统一组件 UserBubble 的固定规则（手动输入与点击选项共用） */
 .chat__bubble--user {
+  box-sizing: border-box;
+  align-self: flex-end;   /* 右对齐，宽度自适应内容 */
   width: auto;
   min-width: 0;
-  max-width: min(78%, 680px);
+  max-width: 78%;
   padding: 10px 14px;
   border-radius: 16px;
   white-space: pre-wrap;
@@ -222,7 +224,6 @@ ul {
   background: #10b5b5;
   color: #fff;
   border-top-right-radius: 4px;
-  align-self: flex-end;
 }
 
 /* AI 气泡正文的 Markdown 渲染 */
