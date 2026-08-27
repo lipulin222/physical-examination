@@ -175,23 +175,22 @@
 
   // ===== 对话历史本地持久化 =====
   const storagePrefix = 'reportAgent_';
-  // 按"版本 + 病症"生成存储 key，同一份报告的对话可跨次继续
-  function storageKey(profile, disease) {
-    const p = (profile || '').replace(/[^\w-]/g, '_');
-    const d = (disease || 'general').replace(/[^\w\u4e00-\u9fa5-]/g, '_');
-    return storagePrefix + p + '_' + d;
+  // 按"人"（版本 profile）生成存储 key：同一用户的对话跨次、跨入口共享
+  function storageKey(profile) {
+    const p = (profile || 'guest').replace(/[^\w-]/g, '_');
+    return storagePrefix + p;
   }
-  function loadHistory(profile, disease) {
+  function loadHistory(profile) {
     try {
-      const raw = localStorage.getItem(storageKey(profile, disease));
+      const raw = localStorage.getItem(storageKey(profile));
       return raw ? JSON.parse(raw) : null;
     } catch (e) { return null; }
   }
-  function saveHistory(messages, profile, disease) {
+  function saveHistory(messages, profile) {
     try {
       // 限制条数，避免无限增长；保留 system + 最近 40 条
       const toSave = messages.length > 41 ? [messages[0]].concat(messages.slice(-40)) : messages;
-      localStorage.setItem(storageKey(profile, disease), JSON.stringify(toSave));
+      localStorage.setItem(storageKey(profile), JSON.stringify(toSave));
     } catch (e) { /* 存储满时静默失败 */ }
   }
 
@@ -475,7 +474,7 @@
       renderBotReply(typing, reply);
       scrollToBottom();
       // 成功后持久化对话历史
-      if (currentCtx) saveHistory(messages, currentCtx.version, currentCtx.disease);
+      if (currentCtx) saveHistory(messages, currentCtx.version);
     } catch (err) {
       typing.textContent = '回复失败：' + err.message + ' 请稍后重试。';
       scrollToBottom();
@@ -527,7 +526,7 @@
     messages = [{ role: 'system', content: buildSystemPrompt(ctx) }];
 
     // 尝试恢复本地历史对话（同一版本+病症）；有历史则不重新自动开场
-    const history = loadHistory(ctx.version, ctx.disease);
+    const history = loadHistory(ctx.version);
     if (history && history.length > 0) {
       // 校验首条是 system，且用最新 systemPrompt（信息可能变化）
       messages = [messages[0]].concat(history.filter((m) => m.role !== 'system'));
@@ -543,8 +542,8 @@
     btn.addEventListener('click', () => {
       const action = btn.dataset.action;
       const texts = {
-        records: '正在打开「诊疗记录」…',
-        human: '正在为您转接人工客服，请稍候。'
+        records: '正在为您打开门诊预约…',
+        human: '正在为您整理健康建议汇总…'
       };
       appendMessage(texts[action], false);
     });
