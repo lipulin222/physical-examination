@@ -226,16 +226,19 @@ function initReport(SYS_INFO, defaultKey) {
       return title ? title.textContent.trim() : '';
     };
 
-    // 保存跳转上下文到 sessionStorage，供 agent 页构建 System Prompt
+    // 保存跳转上下文到 localStorage（跨标签页、关闭后仍保留），供 agent 页构建 System Prompt
     const saveReportCtx = (key, diseaseOverride) => {
       const info = SYS_INFO[key];
       const disease = diseaseOverride || getIssueTitle(key) || (info && info.name) || '健康问题';
-      sessionStorage.setItem('reportCtx', JSON.stringify({
+      const payload = JSON.stringify({
         profile: window.REPORT_PROFILE || '',
         disease,
         key,
         lab: (info && info.lab) || null
-      }));
+      });
+      localStorage.setItem('reportCtx', payload);
+      // 兼容旧逻辑：同时写 sessionStorage
+      try { sessionStorage.setItem('reportCtx', payload); } catch (e) { /* 忽略 */ }
     };
 
     // 详情卡底部 AI 深度解析按钮：携带当前系统上下文跳转到智能体对话页

@@ -530,7 +530,7 @@
   async function init() {
     let ctx = null;
     try {
-      const raw = sessionStorage.getItem('reportCtx');
+      const raw = localStorage.getItem('reportCtx') || sessionStorage.getItem('reportCtx');
       if (raw) ctx = JSON.parse(raw);
     } catch (e) { /* 忽略损坏的上下文 */ }
 
@@ -615,11 +615,13 @@
   // 初始滚动
   scrollToBottom();
 
-  // 异步初始化：构建 System Prompt；从体检页携带病症进入时（含恢复历史）都自动发起咨询，让 AI 主动开口
+  // 异步初始化：构建 System Prompt；从体检页携带上下文进入时（含恢复历史）自动发起咨询，显示用户消息 + AI 主动开口
   init().then((ctx) => {
     try {
-      if (ctx && ctx.disease && ctx.disease !== '健康问题') {
-        sendPrompt('你好，我刚做完体检，针对【' + ctx.disease + '】的问题想进一步咨询。', false);
+      // 有版本标识（说明从体检页进入）即自动开场；无版本标识（直接打开 agent 页）则等待用户输入
+      if (ctx && ctx.version) {
+        const disease = ctx.disease && ctx.disease !== '健康问题' ? ctx.disease : '健康问题';
+        sendPrompt('你好，我刚做完体检，针对【' + disease + '】的问题想进一步咨询。', true);
       }
     } catch (e) { /* 自动开场失败不阻断页面 */ }
   }).catch(() => { /* 初始化失败兜底，避免静默中断 */ });
