@@ -448,6 +448,38 @@ body {
 .lifestyle__more:active { transform: scale(0.98); }
 .lifestyle__cta { margin-top: 16px; }
 
+/* 05 标题栏右侧"深入定制"小按钮 */
+.module__head-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: var(--font);
+  letter-spacing: 0.3px;
+  border-radius: 20px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: background .15s ease, transform .1s ease;
+}
+.module__head-btn:active { background: rgba(13, 138, 138, 0.2); transform: scale(0.96); }
+
+/* 05 底部"AI深度定制计划"主按钮 */
+.lifestyle__deep-cta {
+  margin-top: 16px; width: 100%; border: none; cursor: pointer;
+  background: linear-gradient(135deg, #14a3a3 0%, var(--accent) 55%, var(--accent-deep) 100%);
+  color: #fff;
+  border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 600;
+  font-family: var(--font); letter-spacing: 0.3px;
+  box-shadow: 0 8px 20px rgba(13, 138, 138, 0.26);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.lifestyle__deep-cta:active { transform: scale(0.98); filter: brightness(0.97); }
+
 /* 重点问题卡：查看详情文字链接，位于卡片右上角与标题同行 */
 .issue__link {
   display: inline-flex; align-items: center; margin-left: auto; flex-shrink: 0;

@@ -28,6 +28,11 @@ function initReport(SYS_INFO, defaultKey) {
       'lifestyle-exercise': 'endo',
       'lifestyle-heart': 'heart',
       'lifestyle-kidney': 'kidney'
+    },
+    lipulin: {
+      'lifestyle-diet': 'bone',
+      'lifestyle-exercise': 'bone',
+      'lifestyle-heart': 'heart'
     }
   };
 
@@ -260,17 +265,14 @@ function initReport(SYS_INFO, defaultKey) {
       window.location.href = 'agent-page/index.html';
     });
 
-    // 05 部分 AI深度建议按钮：病症从卡片"针对"行动态读取，系统 key 由映射表提供
-    document.querySelectorAll('.lifestyle__more').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const card = btn.closest('.lifestyle');
-        const key = (LIFESTYLE_SYSTEM[window.REPORT_PROFILE] || {})[card ? card.id : ''] || currentKey;
-        const targetEl = card ? card.querySelector('.lifestyle__target') : null;
-        const targetText = targetEl ? targetEl.textContent.replace(/^针对[：:]\s*/, '').trim() : '';
-        // disease 传动态读取的"针对"内容；为空时 saveReportCtx 内部自动回退到 02 标题/系统名
-        saveReportCtx(key, targetText);
-        window.location.href = 'agent-page/index.html';
-      });
+    // 05 部分：AI深度定制计划（底部大按钮）+ 深入定制（标题栏小按钮）
+    // 两个入口都进入 agent 页，走"提纲提问 → 生成计划书"完整流程
+    const openPlanAgent = () => {
+      saveReportCtx(defaultKey, '健康管理');
+      window.location.href = 'agent-page/index.html';
+    };
+    document.querySelectorAll('.lifestyle__deep-cta[data-plan], .module__head-btn[data-plan]').forEach((btn) => {
+      btn.addEventListener('click', openPlanAgent);
     });
 
     // 页面加载时默认打开指定系统（不滚动）
