@@ -327,9 +327,71 @@ ul {
   display: inline-block;
 }
 
+/* 多选模式：提示条 */
+.option-list__hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #0a7a7a;
+  background: rgba(14, 143, 143, 0.08);
+  border: 1px dashed rgba(14, 143, 143, 0.35);
+  border-radius: 8px;
+  padding: 5px 10px;
+}
+.option-list__hint-mark {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: #0e8f8f;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+/* 多选模式：勾选框（圆形复选框） */
+.option-list__check {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border: 1.5px solid rgba(14, 143, 143, 0.45);
+  border-radius: 50%;
+  position: relative;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.option-list__item.is-selected .option-list__check {
+  background: #0e8f8f;
+  border-color: #0e8f8f;
+}
+.option-list__item.is-selected .option-list__check::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* 多选模式：底部操作行（计数 + 确认按钮） */
+.option-list__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 2px;
+}
+.option-list__count {
+  font-size: 12px;
+  color: #0a7a7a;
+  font-weight: 600;
+}
+
 /* 多选确认按钮 */
 .option-list__confirm {
-  align-self: flex-end;
   background: #0e8f8f;
   color: #fff;
   border: none;

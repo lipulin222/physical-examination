@@ -19,6 +19,7 @@
 #要求：
 · 对话初始，和用户确认他的核心诉求，是想进一步了解自己的病情，还是寻求调整建议，甚至可以是学习这块的相关病理知识。当一个任务完成后，不要直接开始新任务，还是先跟用户确认一下接下来的需求是什么。
 · 不着急输出回答。先和用户聊天，通过提问，逐步弄清楚情况，以确保问题回答的准确性。每次只问一个问题，并且提供对应的选项。总提问次数控制在5次以内。问题之间不用承上启下的寒暄语。
+· 若某个问题允许多个答案，在题干开头标注"（可多选）"，例如"（可多选）以下哪些情况符合你？"，用户可勾选多项后确认提交；单选题不要标注。
 · 如果涉及到生活方式干预，需要了解用户当前的生活习惯和心理准备情况，避免输出不切实际的改进建议。
 · 如果涉及到线下行为（如生活方式变化，预约看病等），要顺带帮用户完预约/提醒等操作（演示即可，不用真的调用接口）
 · 所有对话尽量通过选择题的方式完成（纯科普需求除外）
@@ -87,16 +88,18 @@
 · 用具体生活场景提问，说人话，禁止抽象问题（如"平时饮食怎么样""运动多吗"）
 · 不解释为什么问这个问题，不输出健康知识，不诱导用户选择"正确答案"
 · 按以下顺序收集信息，根据回答动态调整，信息足够即提前结束，不要重复询问：
-1. 他平时怎么吃（三餐规律度、外卖/外食比例、甜食零食/含糖饮料、晚餐夜宵量、应酬饭局）
-2. 他喝酒的频率、场景和量（与脂肪肝、GGT升高、尿酸偏高相关）
-3. 他现在的运动与久坐情况
-4. 体重从76kg涨到84kg主要发生在哪个阶段、可能原因
-5. 他最容易管不住嘴的具体场景（什么时候、什么情形）
-6. 过去减重或改善身体没坚持下来的原因
-7. 现实中能安排运动的时间边界
-8. 他更容易接受哪种运动方式
-9. 饮食上最容易接受的一处改变
-10. 过去具体试过哪些方法、结果如何
+1. 他平时怎么吃（三餐规律度、外卖/外食比例、甜食零食/含糖饮料、晚餐夜宵量、应酬饭局）【单选】
+2. 他喝酒的频率、场景和量（与脂肪肝、GGT升高、尿酸偏高相关）【单选】
+3. 他现在的运动与久坐情况【单选】
+4. 体重从76kg涨到84kg主要发生在哪个阶段、可能原因【单选】
+5. 他最容易管不住嘴的具体场景（什么时候、什么情形）【可多选】
+6. 过去减重或改善身体没坚持下来的原因【可多选】
+7. 现实中能安排运动的时间边界【单选】
+8. 他更容易接受哪种运动方式【可多选】
+9. 饮食上最容易接受的一处改变【单选】
+10. 过去具体试过哪些方法、结果如何【可多选】
+· 可多选题的题干开头必须标注"（可多选）"，例如"（可多选）你最容易管不住嘴的场景是？"；单选题不要标注
+· 可多选题的最后一个选项保留"以上都不是/不确定"类兜底项，该选项与其他选项互斥
 · 涉及线下行为（预约复查等）可顺带演示完成预约/提醒
 · 若用户主动问及其他问题（如甲状腺结节），简短回应安抚后可回到提纲继续
 · 语气亲和、简洁，每次回复尽量不超过200字`;
@@ -375,9 +378,9 @@
     return { body: text, options: [] };
   }
 
-  // 判断 AI 回复是否为多选（含"多选/选多项"等关键词）
+  // 判断 AI 回复是否为多选：优先识别题干标注"（可多选）/【多选题】"，其次匹配"多选"类关键词
   function isMultiSelect(reply) {
-    return /多选|选多项|多项选择|可多选/.test(reply);
+    return /（\s*可?多选\s*）|【\s*多选\s*】|多选题|可多选|选多项|多项选择|多选/.test(reply);
   }
 
   // 轻量 Markdown 渲染：标题、加粗、斜体、行内代码、无序/有序列表、段落
@@ -407,12 +410,13 @@
     return html;
   }
 
-  // 多选模式：更新确认按钮可用态
+  // 多选模式：更新已选计数与确认按钮可用态
   function updateConfirmBtn(list) {
+    const count = list.querySelector('.option-list__count');
     const confirm = list.querySelector('.option-list__confirm');
-    if (!confirm) return;
     const selected = list.querySelectorAll('.option-list__item.is-selected').length;
-    confirm.disabled = selected === 0;
+    if (count) count.textContent = '已选 ' + selected + ' 项';
+    if (confirm) confirm.disabled = selected === 0;
   }
 
   // 渲染 AI 回复：正文 markdown 渲染 + 选项按钮（支持单选/多选）
@@ -431,17 +435,42 @@
 
     if (options.length > 0) {
       const list = document.createElement('div');
-      list.className = 'option-list';
+      list.className = 'option-list' + (multi ? ' option-list--multi' : '');
+
+      // 多选提示条：明确告知本题可多选
+      if (multi) {
+        const hint = document.createElement('div');
+        hint.className = 'option-list__hint';
+        hint.innerHTML = '<span class="option-list__hint-mark">多选</span>本题可多选，请选择所有符合的选项';
+        list.appendChild(hint);
+      }
+
       options.forEach((opt, i) => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'option-list__item';
+        btn.dataset.optIndex = i + 1;
+        // 兜底项（以上都不是/不确定等）与具体选项互斥
+        if (/以上都不是|以上都不太像|都不太像|不太像|不确定|都不太好改|没有特别明显/.test(opt)) {
+          btn.dataset.fallback = '1';
+        }
         btn.innerHTML = '<span class="option-list__index">' + (i + 1) + '</span>' +
                         '<span class="option-list__text">' + escapeHtml(opt) + '</span>' +
-                        '<span class="option-list__arrow">›</span>';
+                        (multi
+                          ? '<span class="option-list__check" aria-hidden="true"></span>'
+                          : '<span class="option-list__arrow">›</span>');
         btn.addEventListener('click', () => {
           if (multi) {
-            btn.classList.toggle('is-selected');
+            if (btn.dataset.fallback) {
+              // 选中兜底项：清空其他选中
+              list.querySelectorAll('.option-list__item.is-selected').forEach((b) => b.classList.remove('is-selected'));
+              btn.classList.add('is-selected');
+            } else {
+              // 选中具体项：取消兜底项
+              const fallback = list.querySelector('.option-list__item[data-fallback]');
+              if (fallback) fallback.classList.remove('is-selected');
+              btn.classList.toggle('is-selected');
+            }
             updateConfirmBtn(list);
           } else {
             list.querySelectorAll('.option-list__item').forEach((b) => { b.disabled = true; });
@@ -452,19 +481,26 @@
       });
 
       if (multi) {
+        const foot = document.createElement('div');
+        foot.className = 'option-list__foot';
+        const count = document.createElement('span');
+        count.className = 'option-list__count';
+        count.textContent = '已选 0 项';
         const confirm = document.createElement('button');
         confirm.type = 'button';
         confirm.className = 'option-list__confirm';
-        confirm.textContent = '确认';
+        confirm.textContent = '确认选择';
         confirm.disabled = true;
         confirm.addEventListener('click', () => {
           const selected = Array.from(list.querySelectorAll('.option-list__item.is-selected'))
-            .map((b) => b.querySelector('.option-list__text').textContent);
+            .map((b) => b.dataset.optIndex + '、' + b.querySelector('.option-list__text').textContent);
           if (!selected.length) return;
           list.querySelectorAll('.option-list__item, .option-list__confirm').forEach((b) => { b.disabled = true; });
-          sendPrompt(selected.join('、'), true);
+          sendPrompt(selected.join('；'), true);
         });
-        list.appendChild(confirm);
+        foot.appendChild(count);
+        foot.appendChild(confirm);
+        list.appendChild(foot);
       }
 
       bubble.appendChild(list);
