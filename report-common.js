@@ -275,6 +275,19 @@ function initReport(SYS_INFO, defaultKey) {
       btn.addEventListener('click', openPlanAgent);
     });
 
+    // 05 部分：卡片内"AI深度建议"按钮（李璞璘/李承华等旧版页面保留）
+    // 病症从卡片"针对"行动态读取，系统 key 由映射表提供
+    document.querySelectorAll('.lifestyle__more').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const card = btn.closest('.lifestyle');
+        const key = (LIFESTYLE_SYSTEM[window.REPORT_PROFILE] || {})[card ? card.id : ''] || currentKey;
+        const targetEl = card ? card.querySelector('.lifestyle__target') : null;
+        const targetText = targetEl ? targetEl.textContent.replace(/^针对[：:]\s*/, '').trim() : '';
+        saveReportCtx(key, targetText);
+        window.location.href = 'agent-page/index.html';
+      });
+    });
+
     // 页面加载时默认打开指定系统（不滚动）
     openDetail(defaultKey, false);
 
