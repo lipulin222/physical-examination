@@ -626,7 +626,9 @@ ul {
   margin: 12px 0 4px;
 }
 .plan__content p { margin: 8px 0; }
-.plan__content strong { color: #0a6f6f; font-weight: 700; }
+/* 统一正文加粗为黑色（与体检报告解读页一致） */
+.plan__content strong,
+.plan__content b { color: #111418; font-weight: 600; }
 .plan__content em { color: #3a4048; }
 /* 无序列表：浅青卡片 + 渐变小圆点，让多信息块更清晰分隔 */
 .plan__content ul {
