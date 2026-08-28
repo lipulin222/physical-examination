@@ -20,6 +20,7 @@
 · 对话初始，和用户确认他的核心诉求，是想进一步了解自己的病情，还是寻求调整建议，甚至可以是学习这块的相关病理知识。当一个任务完成后，不要直接开始新任务，还是先跟用户确认一下接下来的需求是什么。
 · 不着急输出回答。先和用户聊天，通过提问，逐步弄清楚情况，以确保问题回答的准确性。每次只问一个问题，并且提供对应的选项。总提问次数控制在5次以内。问题之间不用承上启下的寒暄语。
 · 若某个问题允许多个答案，在题干开头标注"（可多选）"，例如"（可多选）以下哪些情况符合你？"，用户可勾选多项后确认提交；单选题不要标注。
+· 当信息收集完成或用户表示"生成计划书/差不多了/就这些"时，输出单独一行固定标记【生成计划书】结束对话，不要在对话中直接生成计划书正文，后续流程由系统接管。
 · 如果涉及到生活方式干预，需要了解用户当前的生活习惯和心理准备情况，避免输出不切实际的改进建议。
 · 如果涉及到线下行为（如生活方式变化，预约看病等），要顺带帮用户完预约/提醒等操作（演示即可，不用真的调用接口）
 · 所有对话尽量通过选择题的方式完成（纯科普需求除外）
@@ -100,6 +101,8 @@
 10. 过去具体试过哪些方法、结果如何【可多选】
 · 可多选题的题干开头必须标注"（可多选）"，例如"（可多选）你最容易管不住嘴的场景是？"；单选题不要标注
 · 可多选题的最后一个选项保留"以上都不是/不确定"类兜底项，该选项与其他选项互斥
+· 提纲信息收集完成后（10题问完或信息已足够），先用1-2句话简要确认用户的回答，然后单独输出一行固定标记【生成计划书】，不要直接在对话中生成计划书正文，后续流程由系统接管
+· 若用户中途表示"生成计划书/差不多了/就这些"等，也可提前输出【生成计划书】标记结束采集
 · 涉及线下行为（预约复查等）可顺带演示完成预约/提醒
 · 若用户主动问及其他问题（如甲状腺结节），简短回应安抚后可回到提纲继续
 · 语气亲和、简洁，每次回复尽量不超过200字`;
@@ -186,6 +189,71 @@
     elder68: SYSTEM_PROMPT_TEMPLATE_ELDER,
     lichenghua: SYSTEM_PROMPT_TEMPLATE_ELDER
   };
+
+  // ===== 计划书生成：触发标记 / 核心问题摘要 =====
+  // AI 信息采集结束后输出该标记，前端检测到后整理回答并跳转计划书页
+  const PLAN_GENERATE_RE = /【\s*生成计划书\s*】/;
+
+  // 各版本"体检核心问题"摘要（供计划书生成使用）
+  const CORE_PROBLEMS = {
+    male38: '以体重增加为中心的一串代谢异常：超重（BMI 27.4、腰围 96cm）、血脂超标（总胆固醇 5.72、甘油三酯 2.38、LDL-C 3.56 均偏高）、轻度脂肪肝伴肝酶升高（ALT 68、GGT 86）、尿酸偏高（468）、血糖临界（HbA1c 5.7%）、血压正常高值（132/86）。甲状腺右叶一枚 6×5mm TI-RADS 3类结节，良性可能大，定期复查即可。'
+  };
+
+  // 从对话历史整理"前置健康信息采集结果"：问题与用户回答配对
+  function buildAnswersSummary(messages) {
+    const pairs = [];
+    let question = '';
+    for (const m of messages) {
+      if (!m || m.role === 'system') continue;
+      if (m.role === 'assistant') {
+        const { body } = parseOptions(m.content);
+        if (body) question = body.replace(PLAN_GENERATE_RE, '').trim();
+      } else if (m.role === 'user') {
+        const text = String(m.content || '').trim();
+        if (/你好，我刚做完体检/.test(text)) continue; // 跳过自动开场白
+        pairs.push('【' + (question || '补充信息') + '】\n' + text);
+        question = '';
+      }
+    }
+    return pairs.join('\n\n');
+  }
+
+  // 构建"用户体检报告解读结果"文本（基本信息 + 指标 + 核心问题）
+  function buildReportSummary(ctx) {
+    const p = ctx.profile || {};
+    const lab = ctx.lab || null;
+    const lines = [];
+    lines.push('【用户基本信息】');
+    lines.push('姓名：' + (p.name || '--') + '　年龄：' + (p.age || '--') + '　性别：' + (p.gender || '--'));
+    lines.push('身高 ' + (p.height || '--') + ' cm　体重 ' + (p.weight || '--') + ' kg　BMI ' + (p.bmi || '--') + ' kg/m²　腰围 ' + (p.waist || '--') + ' cm　血压 ' + (p.bp || '--'));
+    if (lab && lab.indicators && lab.indicators.length) {
+      lines.push('');
+      lines.push('【' + (lab.title || '主要指标') + '】');
+      lab.indicators.forEach((i) => lines.push(i.name + '　' + i.value + '　' + i.flag + '　' + i.normal));
+      if (lab.analysisText) lines.push(lab.analysisText);
+    }
+    if (CORE_PROBLEMS[ctx.version]) {
+      lines.push('');
+      lines.push('【体检核心问题】');
+      lines.push(CORE_PROBLEMS[ctx.version]);
+    }
+    return lines.join('\n');
+  }
+
+  // 信息采集完成：整理回答 → 保存上下文 → 跳转计划书生成页
+  function handleGeneratePlan() {
+    if (!currentCtx) return;
+    const payload = JSON.stringify({
+      version: currentCtx.version || '',
+      disease: currentCtx.disease || '健康问题',
+      reportSummary: buildReportSummary(currentCtx),
+      answers: buildAnswersSummary(messages)
+    });
+    try { localStorage.setItem('reportPlanCtx', payload); } catch (e) { /* 忽略 */ }
+    try { sessionStorage.setItem('reportPlanCtx', payload); } catch (e) { /* 忽略 */ }
+    appendMessage('好的，信息收集完毕。我正在整理您的回答，为您生成专属《个人健康管理计划书》…', false);
+    setTimeout(() => { window.location.href = 'plan.html'; }, 900);
+  }
 
   // 配置化构建 System Prompt：不写死 replace 链，按模块注册表逐个替换
   function buildSystemPrompt(ctx) {
@@ -580,15 +648,22 @@
       }
 
       const data = await res.json();
-      const reply = data.choices && data.choices[0] && data.choices[0].message
+      const rawReply = data.choices && data.choices[0] && data.choices[0].message
         ? data.choices[0].message.content
         : '抱歉，暂时没有收到有效回复，请稍后再试。';
+
+      // 移除计划书生成标记（不显示给用户），标记存在时稍后触发跳转
+      const reply = rawReply.replace(PLAN_GENERATE_RE, '').trim() || '抱歉，暂时没有收到有效回复，请稍后再试。';
 
       messages.push({ role: 'assistant', content: reply });
       renderBotReply(typing, reply);
       scrollToBottom();
       // 成功后持久化对话历史
       if (currentCtx) saveHistory(messages, currentCtx.version);
+      // 检测采集完成标记 → 整理回答并跳转计划书页
+      if (PLAN_GENERATE_RE.test(rawReply)) {
+        setTimeout(handleGeneratePlan, 700);
+      }
     } catch (err) {
       typing.textContent = '回复失败：' + err.message + ' 请稍后重试。';
       scrollToBottom();

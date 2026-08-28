@@ -520,3 +520,120 @@ ul {
 .chat::-webkit-scrollbar {
   width: 0;
 }
+
+/* ===== 个人健康管理计划书页 ===== */
+.plan {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 12px 24px;
+}
+
+/* 加载状态 */
+.plan__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  min-height: 50vh;
+}
+.plan__loading-ring {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(14, 143, 143, 0.2);
+  border-top-color: #0e8f8f;
+  border-radius: 50%;
+  animation: planSpin 0.9s linear infinite;
+  margin-bottom: 18px;
+}
+@keyframes planSpin {
+  to { transform: rotate(360deg); }
+}
+.plan__loading-text {
+  font-size: 15px;
+  color: #1a1a1a;
+  line-height: 1.6;
+}
+.plan__loading-sub {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #8a8f96;
+}
+.plan__retry {
+  margin-top: 16px;
+  background: #0e8f8f;
+  color: #fff;
+  border: none;
+  border-radius: 18px;
+  padding: 9px 28px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.plan__retry:active { transform: scale(0.96); }
+
+/* 计划书内容（白卡 + markdown 排版） */
+.plan__content {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px 18px 28px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  font-size: 15px;
+  color: #2b2f36;
+  line-height: 1.75;
+  word-break: break-word;
+}
+.plan__content h1 {
+  font-size: 21px;
+  font-weight: 700;
+  color: #0e8f8f;
+  margin: 20px 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(14, 143, 143, 0.18);
+}
+.plan__content h1:first-child { margin-top: 0; }
+.plan__content h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0e8f8f;
+  margin: 22px 0 8px;
+}
+.plan__content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 16px 0 6px;
+}
+.plan__content h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 12px 0 4px;
+}
+.plan__content p { margin: 6px 0; }
+.plan__content strong { color: #0a7a7a; font-weight: 600; }
+.plan__content em { color: #4a5560; }
+.plan__content ul,
+.plan__content ol { margin: 6px 0 6px 20px; }
+.plan__content li { margin: 3px 0; }
+.plan__content hr {
+  border: none;
+  border-top: 1px solid #eef0f3;
+  margin: 16px 0;
+}
+.plan__content code {
+  background: rgba(14, 143, 143, 0.08);
+  color: #0a7a7a;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+.plan__content blockquote {
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: rgba(14, 143, 143, 0.06);
+  border-left: 3px solid #0e8f8f;
+  border-radius: 0 8px 8px 0;
+  color: #4a5560;
+}
