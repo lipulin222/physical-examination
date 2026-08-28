@@ -197,6 +197,8 @@
   // ===== 计划书生成：触发标记 / 核心问题摘要 =====
   // AI 信息采集结束后输出该标记，前端检测到后整理回答并跳转计划书页
   const PLAN_GENERATE_RE = /【\s*生成计划书\s*】/;
+  // 兜底：AI 即使没说标准标记，只要在回复中明确表达"要生成计划书"的意图（含承诺语气词），也触发跳转
+  const PLAN_GENERATE_NATURAL_RE = /(?:马上|稍后|现在|接下来|立即|稍等|即将|现在).{0,12}生成.{0,12}计划书/;
 
   // 各版本"体检核心问题"摘要（供计划书生成使用）
   const CORE_PROBLEMS = {
@@ -678,7 +680,8 @@
       // 成功后持久化对话历史
       if (currentCtx) saveHistory(messages, currentCtx.version);
       // 检测采集完成标记 → 整理回答并跳转计划书页
-      if (PLAN_GENERATE_RE.test(rawReply)) {
+      // 优先检测【生成计划书】标记；AI 若没说标记但承诺"马上为您生成计划书"等，也会兜底触发
+      if (PLAN_GENERATE_RE.test(rawReply) || PLAN_GENERATE_NATURAL_RE.test(rawReply)) {
         setTimeout(handleGeneratePlan, 700);
       }
     } catch (err) {
