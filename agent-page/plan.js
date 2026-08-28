@@ -806,6 +806,15 @@
       planContent.innerHTML = mdToHtml(content);
       planLoading.hidden = true;
       planContent.hidden = false;
+      // 缓存计划书内容，方便后续从 agent 卡片 / 报告页按钮直接重复查看
+      try {
+        const cachedCtx = (() => { try { return JSON.parse(localStorage.getItem('reportPlanCtx')); } catch (e) { return null; } })();
+        localStorage.setItem('reportPlan', JSON.stringify({
+          version: (cachedCtx && cachedCtx.version) || '',
+          content,
+          time: Date.now()
+        }));
+      } catch (e) { /* 忽略 */ }
       showToast('计划书已生成');
     } catch (err) {
       planLoading.hidden = false;
@@ -834,6 +843,24 @@
     generate();
   });
 
-  // 初始生成
-  generate();
+  // 初始：优先展示已缓存的计划书（避免重复生成）；无缓存或版本不匹配时才调用生成
+  (function initPlan() {
+    let currentVersion = '';
+    try {
+      const raw = localStorage.getItem('reportPlanCtx') || sessionStorage.getItem('reportPlanCtx');
+      if (raw) { const c = JSON.parse(raw); currentVersion = c.version || ''; }
+    } catch (e) { /* 忽略 */ }
+    let cached = null;
+    try {
+      const rawPlan = localStorage.getItem('reportPlan');
+      if (rawPlan) cached = JSON.parse(rawPlan);
+    } catch (e) { /* 忽略 */ }
+    if (cached && cached.content && (!cached.version || !currentVersion || cached.version === currentVersion)) {
+      planContent.innerHTML = mdToHtml(cached.content);
+      planLoading.hidden = true;
+      planContent.hidden = false;
+    } else {
+      generate();
+    }
+  })();
 })();

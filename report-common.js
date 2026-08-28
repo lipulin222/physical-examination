@@ -265,14 +265,21 @@ function initReport(SYS_INFO, defaultKey) {
       window.location.href = 'agent-page/index.html';
     });
 
-    // 05 部分：AI深度定制计划（底部大按钮）+ 深入定制（标题栏小按钮）
-    // 两个入口都进入 agent 页，走"提纲提问 → 生成计划书"完整流程
-    const openPlanAgent = () => {
-      saveReportCtx(defaultKey, '健康管理');
-      window.location.href = 'agent-page/index.html';
+    // 05 部分：查看健康计划书（底部大按钮）+ 查看完整版（标题栏小按钮）
+    // 已有信息采集记录 → 直接进入计划书页查看（优先展示已生成内容）；没有记录 → 先去 agent 完成采集
+    const openPlanView = () => {
+      const hasCtx = (() => {
+        try { return !!(localStorage.getItem('reportPlanCtx') || sessionStorage.getItem('reportPlanCtx')); } catch (e) { return false; }
+      })();
+      if (hasCtx) {
+        window.location.href = 'agent-page/plan.html';
+      } else {
+        saveReportCtx(defaultKey, '健康管理');
+        window.location.href = 'agent-page/index.html';
+      }
     };
     document.querySelectorAll('.lifestyle__deep-cta[data-plan], .module__head-btn[data-plan]').forEach((btn) => {
-      btn.addEventListener('click', openPlanAgent);
+      btn.addEventListener('click', openPlanView);
     });
 
     // 05 部分：卡片内"AI深度建议"按钮（李璞璘/李承华等旧版页面保留）

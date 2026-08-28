@@ -246,7 +246,7 @@
     return lines.join('\n');
   }
 
-  // 信息采集完成：整理回答 → 保存上下文 → 跳转计划书生成页
+  // 信息采集完成：整理回答 → 保存上下文 → 在对话中推送计划书卡片（不自动跳转）
   function handleGeneratePlan() {
     if (!currentCtx) return;
     const payload = JSON.stringify({
@@ -257,8 +257,43 @@
     });
     try { localStorage.setItem('reportPlanCtx', payload); } catch (e) { /* 忽略 */ }
     try { sessionStorage.setItem('reportPlanCtx', payload); } catch (e) { /* 忽略 */ }
-    appendMessage('好的，信息收集完毕。我正在整理您的回答，为您生成专属《个人健康管理计划书》…', false);
-    setTimeout(() => { window.location.href = 'plan.html'; }, 900);
+    // 采集信息已更新，清除旧计划书缓存，点击卡片时用最新信息重新生成
+    try { localStorage.removeItem('reportPlan'); } catch (e) { /* 忽略 */ }
+    appendPlanCard();
+  }
+
+  // 在对话末尾推送"计划书卡片"：点击进入 plan 页查看/生成计划书
+  function appendPlanCard() {
+    const item = document.createElement('div');
+    item.className = 'chat__item chat__item--bot';
+    item.innerHTML = `
+      <div class="chat__avatar">
+        <svg viewBox="0 0 48 48" fill="none">
+          <rect x="6" y="6" width="36" height="36" rx="8" fill="#16b2b2"/>
+          <circle cx="18" cy="22" r="3" fill="#fff"/>
+          <circle cx="30" cy="22" r="3" fill="#fff"/>
+          <rect x="20" y="30" width="8" height="2" rx="1" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="chat__content">
+        <button type="button" class="plan-card" id="planCardBtn">
+          <span class="plan-card__icon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+          <span class="plan-card__body">
+            <span class="plan-card__title">您的健康计划书已生成</span>
+            <span class="plan-card__sub">点击查看专属 90 天行动方案</span>
+          </span>
+          <span class="plan-card__arrow">›</span>
+        </button>
+      </div>
+    `;
+    chatList.appendChild(item);
+    const btn = item.querySelector('#planCardBtn');
+    if (btn) {
+      btn.addEventListener('click', () => { window.location.href = 'plan.html'; });
+    }
+    scrollToBottom();
   }
 
   // 配置化构建 System Prompt：不写死 replace 链，按模块注册表逐个替换
