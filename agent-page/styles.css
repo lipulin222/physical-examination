@@ -5,6 +5,9 @@
   padding: 0;
 }
 
+/* 强制 [hidden] 属性生效：避免 display:flex 等规则覆盖默认的 display:none */
+[hidden] { display: none !important; }
+
 html, body {
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;

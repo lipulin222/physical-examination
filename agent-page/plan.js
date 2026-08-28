@@ -3,6 +3,9 @@
   const API_URL = 'https://api.inner-book.top:3000/v1/chat/completions';
   const API_KEY = 'Bearer pulinli222666uiqo';
 
+  // 计划书提示词版本号：调整 System Prompt 后请递增此号，使旧缓存自动失效并重新生成
+  const PROMPT_VERSION = '2';
+
   // ===== 计划书生成 System Prompt（卓正健康智能体 · 个人健康管理计划书）=====
   // 前置于本模板的还有：【用户体检报告解读结果】【前置健康信息采集结果】两个信息块
   const SYSTEM_PROMPT_TEMPLATE_PLAN = `# 角色
@@ -748,6 +751,7 @@
 
     planLoading.hidden = false;
     planContent.hidden = true;
+    planContent.innerHTML = '';
     planLoading.querySelector('.plan__loading-text').textContent = '正在结合您的体检结果与回答，生成专属计划书…';
     planLoading.querySelector('.plan__loading-sub').textContent = '生成内容较长，约需 30–60 秒，请耐心等待';
     scrollToTop();
@@ -787,6 +791,7 @@
         const cachedCtx = (() => { try { return JSON.parse(localStorage.getItem('reportPlanCtx')); } catch (e) { return null; } })();
         localStorage.setItem('reportPlan', JSON.stringify({
           version: (cachedCtx && cachedCtx.version) || '',
+          promptVersion: PROMPT_VERSION,
           content: finalContent,
           time: Date.now()
         }));
@@ -831,12 +836,16 @@
       const rawPlan = localStorage.getItem('reportPlan');
       if (rawPlan) cached = JSON.parse(rawPlan);
     } catch (e) { /* 忽略 */ }
-    if (cached && cached.content && (!cached.version || !currentVersion || cached.version === currentVersion)) {
+    if (cached && cached.content && cached.promptVersion === PROMPT_VERSION && (!cached.version || !currentVersion || cached.version === currentVersion)) {
       planContent.innerHTML = mdToHtml(cached.content);
       planLoading.hidden = true;
       planContent.hidden = false;
       scrollToTop();
     } else {
+      // 缓存过期（提示词已升级或版本不匹配），清掉旧缓存并重新生成
+      if (cached) {
+        try { localStorage.removeItem('reportPlan'); } catch (e) { /* 忽略 */ }
+      }
       generate();
     }
   })();
