@@ -173,13 +173,10 @@
 
 # 《个人健康管理计划书》
 
-副标题：
+用无序列表输出以下元信息（不要写"副标题"或类似的副标题/引语段落）：
 
-> 基于本次体检结果，为你制定的90天健康改善计划
-
-注明计划周期：
-
-> XXXX年XX月XX日—XXXX年XX月XX日
+- **计划书拥有者**：[从【用户体检报告解读结果】中获取用户姓名]
+- **计划周期**：{{PLAN_START}} 至 {{PLAN_END}}（这是占位符，前端会按"生成时间 ~ 生成时间 + 3 个月"自动替换为真实日期，AI 不要自己编造日期）
 
 ---
 
@@ -653,6 +650,16 @@
 
 ---
 
+# 三·五、篇幅与结构控制
+
+- 整体篇幅请在合理范围内压缩约 10%，避免大段长文
+- 优先用短句（每句不超过 25 字）
+- 能用无序/有序列表分点表达的，不要用大段段落
+- 单个段落长度不超过 3-4 行
+- 章节内多用列表分隔不同信息块，便于扫读
+- 关键信息（做什么、为什么、什么时候、怎么做）尽量用列表项呈现
+- 不要写大段铺垫或总结性"鸡汤"段落，简洁直接
+
 # 四、文案风格
 
 整体语气：
@@ -803,17 +810,26 @@
         : '';
       if (!content) throw new Error('未收到有效回复，请重试');
 
-      planContent.innerHTML = mdToHtml(content);
+      // 填充计划周期占位符：{{PLAN_START}} / {{PLAN_END}}（生成时间 ~ +3 个月）
+      const now = new Date();
+      const fmt = (d) => `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+      const end = new Date(now);
+      end.setMonth(end.getMonth() + 3);
+      const finalContent = content
+        .replace(/\{\{PLAN_START\}\}/g, fmt(now))
+        .replace(/\{\{PLAN_END\}\}/g, fmt(end));
+
+      planContent.innerHTML = mdToHtml(finalContent);
       planLoading.hidden = true;
       planContent.hidden = false;
       // 回到顶部，直接呈现计划书内容（loading 态完全消失）
       scrollToTop();
-      // 缓存计划书内容，方便后续从 agent 卡片 / 报告页按钮直接重复查看
+      // 缓存计划书内容（已填日期），方便后续从 agent 卡片 / 报告页按钮直接重复查看
       try {
         const cachedCtx = (() => { try { return JSON.parse(localStorage.getItem('reportPlanCtx')); } catch (e) { return null; } })();
         localStorage.setItem('reportPlan', JSON.stringify({
           version: (cachedCtx && cachedCtx.version) || '',
-          content,
+          content: finalContent,
           time: Date.now()
         }));
       } catch (e) { /* 忽略 */ }

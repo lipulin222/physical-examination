@@ -628,9 +628,65 @@ ul {
 .plan__content p { margin: 8px 0; }
 .plan__content strong { color: #0a6f6f; font-weight: 700; }
 .plan__content em { color: #3a4048; }
-.plan__content ul,
-.plan__content ol { margin: 8px 0 8px 22px; padding: 0; }
-.plan__content li { margin: 5px 0; }
+/* 无序列表：浅青卡片 + 渐变小圆点，让多信息块更清晰分隔 */
+.plan__content ul {
+  list-style: none;
+  margin: 12px 0 14px;
+  padding: 10px 14px 10px 18px;
+  background: #f7fafa;
+  border-radius: 12px;
+  border: 1px solid rgba(13, 138, 138, 0.08);
+}
+.plan__content ul li {
+  position: relative;
+  padding: 4px 0 4px 16px;
+  margin: 0;
+  color: #3a4048;
+}
+.plan__content ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 13px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #14a3a3, #0e8f8f);
+  box-shadow: 0 0 0 2px rgba(14, 143, 143, 0.12);
+}
+/* 有序列表 */
+.plan__content ol {
+  list-style: none;
+  counter-reset: plan-ol;
+  margin: 12px 0 14px;
+  padding: 10px 14px;
+  background: #f7fafa;
+  border-radius: 12px;
+  border: 1px solid rgba(13, 138, 138, 0.08);
+}
+.plan__content ol li {
+  position: relative;
+  padding: 4px 0 4px 28px;
+  margin: 0;
+  counter-increment: plan-ol;
+  color: #3a4048;
+}
+.plan__content ol li::before {
+  content: counter(plan-ol);
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #14a3a3, #0e8f8f);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .plan__content hr {
   border: none;
   border-top: 1px solid #eef0f3;
