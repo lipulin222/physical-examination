@@ -806,6 +806,8 @@
       planContent.innerHTML = mdToHtml(content);
       planLoading.hidden = true;
       planContent.hidden = false;
+      // 回到顶部，直接呈现计划书内容（loading 态完全消失）
+      scrollToTop();
       // 缓存计划书内容，方便后续从 agent 卡片 / 报告页按钮直接重复查看
       try {
         const cachedCtx = (() => { try { return JSON.parse(localStorage.getItem('reportPlanCtx')); } catch (e) { return null; } })();
@@ -859,6 +861,7 @@
       planContent.innerHTML = mdToHtml(cached.content);
       planLoading.hidden = true;
       planContent.hidden = false;
+      scrollToTop();
     } else {
       generate();
     }

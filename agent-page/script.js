@@ -278,11 +278,11 @@
       <div class="chat__content">
         <button type="button" class="plan-card" id="planCardBtn">
           <span class="plan-card__icon">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           </span>
           <span class="plan-card__body">
-            <span class="plan-card__title">您的健康计划书已生成</span>
-            <span class="plan-card__sub">点击查看专属 90 天行动方案</span>
+            <span class="plan-card__title"><span class="plan-card__badge">专属</span>您的健康计划书已生成</span>
+            <span class="plan-card__sub">点击查看为您定制的 90 天行动方案</span>
           </span>
           <span class="plan-card__arrow">›</span>
         </button>

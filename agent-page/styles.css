@@ -526,7 +526,7 @@ ul {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 0 12px 24px;
+  padding: 12px 12px 28px;
 }
 
 /* 加载状态 */
@@ -573,125 +573,171 @@ ul {
 }
 .plan__retry:active { transform: scale(0.96); }
 
-/* 计划书内容（白卡 + markdown 排版） */
+/* 计划书内容：卡片化分层排版（参考体检报告解读页规范） */
 .plan__content {
-  background: #fff;
-  border-radius: 14px;
-  padding: 20px 18px 28px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-  font-size: 15px;
-  color: #2b2f36;
-  line-height: 1.75;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px 18px 30px;
+  box-shadow: 0 12px 40px rgba(17, 20, 24, 0.06);
+  font-size: 14.5px;
+  color: #5b616e;
+  line-height: 1.85;
   word-break: break-word;
+  animation: planFadeIn 0.4s ease;
 }
+@keyframes planFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* 章节大标题（# 01｜…）：浅底 + 主色左边条，营造模块层次 */
 .plan__content h1 {
-  font-size: 21px;
+  font-size: 17px;
   font-weight: 700;
-  color: #0e8f8f;
-  margin: 20px 0 10px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid rgba(14, 143, 143, 0.18);
+  color: #111418;
+  margin: 24px 0 12px;
+  padding: 11px 14px;
+  background: linear-gradient(135deg, #e6f4f4 0%, rgba(230, 244, 244, 0.35) 100%);
+  border-left: 4px solid #0d8a8a;
+  border-radius: 8px;
+  letter-spacing: 0.2px;
 }
 .plan__content h1:first-child { margin-top: 0; }
+
+/* 小节标题（## …）：主色 + 左侧竖条 */
 .plan__content h2 {
-  font-size: 18px;
+  font-size: 15.5px;
   font-weight: 700;
-  color: #0e8f8f;
-  margin: 22px 0 8px;
+  color: #0d8a8a;
+  margin: 18px 0 8px;
+  padding-left: 10px;
+  border-left: 3px solid #0d8a8a;
 }
 .plan__content h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin: 16px 0 6px;
-}
-.plan__content h4 {
   font-size: 15px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #111418;
+  margin: 14px 0 6px;
+}
+.plan__content h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111418;
   margin: 12px 0 4px;
 }
-.plan__content p { margin: 6px 0; }
-.plan__content strong { color: #0a7a7a; font-weight: 600; }
-.plan__content em { color: #4a5560; }
+.plan__content p { margin: 8px 0; }
+.plan__content strong { color: #0a6f6f; font-weight: 700; }
+.plan__content em { color: #3a4048; }
 .plan__content ul,
-.plan__content ol { margin: 6px 0 6px 20px; }
-.plan__content li { margin: 3px 0; }
+.plan__content ol { margin: 8px 0 8px 22px; padding: 0; }
+.plan__content li { margin: 5px 0; }
 .plan__content hr {
   border: none;
   border-top: 1px solid #eef0f3;
-  margin: 16px 0;
+  margin: 18px 0;
 }
 .plan__content code {
-  background: rgba(14, 143, 143, 0.08);
-  color: #0a7a7a;
+  background: rgba(13, 138, 138, 0.08);
+  color: #0a6f6f;
   border-radius: 4px;
-  padding: 1px 5px;
+  padding: 1px 6px;
   font-size: 13px;
 }
+/* 引用 / 关键要点：浅色卡片化 */
 .plan__content blockquote {
-  margin: 8px 0;
-  padding: 8px 12px;
-  background: rgba(14, 143, 143, 0.06);
-  border-left: 3px solid #0e8f8f;
-  border-radius: 0 8px 8px 0;
-  color: #4a5560;
+  margin: 10px 0;
+  padding: 10px 14px;
+  background: #f0f8f8;
+  border-left: 3px solid #0d8a8a;
+  border-radius: 0 10px 10px 0;
+  color: #3a4048;
 }
 
 /* ===== 对话中的"计划书卡片"（AI 采集完成后推送，点击进入计划书页） ===== */
 .plan-card {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
   text-align: left;
-  border: 1.5px solid rgba(14, 143, 143, 0.35);
-  background: #fff;
-  border-radius: 12px;
-  padding: 12px 14px;
+  border: 1.5px solid rgba(14, 143, 143, 0.25);
+  background: linear-gradient(135deg, #ffffff 0%, #eaf7f7 100%);
+  border-radius: 16px;
+  padding: 14px;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(13, 138, 138, 0.1);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 6px 18px rgba(13, 138, 138, 0.12);
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.plan-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #14a3a3, #0e8f8f);
 }
 .plan-card:active {
   transform: scale(0.98);
-  box-shadow: 0 2px 6px rgba(13, 138, 138, 0.16);
-  border-color: #0e8f8f;
+  box-shadow: 0 3px 10px rgba(13, 138, 138, 0.18);
 }
 .plan-card__icon {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #14a3a3, #0e8f8f);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 10px rgba(13, 138, 138, 0.28);
 }
 .plan-card__icon svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 .plan-card__body {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  gap: 3px;
 }
 .plan-card__title {
-  font-size: 14.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #0a6f6f;
+}
+.plan-card__badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #14a3a3, #0e8f8f);
+  border-radius: 4px;
+  padding: 1px 5px;
+  letter-spacing: 0.5px;
 }
 .plan-card__sub {
   font-size: 12px;
-  color: #7a8089;
+  color: #6b737c;
 }
 .plan-card__arrow {
   flex-shrink: 0;
-  font-size: 20px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(14, 143, 143, 0.12);
   color: #0e8f8f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
   line-height: 1;
 }
