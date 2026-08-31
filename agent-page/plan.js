@@ -1101,7 +1101,10 @@
     } catch (err) {
       planLoading.hidden = false;
       planContent.hidden = true;
-      planLoading.querySelector('.loading-text').textContent = '生成失败：' + err.message;
+      const isNetErr = err && (err instanceof TypeError || /failed to fetch|networkerror/i.test(String(err.message)));
+      planLoading.querySelector('.loading-text').textContent = isNetErr
+        ? '生成失败：网络或跨域(CORS)请求被拦截。请确认通过 GitHub Pages 线上地址访问（https://lipulin222.github.io/physical-examination/）；本地打开文件或 localhost 预览会因接口跨域白名单限制而失败。'
+        : '生成失败：' + err.message;
       planLoading.querySelector('.loading-sub').textContent = '';
       const retry = document.createElement('button');
       retry.type = 'button';

@@ -738,7 +738,10 @@
         setTimeout(handleGeneratePlan, 700);
       }
     } catch (err) {
-      typing.textContent = '回复失败：' + err.message + ' 请稍后重试。';
+      const isNetErr = err && (err instanceof TypeError || /failed to fetch|networkerror/i.test(String(err.message)));
+      typing.textContent = isNetErr
+        ? '回复失败：网络或跨域(CORS)请求被拦截。请确认通过 GitHub Pages 线上地址访问（https://lipulin222.github.io/physical-examination/）；本地打开文件或 localhost 预览会因接口跨域白名单限制而失败。'
+        : '回复失败：' + err.message + ' 请稍后重试。';
       scrollToBottom();
     }
   }
