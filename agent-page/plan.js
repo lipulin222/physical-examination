@@ -634,32 +634,383 @@
     return div.innerHTML;
   }
 
-  // 轻量 Markdown 渲染：标题/加粗/斜体/行内代码/列表/分隔线/段落
-  function mdToHtml(text) {
-    const lines = text.split('\n');
-    let html = '';
-    let inList = false;
-    let listType = '';
-    const closeList = () => { if (inList) { html += '</' + listType + '>'; inList = false; } };
-    const inline = (s) => s
+  // ===== 计划书渲染器（设计稿风格组件） =====
+  // 将 AI 输出的结构化 markdown 渲染为设计稿组件：
+  //   # 0N｜章节 → 章节头（含目录锚点与导航）
+  //   ## 核心健康目标 → 目标卡片（### 目标N｜）
+  //   ## A. 饮食 → 行动模块（问题卡 / 行动卡 / Plan B）
+  //   ## 第N阶段｜ → 阶段时间线卡片
+  //   ### 当前3个主要攻克点 → 关键词 chips
+  //   其余 → 优雅的正文排版（段落/引用/列表/表格）
+  const metaStore = { owner: '', period: '' };
+
+  // 行内 Markdown：转义 + 加粗/斜体/行内代码
+  function inlineMd(s) {
+    return String(s)
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/`([^`]+)`/g, '<code>$1</code>')
       .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  }
 
-    for (const raw of lines) {
-      const line = escapeHtml(raw).trim();
-      if (line === '') { closeList(); continue; }
-      if (/^(-{3,}|\*{3,})$/.test(line)) { closeList(); html += '<hr />'; continue; }
-      const h = line.match(/^(#{1,6})\s+(.*)$/);
-      if (h) { closeList(); const l = h[1].length; html += '<h' + l + '>' + inline(h[2]) + '</h' + l + '>'; continue; }
-      const ul = line.match(/^[-*+]\s+(.*)$/);
-      if (ul) { if (!inList || listType !== 'ul') { closeList(); html += '<ul>'; inList = true; listType = 'ul'; } html += '<li>' + inline(ul[1]) + '</li>'; continue; }
-      const ol = line.match(/^\d+[.、)]\s+(.*)$/);
-      if (ol) { if (!inList || listType !== 'ol') { closeList(); html += '<ol>'; inList = true; listType = 'ol'; } html += '<li>' + inline(ol[1]) + '</li>'; continue; }
-      closeList(); html += '<p>' + inline(line) + '</p>';
+  function renderPlan(text) {
+    if (!text) return '';
+    // 1) 提取元信息（计划书主人 / 计划周期）
+    let cleaned = text.replace(/^-?\s*\*\*计划书主人\*\*\s*[：:]\s*([^\n（【]+)/gm, (m, v) => { metaStore.owner = v.trim(); return ''; });
+    cleaned = cleaned.replace(/^-?\s*\*\*计划周期\*\*\s*[：:]\s*([^\n（【]+)/gm, (m, v) => { metaStore.period = v.trim(); return ''; });
+
+    // 2) 按章节切分：# 01｜xxx
+    const parts = cleaned.split(/^#\s+(0?\d{1,2})\s*[｜|]\s*(.+)$/m);
+    let html = '';
+    const toc = [];
+    for (let i = 1; i < parts.length; i += 3) {
+      const num = String(parseInt(parts[i], 10) || 0).padStart(2, '0');
+      const title = parts[i + 1].trim();
+      const body = parts[i + 2] || '';
+      toc.push({ num, title });
+      const tinted = num === '04';
+      html += '<section class="section' + (tinted ? ' section--tinted' : '') + '" id="s' + num + '">' +
+              '<div class="section-head"><p class="section-eyebrow">' + num + '</p><h2 class="section-title">' + escapeHtml(title) + '</h2></div>' +
+              renderSectionBody(body) + '</section>';
     }
-    closeList();
+    if (parts[0] && parts[0].trim()) html = renderProse(parts[0]) + html;
+    buildToc(toc);
+    buildSectionNav(toc);
     return html;
+  }
+
+  // 章节内部：按 ## 切块后逐个渲染
+  function renderSectionBody(body) {
+    const blocks = body.split(/^##\s+(.*)$/m);
+    let html = '';
+    if (blocks[0] && blocks[0].trim()) html += renderProse(blocks[0]);
+    for (let i = 1; i < blocks.length; i += 2) {
+      const sub = (blocks[i] || '').trim();
+      const subBody = blocks[i + 1] || '';
+      html += renderBlock(sub, subBody);
+    }
+    return html;
+  }
+
+  // 单个 ## 子块分派
+  function renderBlock(sub, body) {
+    if (!sub) return renderProse(body);
+    // 阶段时间线
+    let m = sub.match(/^第(\d+)阶段\s*[｜|]\s*(.+)$/);
+    if (m) return renderPhase(m[1], m[2].trim(), body);
+    // 核心健康目标 → 目标卡片
+    if (/核心健康目标/.test(sub)) return renderGoals(body);
+    // 行动模块 A. 饮食
+    m = sub.match(/^([A-Ha-h])\s*[.、]\s*(.+)$/);
+    if (m) return renderModule(m[1].toUpperCase(), m[2].trim(), body);
+    // 普通子标题
+    return '<h3 class="sub-title">' + escapeHtml(sub) + '</h3>' + renderProse(body);
+  }
+
+  // ===== 02 目标卡片 =====
+  function renderGoals(body) {
+    const parts = body.split(/^###\s*目标\s*(\d+)\s*[｜|]\s*(.+)$/m);
+    let html = '<div class="goals">';
+    if (parts[0] && parts[0].trim()) html += renderProse(parts[0]);
+    for (let i = 1; i < parts.length; i += 3) {
+      html += renderGoalCard(parts[i], parts[i + 1].trim(), parts[i + 2] || '');
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function renderGoalCard(num, title, body) {
+    const fields = [];
+    for (const raw of body.split('\n')) {
+      const line = raw.trim();
+      if (!line) continue;
+      const m = line.match(/^[-*]\s*\*\*(.+?)\*\*\s*[：:]\s*([\s\S]*)$/);
+      if (m) fields.push({ label: m[1].trim(), value: m[2].trim() });
+    }
+    const headIcon = '<svg class="goal-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>';
+    let quantHtml = '';
+    let rowHtml = '';
+    for (const f of fields) {
+      if (/天目标|月目标/.test(f.label)) {
+        quantHtml = '<div class="goal-quant"><p class="goal-quant-label">' + escapeHtml(f.label) + '</p><p class="goal-quant-value">' + inlineMd(f.value) + '</p></div>';
+      } else {
+        rowHtml += '<div class="goal-row"><p class="goal-row-label">' + escapeHtml(f.label) + '</p><p class="goal-row-value">' + inlineMd(f.value) + '</p></div>';
+      }
+    }
+    return '<article class="goal-card"><div class="goal-head">' + headIcon +
+      '<div><p class="goal-tag">目标 ' + num + '</p><h3 class="goal-title">' + escapeHtml(title) + '</h3></div></div>' +
+      '<div class="goal-body">' + quantHtml + rowHtml + '</div></article>';
+  }
+
+  // ===== 03 行动模块 =====
+  function renderModule(letter, title, body) {
+    let html = '<div class="module-head"><span class="module-letter">' + letter + '</span><h3 class="module-title">' + escapeHtml(title) + '</h3></div>';
+    const blocks = body.split(/^###\s+(.*)$/m);
+    if (blocks[0] && blocks[0].trim()) html += renderProse(blocks[0]);
+    for (let i = 1; i < blocks.length; i += 2) {
+      const h = (blocks[i] || '').trim();
+      const hb = blocks[i + 1] || '';
+      if (/你现在的问题是什么/.test(h)) {
+        html += '<div class="issue-card"><p class="card-caption">你现在的问题是什么</p>' + renderProse(hb) + '</div>';
+      } else if (/接下来具体怎么做/.test(h)) {
+        html += '<p class="section-caption">接下来具体怎么做</p>' + renderActions(hb);
+      } else {
+        html += '<h4 class="h4">' + escapeHtml(h) + '</h4>' + renderProse(hb);
+      }
+    }
+    return html;
+  }
+
+  // 行动项 + Plan B
+  function renderActions(text) {
+    const lines = text.split('\n');
+    const cards = [];
+    let cur = null;
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) continue;
+      // Plan B 行（挂到上一个行动卡）
+      const planb = line.match(/^[-*]\s*\*\*【?\s*Plan B\s*】?\*\*\s*[：:]\s*(.+)$/i);
+      if (planb) {
+        if (cur) cur.planb = planb[1].trim();
+        else cards.push({ title: '', body: '', planb: planb[1].trim() });
+        continue;
+      }
+      let content = line;
+      const act = line.match(/^[-*]\s*\*\*【\s*做什么\s*\+\s*做到什么程度\s*】\*\*\s*[：:]\s*(.+)$/);
+      if (act) content = act[1].trim();
+      else if (/^[-*]\s/.test(line)) content = line.replace(/^[-*]\s+/, '').trim();
+      // 用第一个中文冒号拆“标题：说明”
+      const colon = content.match(/^([^：]{4,30}?)[：:]\s*(.+)$/);
+      if (colon && colon[2].length >= colon[1].length) {
+        cards.push({ title: colon[1].trim(), body: colon[2].trim(), planb: '' });
+      } else {
+        cards.push({ title: content, body: '', planb: '' });
+      }
+      cur = cards[cards.length - 1];
+    }
+    let html = '<div class="action-list">';
+    for (const c of cards) {
+      html += '<div class="action-card">';
+      if (c.title) html += '<h4 class="action-title">' + inlineMd(c.title) + '</h4>';
+      if (c.body) html += '<p class="action-text">' + inlineMd(c.body) + '</p>';
+      if (c.planb) html += '<p class="planb"><strong>Plan B</strong> ' + inlineMd(c.planb) + '</p>';
+      html += '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // ===== 04 阶段时间线 =====
+  function renderPhase(num, title, body) {
+    let label = title;
+    let days = '';
+    const dm = title.match(/^([\d\-–~至]+天)\s*[：:]\s*(.+)$/);
+    if (dm) { days = dm[1]; label = dm[2]; }
+    const fields = {};
+    const todoList = [];
+    let mode = '';
+    for (const raw of body.split('\n')) {
+      const line = raw.trim();
+      if (!line) continue;
+      const fm = line.match(/^[-*]\s*\*\*(.+?)\*\*\s*[：:]\s*([\s\S]*)$/);
+      if (fm) {
+        const lb = fm[1].trim();
+        const val = fm[2].trim();
+        if (/你要做的/.test(lb)) {
+          mode = 'todo';
+          if (val) splitTodo(val).forEach((t) => todoList.push(t));
+        } else if (/本阶段目标/.test(lb)) { mode = 'goal'; fields.goal = val; }
+        else if (/完成标准/.test(lb)) { mode = 'done'; fields.done = val; }
+        else if (/没做到|没达成/.test(lb)) { mode = 'miss'; fields.miss = val; }
+        else mode = '';
+        continue;
+      }
+      const ol = line.match(/^\d+[.、)]\s+(.+)$/);
+      if (ol) { todoList.push(ol[1].trim()); continue; }
+      const ul = line.match(/^[-*]\s+(.+)$/);
+      if (ul) { if (mode === 'todo') todoList.push(ul[1].trim()); continue; }
+      if (mode === 'goal') fields.goal = (fields.goal ? fields.goal + ' ' : '') + line;
+    }
+
+    let html = '<div class="timeline-item"><span class="timeline-num">' + num + '</span><div class="phase-card">';
+    html += '<div class="phase-head"><h3 class="phase-title">第 ' + num + ' 阶段｜' + escapeHtml(label) + '</h3>' +
+      (days ? '<span class="phase-days">' + escapeHtml(days) + '</span>' : '') + '</div>';
+    if (fields.goal) html += '<p class="phase-goal"><strong>本阶段目标：</strong>' + inlineMd(fields.goal) + '</p>';
+    if (todoList.length) {
+      html += '<p class="phase-list-label">你要做的 3 件事</p><ul class="phase-list">';
+      todoList.forEach((t, idx) => {
+        html += '<li><span class="phase-num">' + (idx + 1) + '</span><span class="phase-list-item">' + inlineMd(t) + '</span></li>';
+      });
+      html += '</ul>';
+    }
+    if (fields.done || fields.miss) {
+      html += '<div class="phase-foot">';
+      if (fields.done) html += '<p class="phase-complete"><strong>完成标准：</strong>' + inlineMd(fields.done) + '</p>';
+      if (fields.miss) html += '<p class="phase-miss"><strong>没做到怎么办：</strong>' + inlineMd(fields.miss) + '</p>';
+      html += '</div>';
+    }
+    html += '</div></div>';
+    return html;
+  }
+
+  function splitTodo(val) {
+    const m = val.match(/^[一二三123]\s*[.、)]\s*(.+)$/);
+    const v = m ? m[1] : val;
+    // 条目间用「；/;」分隔；若没有分号则整条视为一项（保留「｜类别」前缀）
+    if (/；|;/.test(v)) return v.split(/；|;/).map((s) => s.trim()).filter(Boolean);
+    return [v.trim()];
+  }
+
+  // ===== 通用正文 =====
+  function renderProse(text) {
+    const lines = text.split('\n');
+    let html = '<div class="prose">';
+    let listOpen = false;
+    let listType = '';
+    const closeList = () => { if (listOpen) { html += '</' + listType + '>'; listOpen = false; } };
+    const flushChips = () => {
+      if (chips.length) {
+        html += '<div class="chips">' + chips.map((c) => '<span class="chip">' + inlineMd(c) + '</span>').join('') + '</div>';
+        chips = [];
+      }
+    };
+    let chips = [];
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i].trim();
+      if (!line) { closeList(); flushChips(); i++; continue; }
+      // 表格
+      if (line.startsWith('|')) {
+        const rows = [];
+        while (i < lines.length && lines[i].trim().startsWith('|')) { rows.push(lines[i].trim()); i++; }
+        closeList(); flushChips();
+        html += renderTable(rows);
+        continue;
+      }
+      // 引用（强调卡）
+      if (line.startsWith('>')) {
+        const quoteLines = [];
+        while (i < lines.length && lines[i].trim().startsWith('>')) { quoteLines.push(lines[i].trim().replace(/^>\s?/, '')); i++; }
+        closeList(); flushChips();
+        html += '<blockquote class="quote-card">' + quoteLines.map((q) => '<p>' + inlineMd(q) + '</p>').join('') + '</blockquote>';
+        continue;
+      }
+      // 关键词 chips（可跳过 ### 与列表间的空行）
+      const kw = line.match(/^###\s*((?:当前3个主要攻克点|当前3个关键词|你的\s*3个关键词|你的3个关键词))\s*$/);
+      if (kw) {
+        closeList(); flushChips();
+        html += '<p class="section-caption">' + escapeHtml(kw[1]) + '</p>';
+        const chipLines = [];
+        let j = i + 1;
+        while (j < lines.length) {
+          const n = lines[j].trim();
+          if (!n) { j++; continue; }
+          const cu = n.match(/^[-*]\s+(.+)$/);
+          if (cu) { chipLines.push(cu[1].trim()); j++; }
+          else break;
+        }
+        if (chipLines.length) html += '<div class="chips">' + chipLines.map((c) => '<span class="chip">' + inlineMd(c) + '</span>').join('') + '</div>';
+        i = j - 1;
+        i++;
+        continue;
+      }
+      // 三级标题
+      const h3 = line.match(/^###\s+(.+)$/);
+      if (h3) { closeList(); flushChips(); html += '<h4 class="h4">' + inlineMd(h3[1]) + '</h4>'; i++; continue; }
+      // 无序列表
+      const ul = line.match(/^[-*]\s+(.+)$/);
+      if (ul) {
+        if (!listOpen || listType !== 'ul') { closeList(); html += '<ul class="plain-list">'; listOpen = true; listType = 'ul'; }
+        html += '<li>' + inlineMd(ul[1]) + '</li>';
+        i++; continue;
+      }
+      // 有序列表
+      const ol = line.match(/^\d+[.、)]\s+(.+)$/);
+      if (ol) {
+        if (!listOpen || listType !== 'ol') { closeList(); html += '<ol>'; listOpen = true; listType = 'ol'; }
+        html += '<li>' + inlineMd(ol[1]) + '</li>';
+        i++; continue;
+      }
+      // 分隔线
+      if (/^(-{3,}|\*{3,})$/.test(line)) { closeList(); flushChips(); html += '<hr/>'; i++; continue; }
+      // 段落
+      closeList(); flushChips();
+      html += '<p>' + inlineMd(line) + '</p>';
+      i++;
+    }
+    closeList(); flushChips();
+    html += '</div>';
+    return html;
+  }
+
+  // markdown 表格 → 设计稿表格
+  function renderTable(rows) {
+    const parse = (r) => r.replace(/^\||\|$/g, '').split('|').map((s) => s.trim());
+    const headers = parse(rows[0] || '');
+    const data = [];
+    for (let i = 1; i < rows.length; i++) {
+      const cells = parse(rows[i]);
+      if (cells.every((c) => /^:?-{2,}:?$/.test(c))) continue;
+      data.push(cells);
+    }
+    let html = '<div class="table-wrap"><table class="plan-table"><thead><tr>';
+    headers.forEach((h) => { html += '<th>' + inlineMd(h) + '</th>'; });
+    html += '</tr></thead><tbody>';
+    data.forEach((row) => {
+      html += '<tr>';
+      row.forEach((c) => { html += '<td>' + inlineMd(c) + '</td>'; });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    return html;
+  }
+
+  // ===== 目录 & 导航 & 元信息 =====
+  function buildToc(toc) {
+    const list = document.getElementById('tocList');
+    if (!list) return;
+    list.innerHTML = '';
+    if (!toc.length) {
+      list.innerHTML = '<li class="toc-empty">—</li>';
+      return;
+    }
+    toc.forEach((t) => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.className = 'toc-link';
+      a.href = '#s' + t.num;
+      a.innerHTML = '<span class="toc-link-inner"><span class="toc-num">' + t.num + '</span><span class="toc-title">' + escapeHtml(t.title) + '</span></span>' +
+        '<svg class="toc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+  }
+
+  function buildSectionNav(toc) {
+    const nav = document.getElementById('sectionNav');
+    if (!nav) return;
+    nav.innerHTML = '';
+    toc.forEach((t) => {
+      const a = document.createElement('a');
+      a.href = '#s' + t.num;
+      a.textContent = t.num;
+      nav.appendChild(a);
+    });
+  }
+
+  function fillMeta() {
+    const o = document.getElementById('metaOwner');
+    const p = document.getElementById('metaPeriod');
+    if (metaStore.owner && o) o.textContent = metaStore.owner;
+    if (metaStore.period && p) p.textContent = metaStore.period;
+    const fd = document.getElementById('footerDate');
+    if (fd) {
+      const now = new Date();
+      const end = new Date(now);
+      end.setMonth(end.getMonth() + 1);
+      const fmt = (d) => d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
+      fd.textContent = fmt(now) + ' — ' + fmt(end);
+    }
   }
 
   function scrollToTop() {
@@ -670,14 +1021,14 @@
   async function generate() {
     const raw = localStorage.getItem('reportPlanCtx') || sessionStorage.getItem('reportPlanCtx');
     // 清理上一次的重试按钮
-    const oldRetry = planLoading.querySelector('.plan__retry');
+    const oldRetry = planLoading.querySelector('.retry-btn');
     if (oldRetry) oldRetry.remove();
 
     if (!raw) {
       planLoading.hidden = false;
       planContent.hidden = true;
-      planLoading.querySelector('.plan__loading-text').textContent = '未找到您的信息采集记录，请回到对话完成信息收集后再生成。';
-      planLoading.querySelector('.plan__loading-sub').textContent = '';
+      planLoading.querySelector('.loading-text').textContent = '未找到您的信息采集记录，请回到对话完成信息收集后再生成。';
+      planLoading.querySelector('.loading-sub').textContent = '';
       return;
     }
 
@@ -685,8 +1036,8 @@
     try { ctx = JSON.parse(raw); } catch (e) {
       planLoading.hidden = false;
       planContent.hidden = true;
-      planLoading.querySelector('.plan__loading-text').textContent = '数据异常，请回到对话重新收集信息。';
-      planLoading.querySelector('.plan__loading-sub').textContent = '';
+      planLoading.querySelector('.loading-text').textContent = '数据异常，请回到对话重新收集信息。';
+      planLoading.querySelector('.loading-sub').textContent = '';
       return;
     }
 
@@ -701,8 +1052,8 @@
     planLoading.hidden = false;
     planContent.hidden = true;
     planContent.innerHTML = '';
-    planLoading.querySelector('.plan__loading-text').textContent = '正在结合您的体检结果与回答，生成专属计划书…';
-    planLoading.querySelector('.plan__loading-sub').textContent = '生成内容较长，约需 30–60 秒，请耐心等待';
+    planLoading.querySelector('.loading-text').textContent = '正在结合您的体检结果与回答，生成专属计划书…';
+    planLoading.querySelector('.loading-sub').textContent = '生成内容较长，约需 30–60 秒，请耐心等待';
     scrollToTop();
 
     try {
@@ -730,9 +1081,10 @@
         .replace(/\{\{PLAN_START\}\}/g, fmt(now))
         .replace(/\{\{PLAN_END\}\}/g, fmt(end));
 
-      planContent.innerHTML = mdToHtml(finalContent);
+      planContent.innerHTML = renderPlan(finalContent);
       planLoading.hidden = true;
       planContent.hidden = false;
+      fillMeta();
       // 回到顶部，直接呈现计划书内容（loading 态完全消失）
       scrollToTop();
       // 缓存计划书内容（已填日期），方便后续从 agent 卡片 / 报告页按钮直接重复查看
@@ -749,8 +1101,8 @@
     } catch (err) {
       planLoading.hidden = false;
       planContent.hidden = true;
-      planLoading.querySelector('.plan__loading-text').textContent = '生成失败：' + err.message;
-      planLoading.querySelector('.plan__loading-sub').textContent = '';
+      planLoading.querySelector('.loading-text').textContent = '生成失败：' + err.message;
+      planLoading.querySelector('.loading-sub').textContent = '';
       const retry = document.createElement('button');
       retry.type = 'button';
       retry.className = 'plan__retry';
@@ -786,9 +1138,10 @@
       if (rawPlan) cached = JSON.parse(rawPlan);
     } catch (e) { /* 忽略 */ }
     if (cached && cached.content && cached.promptVersion === PROMPT_VERSION && (!cached.version || !currentVersion || cached.version === currentVersion)) {
-      planContent.innerHTML = mdToHtml(cached.content);
+      planContent.innerHTML = renderPlan(cached.content);
       planLoading.hidden = true;
       planContent.hidden = false;
+      fillMeta();
       scrollToTop();
     } else {
       // 缓存过期（提示词已升级或版本不匹配），清掉旧缓存并重新生成

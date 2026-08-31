@@ -2,41 +2,380 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>个人健康管理计划书</title>
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== 设计稿主题（澄心健康 · 个人健康管理计划书） ===== */
+    :root {
+      --radius: .625rem;
+      --background: oklch(94.9% .005 75);
+      --foreground: oklch(28% .02 90);
+      --card: oklch(100% 0 0);
+      --card-foreground: oklch(28% .02 90);
+      --popover: oklch(100% 0 0);
+      --popover-foreground: oklch(28% .02 90);
+      --primary: oklch(48% .07 175);
+      --primary-foreground: oklch(97% .01 90);
+      --secondary: oklch(93% .015 100);
+      --secondary-foreground: oklch(40% .05 175);
+      --muted: oklch(93% .015 100);
+      --muted-foreground: oklch(55% .02 90);
+      --accent: oklch(92% .03 170);
+      --accent-foreground: oklch(38% .07 175);
+      --destructive: oklch(57.7% .245 27.325);
+      --border: oklch(90% .012 95);
+      --input: oklch(90% .012 95);
+      --ring: oklch(48% .07 175);
+      --spacing: .25rem;
+      --container-3xl: 48rem;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; tab-size: 4; line-height: 1.5; }
+    body {
+      background: var(--background);
+      color: var(--foreground);
+      font-family: "Noto Sans SC", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+    a { color: inherit; text-decoration: inherit; }
+    strong { font-weight: 600; }
+    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+    img, svg { vertical-align: middle; display: block; }
+
+    .serif, .section-title, .section-eyebrow, .hero-title, .brand-name,
+    .goal-title, .goal-tag, .module-title, .module-letter, .action-title,
+    .phase-title, .phase-num, .toc-num, .meta-value, .chip, .quote-card p {
+      font-family: "Noto Serif SC", "Songti SC", "STSong", serif;
+    }
+
+    /* ===== 顶部导航 ===== */
+    .site-header {
+      position: sticky; top: 0; z-index: 20;
+      border-bottom: 1px solid var(--border);
+      background: color-mix(in oklab, var(--background) 85%, transparent);
+      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    }
+    .header-inner {
+      max-width: var(--container-3xl); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem;
+    }
+    .header-left { display: flex; align-items: center; gap: .375rem; }
+    .brand { display: flex; align-items: center; gap: .625rem; }
+    .brand-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 2rem; height: 2rem; border-radius: 9999px;
+      background: var(--primary); color: var(--primary-foreground);
+    }
+    .brand-name { font-size: 1rem; font-weight: 600; letter-spacing: .1em; }
+    .header-actions { display: flex; align-items: center; gap: .5rem; }
+    .section-nav { display: flex; align-items: center; gap: 1.25rem; font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
+    .section-nav a { transition: color .2s; }
+    .section-nav a:hover { color: var(--primary); }
+    .icon-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 2rem; height: 2rem; border-radius: 9999px; color: var(--foreground);
+      transition: background .2s;
+    }
+    .icon-btn:hover { background: color-mix(in oklab, var(--muted) 70%, transparent); }
+    .refresh-link {
+      font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground);
+      display: flex; align-items: center; gap: .25rem; transition: color .2s;
+    }
+    .refresh-link:hover { color: var(--primary); }
+
+    /* ===== Hero ===== */
+    .hero { max-width: var(--container-3xl); margin: 0 auto; padding: 4rem 1.5rem 3.5rem; }
+    .hero-eyebrow { font-size: .75rem; font-weight: 500; letter-spacing: .4em; color: var(--primary); }
+    .hero-title { margin-top: 1.5rem; font-size: 2.5rem; font-weight: 700; line-height: 1.25; letter-spacing: .05em; }
+    .hero-desc { margin-top: 1.5rem; max-width: 36rem; line-height: 2; color: var(--muted-foreground); }
+    .hero-meta { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+    .meta-card {
+      display: flex; align-items: flex-start; gap: 1rem;
+      border: 1px solid var(--border); border-radius: 1rem;
+      background: var(--card); padding: 1.25rem;
+    }
+    .meta-icon { margin-top: .125rem; color: var(--primary); flex-shrink: 0; }
+    .meta-label { font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
+    .meta-value { margin-top: .25rem; font-size: 1.125rem; font-weight: 600; line-height: 1.4; }
+
+    /* ===== 目录 ===== */
+    .toc { margin-top: 2.5rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); padding: 1.5rem; }
+    .toc-label { margin-bottom: 1rem; font-size: .75rem; font-weight: 500; letter-spacing: .3em; color: var(--muted-foreground); }
+    .toc-list { list-style: none; }
+    .toc-list li { border-bottom: 1px solid var(--border); }
+    .toc-list li:last-child { border-bottom: none; }
+    .toc-link { display: flex; align-items: center; justify-content: space-between; padding: .75rem 0; transition: color .2s; }
+    .toc-link:hover { color: var(--primary); }
+    .toc-link-inner { display: flex; align-items: baseline; gap: 1rem; }
+    .toc-num { font-size: .875rem; font-weight: 600; color: var(--primary); }
+    .toc-title { font-weight: 500; }
+    .toc-arrow { color: var(--muted-foreground); transition: transform .2s, color .2s; flex-shrink: 0; }
+    .toc-link:hover .toc-arrow { transform: translateX(4px); color: var(--primary); }
+    .toc-empty { font-size: .875rem; color: var(--muted-foreground); }
+
+    /* ===== 章节 ===== */
+    .section { max-width: var(--container-3xl); margin: 0 auto; padding: 3.5rem 1.5rem; scroll-margin-top: 5rem; }
+    .section--tinted { background: color-mix(in oklab, var(--card) 60%, transparent); }
+    .section-head { border-top: 2px solid var(--foreground); padding-top: 2rem; }
+    .section-eyebrow {
+      display: flex; align-items: center; gap: .75rem;
+      font-size: .875rem; font-weight: 600; letter-spacing: .3em; color: var(--primary);
+    }
+    .section-eyebrow::before { content: ''; width: 2.5rem; height: 1px; background: color-mix(in oklab, var(--primary) 60%, transparent); }
+    .section-title { margin-top: 1rem; font-size: 1.875rem; font-weight: 700; line-height: 1.3; letter-spacing: .04em; }
+
+    /* 子标题（## xxx） */
+    .sub-title {
+      display: flex; align-items: center; gap: .75rem;
+      margin: 3rem 0 1.25rem;
+      font-family: "Noto Serif SC", "Songti SC", serif;
+      font-size: 1.25rem; font-weight: 600;
+    }
+    .sub-title::before { content: ''; width: .25rem; height: 1.25rem; border-radius: 9999px; background: var(--primary); flex-shrink: 0; }
+
+    /* 小标签（“接下来具体怎么做”等） */
+    .section-caption { margin-top: 2rem; margin-bottom: 1rem; font-size: .75rem; font-weight: 500; letter-spacing: .3em; color: var(--muted-foreground); }
+
+    /* 三级标题（### xxx） */
+    .h4 { margin: 1.5rem 0 .75rem; font-family: "Noto Serif SC", "Songti SC", serif; font-size: 1.0625rem; font-weight: 600; color: var(--foreground); }
+
+    /* ===== 正文排版 ===== */
+    .prose p { line-height: 2; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .prose p + p { margin-top: 1rem; }
+    .prose ul, .prose ol { margin-top: .75rem; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+    .prose ul > li, .prose ol > li { position: relative; padding-left: 1.25rem; line-height: 1.875; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .prose ul > li::before { content: ''; position: absolute; left: .125rem; top: .8em; width: .4rem; height: .4rem; border-radius: 9999px; background: var(--primary); }
+    .prose ol > li { counter-increment: p-ol; }
+    .prose ol { counter-reset: p-ol; }
+    .prose ol > li::before {
+      content: counter(p-ol); position: absolute; left: 0; top: .35em;
+      display: flex; align-items: center; justify-content: center;
+      width: 1.25rem; height: 1.25rem; border-radius: 9999px;
+      background: var(--accent); font-family: "Noto Serif SC", serif; font-size: .7rem; font-weight: 600; color: var(--accent-foreground);
+    }
+
+    /* 强调卡（> 引用） */
+    .quote-card { margin-top: 2rem; border-radius: 1rem; background: var(--accent); padding: 1.5rem; }
+    .quote-card p { font-size: 1.125rem; font-weight: 600; line-height: 2; color: var(--accent-foreground); }
+    .quote-card p + p { margin-top: .5rem; }
+
+    /* 关键词 chips */
+    .chips { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: .75rem; }
+    .chip {
+      border: 1px solid color-mix(in oklab, var(--primary) 30%, transparent);
+      background: var(--card); border-radius: 9999px; padding: .5rem 1.25rem;
+      font-size: 1rem; font-weight: 600; color: var(--primary);
+    }
+
+    /* ===== 02 目标卡片 ===== */
+    .goals { margin-top: 3rem; display: flex; flex-direction: column; gap: 2rem; }
+    .goal-card { overflow: hidden; border: 1px solid var(--border); border-radius: 1.5rem; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+    .goal-head {
+      display: flex; align-items: center; gap: 1rem;
+      border-bottom: 1px solid var(--border);
+      background: color-mix(in oklab, var(--secondary) 50%, transparent);
+      padding: 1.25rem 1.75rem;
+    }
+    .goal-icon { color: var(--primary); flex-shrink: 0; }
+    .goal-tag { font-size: .75rem; font-weight: 500; letter-spacing: .3em; color: var(--primary); }
+    .goal-title { margin-top: .25rem; font-size: 1.25rem; font-weight: 700; line-height: 1.4; }
+    .goal-body { padding: 1.75rem; display: flex; flex-direction: column; gap: 1.25rem; }
+    .goal-quant { border-radius: .75rem; background: color-mix(in oklab, var(--accent) 70%, transparent); padding: 1rem 1.25rem; }
+    .goal-quant-label { font-size: .75rem; font-weight: 500; letter-spacing: .15em; color: color-mix(in oklab, var(--accent-foreground) 70%, transparent); }
+    .goal-quant-value { margin-top: .375rem; font-weight: 500; line-height: 1.625; color: var(--accent-foreground); }
+    .goal-row { display: grid; grid-template-columns: 110px 1fr; gap: .375rem; }
+    .goal-row-label { font-size: .875rem; font-weight: 500; color: var(--primary); }
+    .goal-row-value { line-height: 2; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    @media (max-width: 640px) {
+      .goal-row { grid-template-columns: 1fr; gap: .25rem; }
+      .goal-row-label { margin-top: .5rem; }
+    }
+
+    /* ===== 03 行动模块 ===== */
+    .module-head { display: flex; align-items: center; gap: 1rem; margin-top: 3.5rem; }
+    .module-letter {
+      width: 2.75rem; height: 2.75rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 1rem; background: var(--primary);
+      font-size: 1rem; font-weight: 700; color: var(--primary-foreground);
+    }
+    .module-title { display: flex; align-items: center; gap: .75rem; font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
+    .module-icon { color: var(--primary); }
+    .issue-card { margin-top: 1.5rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); padding: 1.25rem 1.5rem; }
+    .card-caption { margin-bottom: .5rem; font-size: .75rem; font-weight: 500; letter-spacing: .3em; color: var(--muted-foreground); }
+    .issue-card p:last-child { line-height: 2; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .action-list { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; }
+    .action-card { border: 1px solid var(--border); border-radius: 1rem; background: var(--card); padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+    .action-title { font-size: 1.125rem; font-weight: 600; line-height: 1.5; }
+    .action-text { margin-top: .75rem; line-height: 2; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .planb { margin-top: 1rem; border-radius: .75rem; background: color-mix(in oklab, var(--secondary) 60%, transparent); padding: .75rem 1rem; font-size: .875rem; line-height: 1.625; color: var(--secondary-foreground); }
+    .planb strong { color: var(--primary); }
+
+    /* ===== 04 阶段时间线 ===== */
+    .timeline { margin-top: 3rem; position: relative; display: flex; flex-direction: column; gap: 2rem; }
+    .timeline::before { content: ''; position: absolute; top: .5rem; bottom: .5rem; left: 1.25rem; width: 1px; background: var(--border); }
+    @media (min-width: 768px) { .timeline::before { left: 1.5rem; } }
+    .timeline-item { position: relative; padding-left: 3.5rem; }
+    @media (min-width: 768px) { .timeline-item { padding-left: 4rem; } }
+    .timeline-num {
+      position: absolute; top: .25rem; left: 0;
+      width: 2.5rem; height: 2.5rem;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 9999px; background: var(--primary);
+      font-size: .75rem; font-weight: 700; color: var(--primary-foreground);
+    }
+    @media (min-width: 768px) { .timeline-num { width: 3rem; height: 3rem; font-size: .875rem; } }
+    .phase-card { border: 1px solid var(--border); border-radius: 1.5rem; background: var(--card); padding: 1.75rem; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+    .phase-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem 1rem; }
+    .phase-title { font-size: 1.25rem; font-weight: 700; }
+    .phase-days { font-size: .875rem; font-weight: 500; letter-spacing: .15em; color: var(--primary); }
+    .phase-goal { margin-top: .75rem; line-height: 2; color: var(--muted-foreground); }
+    .phase-list-label { margin-top: 1.25rem; margin-bottom: .75rem; font-size: .75rem; font-weight: 500; letter-spacing: .3em; color: var(--muted-foreground); }
+    .phase-list { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
+    .phase-list li { display: flex; gap: .75rem; align-items: flex-start; }
+    .phase-num {
+      width: 1.5rem; height: 1.5rem; flex-shrink: 0; margin-top: .125rem;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 9999px; background: var(--accent);
+      font-size: .75rem; font-weight: 600; color: var(--accent-foreground);
+    }
+    .phase-list-item { line-height: 1.625; color: color-mix(in oklab, var(--foreground) 90%, transparent); }
+    .phase-foot { margin-top: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .75rem; }
+    .phase-complete { border-radius: .75rem; background: color-mix(in oklab, var(--accent) 70%, transparent); padding: .75rem 1rem; font-size: .875rem; line-height: 1.625; color: var(--accent-foreground); }
+    .phase-miss { border-radius: .75rem; background: color-mix(in oklab, var(--secondary) 60%, transparent); padding: .75rem 1rem; font-size: .875rem; line-height: 1.625; color: var(--secondary-foreground); }
+    .phase-foot strong { font-weight: 600; }
+
+    /* ===== 05 指标追踪 ===== */
+    .table-wrap { overflow: hidden; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+    .plan-table { width: 100%; text-align: left; font-size: .875rem; border-collapse: collapse; }
+    .plan-table thead tr { border-bottom: 1px solid var(--border); background: color-mix(in oklab, var(--secondary) 60%, transparent); }
+    .plan-table th { padding: 1rem 1.25rem; font-weight: 500; font-size: .75rem; letter-spacing: .1em; color: var(--secondary-foreground); white-space: nowrap; }
+    .plan-table td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); line-height: 1.625; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .plan-table tr:last-child td { border-bottom: none; }
+    .plan-table tbody tr:nth-child(even) td { background: color-mix(in oklab, var(--background) 50%, transparent); }
+    .plan-table td:first-child { font-weight: 500; white-space: nowrap; color: var(--primary); }
+    .check-grid { margin-top: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem; }
+    .check-item { border: 1px solid var(--border); border-radius: .75rem; background: var(--card); padding: 1rem 1.25rem; font-size: .875rem; font-weight: 500; line-height: 1.5; }
+    .plain-list { margin-top: 1rem; display: flex; flex-direction: column; gap: .5rem; }
+    .plain-list li { position: relative; padding-left: 1.25rem; line-height: 1.875; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .plain-list li::before { content: ''; position: absolute; left: .125rem; top: .8em; width: .4rem; height: .4rem; border-radius: 9999px; background: var(--primary); }
+
+    /* ===== Loading ===== */
+    .plan-loading { max-width: var(--container-3xl); margin: 0 auto; padding: 5rem 1.5rem; text-align: center; }
+    .loading-ring {
+      width: 2.75rem; height: 2.75rem; margin: 0 auto;
+      border: 3px solid color-mix(in oklab, var(--primary) 25%, transparent);
+      border-top-color: var(--primary); border-radius: 9999px;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { margin-top: 1.25rem; font-size: 1rem; font-weight: 500; }
+    .loading-sub { margin-top: .5rem; font-size: .875rem; color: var(--muted-foreground); }
+    .retry-btn {
+      margin-top: 1.5rem; display: inline-block;
+      border: 1px solid var(--primary); border-radius: 9999px;
+      color: var(--primary); padding: .625rem 1.5rem; font-size: .875rem; font-weight: 500;
+      transition: background .2s, color .2s;
+    }
+    .retry-btn:hover { background: var(--primary); color: var(--primary-foreground); }
+
+    /* ===== 结尾寄语（05 末尾 AI 段落自动落入 prose） ===== */
+
+    /* ===== Footer ===== */
+    .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 1rem; text-align: center; font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
+
+    /* ===== Toast ===== */
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      background: var(--foreground); color: var(--background);
+      padding: .625rem 1.25rem; border-radius: 9999px; font-size: .875rem;
+      opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,.12);
+    }
+    .toast.is-visible { opacity: 1; }
+
+    @media (max-width: 640px) {
+      .hero { padding-top: 3rem; }
+      .hero-title { font-size: 2.125rem; }
+      .section-title { font-size: 1.625rem; }
+      .module-title { font-size: 1.375rem; }
+      .section-nav { gap: .75rem; }
+    }
+  </style>
 </head>
 <body>
-  <div class="page page--plan">
-    <!-- 顶部导航 -->
-    <header class="app-header">
-      <button class="app-header__btn" id="backBtn" aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <h1 class="app-header__title">个人健康管理计划书</h1>
-      <button class="app-header__btn" id="refreshBtn" aria-label="重新生成" title="重新生成">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 14-4.9M20 12a8 8 0 0 1-14 4.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 4v4h-4M6 20v-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-    </header>
-
-    <!-- 计划书主体 -->
-    <main class="plan" id="planMain">
-      <!-- 加载状态 -->
-      <div class="plan__loading" id="planLoading" hidden>
-        <div class="plan__loading-ring" aria-hidden="true"></div>
-        <p class="plan__loading-text">正在结合您的体检结果与回答，生成专属计划书…</p>
-        <p class="plan__loading-sub">生成内容较长，约需 30–60 秒，请耐心等待</p>
+  <!-- 顶部导航 -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <button class="icon-btn" id="backBtn" aria-label="返回" title="返回">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6L9 12L15 18"/></svg>
+        </button>
+        <div class="brand">
+          <span class="brand-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+          </span>
+          <span class="brand-name">澄心健康</span>
+        </div>
       </div>
+      <div class="header-actions">
+        <nav class="section-nav" id="sectionNav" aria-label="章节导航"></nav>
+        <button class="icon-btn" id="refreshBtn" aria-label="重新生成" title="重新生成">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12a8 8 0 0 1 14-4.9M20 12a8 8 0 0 1-14 4.9"/><path d="M18 4v4h-4M6 20v-4h4"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
 
-      <!-- 计划书内容（markdown 渲染结果） -->
-      <div class="plan__content" id="planContent" hidden></div>
-    </main>
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <p class="hero-eyebrow">PERSONAL HEALTH MANAGEMENT PLAN</p>
+      <h1 class="hero-title">个人健康管理计划书</h1>
+      <p class="hero-desc">不追求完美，只追求持续。这 30 天，只需要比上个月多走几步路、少喝几杯含糖饮料，就已经在往正确的方向走了。</p>
+      <div class="hero-meta">
+        <div class="meta-card">
+          <svg class="meta-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div>
+            <p class="meta-label">计划书主人</p>
+            <p class="meta-value" id="metaOwner">—</p>
+          </div>
+        </div>
+        <div class="meta-card">
+          <svg class="meta-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M17 14h-6"/><path d="M13 18H7"/><path d="M7 14h.01"/><path d="M17 18h.01"/></svg>
+          <div>
+            <p class="meta-label">计划周期</p>
+            <p class="meta-value" id="metaPeriod">—</p>
+          </div>
+        </div>
+      </div>
+      <div class="toc">
+        <p class="toc-label">目录 CONTENTS</p>
+        <ol class="toc-list" id="tocList"></ol>
+      </div>
+    </section>
 
-    <!-- 轻提示 -->
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  </div>
+    <!-- 加载状态 -->
+    <section class="plan-loading" id="planLoading" hidden>
+      <div class="loading-ring" aria-hidden="true"></div>
+      <p class="loading-text">正在结合您的体检结果与回答，生成专属计划书…</p>
+      <p class="loading-sub">生成内容较长，约需 30–60 秒，请耐心等待</p>
+    </section>
+
+    <!-- 计划书内容（渲染结果） -->
+    <div id="planContent"></div>
+  </main>
+
+  <footer class="site-footer">
+    澄心健康 · 个人健康管理计划书 · <span id="footerDate"></span>
+  </footer>
+
+  <!-- 轻提示 -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="plan.js"></script>
 </body>
