@@ -34,6 +34,7 @@
 · 解读健康情况时，若用户存在需要立即就医的严重问题（如危急指标、明显心脑血管症状等），务必用醒目、明确的语气强调"请立即就医/尽快就诊"，不要淡化处理。
 · 告知用户已为其生成定制健康计划，坚持执行可有效改善健康状况。
 · 文案中使用加粗仅用于强调重点问题、危险信号与定制健康计划；不要对"定期复查、观察随访、良性可能大"等常规事项加粗。
+· 用户可随时暂停提问或切换话题，不要强制继续追问；用户表示"先到这/暂停/不问了"时，礼貌结束当前话题并告知可以随时回来。
 · 保证语言的亲和、简洁、清晰，避免无意义的感叹，每次回复尽量不超过200字`;
 
   // ===== 儿童版 System Prompt（沟通对象是家长，视角语言匹配家长）=====
@@ -78,8 +79,9 @@
 · 提醒以医生诊断和用药为准，不要自行停药改药
 · 语气温和、耐心，每次回复尽量不超过150字`;
 
-  // ===== 张先生（男38）版 System Prompt：报告分析已完成、干预方向已明确，按提纲收集生活方式信息 =====
-  const SYSTEM_PROMPT_TEMPLATE_MALE38 = `#背景：你是卓正健康智能体。用户张先生刚完成体检并获得报告解读。他的核心健康问题已经明确：以体重增加为中心的一串代谢异常——超重（BMI 27.4、腰围 96cm）、血脂超标（总胆固醇、甘油三酯、LDL-C 升高）、轻度脂肪肝伴肝酶升高（ALT、GGT）、尿酸偏高、血糖临界（HbA1c 5.7%）、血压正常高值。干预方向也已确定：控制体重、调整饮食、增加运动、减少饮酒。本次对话目标，是为他生成真正贴合其生活的个性化《生活方式计划书》而收集必要信息。
+  // ===== 计划书制作版 System Prompt：仅当用户主动触发"制定健康改进计划"时才启用 =====
+  // 按提纲收集生活方式信息，为生成个性化《个人健康改善计划书》做前置采集
+  const PLAN_BUILD_PROMPT = `#背景：你是卓正健康智能体。用户刚完成体检并获得报告解读，现在希望制定一份真正贴合自己生活的个性化《个人健康改善计划书》。本次对话目标，是通过最多10个简短问题，补充制定计划书所必需的信息：真实行为现状、行为偏好、改变障碍、可执行边界。
 #信息：
 用户基本情况：
 {MODULE_USER_BASIC}
@@ -89,18 +91,19 @@
 · 通过最多10个简短问题，补充制定计划书所必需的信息：真实行为现状、行为偏好、改变障碍、可执行边界
 · 健康目标和优先级已由体检结果确定，不要问"你最想改善什么/最关心哪个问题"
 #要求：
+· 开场先用1-2句话说明："接下来我会问您几个生活上的小问题，用来为您制定专属计划，大约需要几分钟"，然后开始提问
 · 每次只问一个问题，提供4-6个容易判断的选项，必须包含"以上都不是/不确定"类兜底选项
 · 用具体生活场景提问，说人话，禁止抽象问题（如"平时饮食怎么样""运动多吗"）
 · 不解释为什么问这个问题，不输出健康知识，不诱导用户选择"正确答案"
 · 按以下顺序收集信息，根据回答动态调整，信息足够即提前结束，不要重复询问：
-1. 他平时怎么吃（三餐规律度、外卖/外食比例、甜食零食/含糖饮料、晚餐夜宵量、应酬饭局）【单选】
-2. 他喝酒的频率、场景和量（与脂肪肝、GGT升高、尿酸偏高相关）【单选】
-3. 他现在的运动与久坐情况【单选】
-4. 体重从76kg涨到84kg主要发生在哪个阶段、可能原因【单选】
-5. 他最容易管不住嘴的具体场景（什么时候、什么情形）【可多选】
-6. 过去减重或改善身体没坚持下来的原因【可多选】
+1. 平时怎么吃（三餐规律度、外卖/外食比例、甜食零食/含糖饮料、晚餐夜宵量、应酬饭局）【单选】
+2. 饮酒情况：频率、场景和量（与肝功能、尿酸等指标相关）【单选】
+3. 现在的运动与久坐情况【单选】
+4. 体重或关键指标变化主要发生在哪个阶段、可能原因【单选】
+5. 最容易管不住嘴的具体场景（什么时候、什么情形）【可多选】
+6. 过去改善身体没坚持下来的原因【可多选】
 7. 现实中能安排运动的时间边界【单选】
-8. 他更容易接受哪种运动方式【可多选】
+8. 更容易接受哪种运动方式【可多选】
 9. 饮食上最容易接受的一处改变【单选】
 10. 过去具体试过哪些方法、结果如何【可多选】
 · 可多选题的题干开头必须且只能标注【多选题】，例如"【多选题】你最容易管不住嘴的场景是？"；单选题题干开头不要任何标注。严禁省略该标记，否则前端无法识别为多选
@@ -108,10 +111,11 @@
 · 可多选题的最后一个选项保留"以上都不是/不确定"类兜底项，该选项与其他选项互斥
 · 提纲信息收集完成后（10题问完或信息已足够），必须先用1-2句话简要确认用户的回答，然后单独输出一行固定标记【生成计划书】——这是结束对话的唯一方式，必须单独成行（前后不要其他内容），后续流程由系统接管
 · 若用户中途表示"生成计划书/差不多了/就这些"等，也可提前输出【生成计划书】标记结束采集
-· 严禁在对话中做总结/梳理/计划方向/生活方式建议——这些都属于《个人健康管理计划书》的范畴，对话中不要做
+· 严禁在对话中做总结/梳理/计划方向/生活方式建议——这些都属于《个人健康改善计划书》的范畴，对话中不要做
 · 严禁在对话中承诺"后续我会帮您/挂在这里"或询问"您看行吗/同意吗"——只要认为信息足够了，输出一行【生成计划书】即结束，系统会自动生成计划书
+· 若用户中途想暂停或切换话题，礼貌停下并告知"随时可以回来继续制定计划"；回到计划书流程后继续按提纲推进
 · 涉及线下行为（预约复查等）可顺带演示完成预约/提醒
-· 若用户主动问及其他问题（如甲状腺结节），简短回应安抚后可回到提纲继续
+· 若用户主动问及其他问题，简短回应安抚后可回到提纲继续
 · 语气亲和、简洁，每次回复尽量不超过200字`;
 
   // ===== 模块注册表：每个模块负责把 ctx 拼成一段文本 =====
@@ -189,9 +193,9 @@
     };
   }
 
-  // 版本 → 专属提示词模板（儿童版面向家长、老年版更通俗简洁、男38按提纲收集生活方式信息），未配置版本用通用模板
+  // 版本 → 专属提示词模板（儿童版面向家长、老年版更通俗简洁），未配置版本用通用模板；
+  // 计划书制作使用独立的 PLAN_BUILD_PROMPT，仅在用户触发"制定健康改进计划"时启用
   const PROMPT_TEMPLATES = {
-    male38: SYSTEM_PROMPT_TEMPLATE_MALE38,
     child8: SYSTEM_PROMPT_TEMPLATE_CHILD,
     elder68: SYSTEM_PROMPT_TEMPLATE_ELDER,
     lichenghua: SYSTEM_PROMPT_TEMPLATE_ELDER
@@ -300,14 +304,15 @@
   }
 
   // 配置化构建 System Prompt：不写死 replace 链，按模块注册表逐个替换
-  function buildSystemPrompt(ctx) {
+  // templateOverride 可传入指定模板（如计划书制作版 PLAN_BUILD_PROMPT）
+  function buildSystemPrompt(ctx, templateOverride) {
     const disease = ctx.disease || '健康问题';
     const modules = resolveModules(disease);
     // 若跳转的系统携带了 lab 指标数据，自动附带指标模块（血脂/肝功/血压等病症无需逐个配置）
     if (ctx.lab && ctx.lab.indicators && ctx.lab.indicators.length && !modules.includes('bloodNutrition')) {
       modules.push('bloodNutrition');
     }
-    const template = PROMPT_TEMPLATES[ctx.version] || SYSTEM_PROMPT_TEMPLATE;
+    const template = templateOverride || PROMPT_TEMPLATES[ctx.version] || SYSTEM_PROMPT_TEMPLATE;
     let prompt = template.replace('{DISEASE}', disease);
     for (const name of modules) {
       const mod = MODULES[name];
@@ -749,11 +754,60 @@
     }
   }
 
+  // 首次进入 AI 开场白：前端直接渲染，不走接口；同时写入 messages 保持对话结构完整（system/user/assistant 配对）
+  function showGreeting(text, introUser) {
+    const item = document.createElement('div');
+    item.className = 'chat__item chat__item--bot';
+    item.innerHTML = `
+      <div class="chat__avatar">
+        <svg viewBox="0 0 48 48" fill="none">
+          <rect x="6" y="6" width="36" height="36" rx="8" fill="#16b2b2"/>
+          <circle cx="18" cy="22" r="3" fill="#fff"/>
+          <circle cx="30" cy="22" r="3" fill="#fff"/>
+          <rect x="20" y="30" width="8" height="2" rx="1" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="chat__content">
+        <div class="chat__bubble chat__bubble--bot"><div class="chat__bubble-text"><p>${escapeHtml(text)}</p></div></div>
+      </div>
+    `;
+    chatList.appendChild(item);
+    messages.push({ role: 'user', content: introUser });
+    messages.push({ role: 'assistant', content: text });
+    scrollToBottom();
+    if (currentCtx) { try { saveHistory(messages, currentCtx.version); } catch (e) { /* 忽略 */ } }
+  }
+
+  // ===== 计划书制作流程（由菜单"制定健康改进计划"或对话中用户表达意图触发）=====
+  let isPlanBuildMode = false;
+  const PLAN_BUILD_INTENT_RE = /(?:制定|生成|制作|定制)(?:个人|专属|健康|改善)?计划(?:书)?|做(?:个|份|一下).{0,6}计划|健康(?:改善)?计划|改善计划/;
+
+  // 呼起计划书制作流程：重置 system 为计划书制作版，AI 按提纲收集生活方式信息
+  function startPlanBuild(userText) {
+    const ctx = currentCtx || { disease: '健康问题', profile: {}, lab: null };
+    let system;
+    try {
+      system = buildSystemPrompt(ctx, PLAN_BUILD_PROMPT);
+    } catch (e) {
+      system = PLAN_BUILD_PROMPT.replace(/\{MODULE_[A-Z_]+\}/g, '');
+    }
+    messages = [{ role: 'system', content: system }];
+    isPlanBuildMode = true;
+    // 清空聊天区，重新开始计划书制作流程
+    chatList.innerHTML = '';
+    sendPrompt(userText || '我想制定一份个人健康改善计划书。', true);
+  }
+
   function sendUserMessage() {
     const text = messageInput.value.trim();
     if (!text) return;
     messageInput.value = '';
     updateSendButton();
+    // 用户表达计划书制作意图且当前不在计划书流程 → 切换为计划书制作流程
+    if (!isPlanBuildMode && PLAN_BUILD_INTENT_RE.test(text)) {
+      startPlanBuild(text);
+      return;
+    }
     sendPrompt(text);
   }
 
@@ -819,13 +873,18 @@
     return ctx;
   }
 
-  // 快捷入口
+  // 快捷入口：转真人健康顾问 / 制定健康改进计划 / 预约门诊
   document.querySelectorAll('[data-action]').forEach(btn => {
     btn.addEventListener('click', () => {
       const action = btn.dataset.action;
+      // 制定健康改进计划 → 呼起计划书制作流程
+      if (action === 'plan') {
+        startPlanBuild();
+        return;
+      }
       const texts = {
         records: '正在为您打开门诊预约…',
-        human: '正在为您整理健康建议汇总…'
+        human: '正在为您转接真人健康顾问，请稍候…'
       };
       appendMessage(texts[action], false);
     });
@@ -854,14 +913,26 @@
   // 初始滚动
   scrollToBottom();
 
-  // 异步初始化：构建 System Prompt；从体检页携带上下文进入时（含恢复历史）自动发起咨询，显示用户消息 + AI 主动开口
+  // 异步初始化：构建 System Prompt
+  // 首次进入（无历史）→ AI 开场：直接打开时自我介绍+功能；从体检页/AI深度解析跳转时简短介绍+确认该方面诉求
   init().then((ctx) => {
     try {
-      // 有版本标识（说明从体检页进入）即自动开场；无版本标识（直接打开 agent 页）则等待用户输入
+      // 恢复过历史（restored=true）则不再重新开场
+      if (ctx && ctx.restored) return;
+      const disease = (ctx && ctx.disease && ctx.disease !== '健康问题') ? ctx.disease : '';
       if (ctx && ctx.version) {
-        const disease = ctx.disease && ctx.disease !== '健康问题' ? ctx.disease : '健康问题';
-        sendPrompt('你好，我刚做完体检，针对【' + disease + '】的问题想进一步咨询。', true);
+        // 从体检报告页的 AI 深度解析等入口跳转：走通用版逻辑，确认该方面诉求
+        showGreeting(
+          '您好，我是卓正健康智能体，可以帮您深度解读体检问题、制定个人健康改善计划书、预约卓正门诊，也可以和您日常聊聊健康话题。\n\n' + (disease ? '关于【' + disease + '】方面，你有什么想了解的吗？' : '关于您的体检情况，你有什么想了解的吗？'),
+          '我刚做完体检，针对' + (disease ? '【' + disease + '】' : '我的体检结果') + '的问题想进一步咨询。'
+        );
+      } else {
+        // 直接打开 agent 页（首次）：自我介绍 + 功能
+        showGreeting(
+          '您好，我是卓正健康智能体，您的专属健康助手。\n\n我可以为您提供：\n1. 体检问题深度解读\n2. 制定个人健康改善计划书\n3. 预约卓正门诊\n4. 日常健康对话\n\n有什么可以帮您的吗？',
+          '你好，我是第一次使用健康咨询。'
+        );
       }
-    } catch (e) { /* 自动开场失败不阻断页面 */ }
+    } catch (e) { /* 开场失败不阻断页面 */ }
   }).catch(() => { /* 初始化失败兜底，避免静默中断 */ });
 })();
