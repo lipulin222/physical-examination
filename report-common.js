@@ -230,6 +230,26 @@ function initReport(SYS_INFO, defaultKey) {
       });
     });
 
+    // 需求：某系统异常指标 ≥3 项时，在 02 重点问题对应卡片增加"预约医生面诊"按钮
+    // 判定：该系统的指标（metrics + metrics2）中 flag 为明确异常（is-warn 级别）的数量 ≥3
+    const countWarnMetrics = (info) => {
+      if (!info) return 0;
+      const all = (info.metrics || []).concat(info.metrics2 || []);
+      return all.filter((m) => m && flagTone(m.flag) === 'is-warn').length;
+    };
+    document.querySelectorAll('.issue').forEach((card) => {
+      const link = card.querySelector('.issue__link');
+      if (!link || !link.dataset.key || !SYS_INFO[link.dataset.key]) return;
+      if (countWarnMetrics(SYS_INFO[link.dataset.key]) >= 3 && !card.querySelector('.issue__doctor-btn')) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'issue__doctor-btn';
+        btn.textContent = '预约医生面诊';
+        btn.addEventListener('click', () => alert('已为您生成医生面诊预约意向，请确认预约时间与科室。'));
+        card.appendChild(btn);
+      }
+    });
+
     // 详情卡底部 CTA 按钮：跳转到专项检查预约
     sysDetailCta.addEventListener('click', () => {
       alert('已为您生成专项检查预约意向，请确认预约信息。');
