@@ -137,6 +137,7 @@
 
     /* 三级标题（### xxx） */
     .h4 { margin: 1.5rem 0 .75rem; font-family: "Noto Serif SC", "Songti SC", serif; font-size: 1.0625rem; font-weight: 600; color: var(--foreground); }
+    .doc-title { margin: 0 0 2rem; text-align: center; font-size: 1.125rem; letter-spacing: .05em; }
 
     /* ===== 正文排版 ===== */
     .prose p { line-height: 2; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
@@ -412,6 +413,8 @@
   <!-- 轻提示 -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="plan-prompt.js"></script>
+  <script src="plan-offline.js"></script>
   <script src="plan.js"></script>
 </body>
 </html>

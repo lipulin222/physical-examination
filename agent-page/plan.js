@@ -4,7 +4,7 @@
   const API_KEY = 'Bearer pulinli222666uiqo';
 
   // 计划书提示词版本号：调整 System Prompt 后请递增此号，使旧缓存自动失效并重新生成
-  const PROMPT_VERSION = '5';
+  const PROMPT_VERSION = '6';
 
   // ===== 计划书生成 System Prompt（卓正健康智能体 · 个人健康管理计划书）=====
   // 前置于本模板的还有：【用户体检报告解读结果】【前置健康信息采集结果】两个信息块
@@ -788,6 +788,22 @@
       }
       cur = cards[cards.length - 1];
     }
+    // 行内 Plan B 拆分：把正文中 "**Plan B**：xxx" 提取为独立 Plan B 副卡
+    for (const c of cards) {
+      if (c.planb || !c.body) continue;
+      const idx = c.body.indexOf('Plan B');
+      if (idx > 0) {
+        const head = c.body.slice(0, idx)
+          .replace(/\*\*[【（]?\s*$/, '')
+          .replace(/。+\s*$/, '');
+        const tail = c.body.slice(idx + 'Plan B'.length);
+        const m2 = tail.match(/^[】)）]?\s*\**\s*[：:]\s*([\s\S]+)$/);
+        if (m2) {
+          c.body = head.trim();
+          c.planb = m2[1].trim();
+        }
+      }
+    }
     let html = '<div class="action-list">';
     for (const c of cards) {
       html += '<div class="action-card">';
@@ -905,15 +921,25 @@
         while (j < lines.length) {
           const n = lines[j].trim();
           if (!n) { j++; continue; }
+          let item = null;
           const cu = n.match(/^[-*]\s+(.+)$/);
-          if (cu) { chipLines.push(cu[1].trim()); j++; }
-          else break;
+          if (cu) item = cu[1];
+          else {
+            const cq = n.match(/^>\s?(.+)$/);
+            if (cq) item = cq[1];
+          }
+          if (item === null) break;
+          item.split(/[｜|]/).forEach((s) => { const t = s.trim(); if (t) chipLines.push(t); });
+          j++;
         }
         if (chipLines.length) html += '<div class="chips">' + chipLines.map((c) => '<span class="chip">' + inlineMd(c) + '</span>').join('') + '</div>';
         i = j - 1;
         i++;
         continue;
       }
+      // 一级标题（无编号的文档主标题，如"《个人健康管理计划书-第一阶段》"）
+      const h1 = line.match(/^#\s+(.+)$/);
+      if (h1) { closeList(); flushChips(); html += '<h4 class="h4 doc-title">' + inlineMd(h1[1]) + '</h4>'; i++; continue; }
       // 三级标题
       const h3 = line.match(/^###\s+(.+)$/);
       if (h3) { closeList(); flushChips(); html += '<h4 class="h4">' + inlineMd(h3[1]) + '</h4>'; i++; continue; }
@@ -1013,6 +1039,27 @@
     }
   }
 
+  // ===== 离线演示：用本地预置计划书渲染 =====
+  function renderOfflinePlan(version) {
+    const data = window.PLAN_OFFLINE && window.PLAN_OFFLINE[version];
+    if (!data) return false;
+    const now = new Date();
+    const fmt = (d) => d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+    const end = new Date(now);
+    end.setMonth(end.getMonth() + 1);
+    const finalContent = data
+      .replace(/\{\{PLAN_START\}\}/g, fmt(now))
+      .replace(/\{\{PLAN_END\}\}/g, fmt(end))
+      .replace(/\{\{[A-Z_]+\}\}/g, '');
+    planContent.innerHTML = renderPlan(finalContent);
+    planLoading.hidden = true;
+    planContent.hidden = false;
+    fillMeta();
+    scrollToTop();
+    showToast('当前为离线演示，展示本地预置计划书');
+    return true;
+  }
+
   function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
@@ -1043,7 +1090,9 @@
 
     const report = ctx.reportSummary || '（未提供）';
     const answers = ctx.answers || '（未提供）';
-    const system = '【用户体检报告解读结果】\n' + report + '\n\n【前置健康信息采集结果】\n' + answers + '\n\n' + SYSTEM_PROMPT_TEMPLATE_PLAN;
+    // 优先使用独立加载的精简提示词；未加载时回退到内置旧模板
+    const planPrompt = window.PLAN_PROMPT_TEMPLATE || SYSTEM_PROMPT_TEMPLATE_PLAN;
+    const system = '【用户体检报告解读结果】\n' + report + '\n\n【前置健康信息采集结果】\n' + answers + '\n\n' + planPrompt;
     const messages = [
       { role: 'system', content: system },
       { role: 'user', content: '请根据以上信息，为我制定专属的《个人健康管理计划书》。' }
@@ -1079,7 +1128,8 @@
       end.setMonth(end.getMonth() + 1);
       const finalContent = content
         .replace(/\{\{PLAN_START\}\}/g, fmt(now))
-        .replace(/\{\{PLAN_END\}\}/g, fmt(end));
+        .replace(/\{\{PLAN_END\}\}/g, fmt(end))
+        .replace(/\{\{[A-Z_]+\}\}/g, '');
 
       planContent.innerHTML = renderPlan(finalContent);
       planLoading.hidden = true;
@@ -1099,6 +1149,11 @@
       } catch (e) { /* 忽略 */ }
       showToast('计划书已生成');
     } catch (err) {
+      // 离线/接口失败时回退到本地预置计划书
+      const offlineVer = (() => {
+        try { return (JSON.parse(localStorage.getItem('reportPlanCtx')) || {}).version || ''; } catch (e) { return ''; }
+      })();
+      if (offlineVer && renderOfflinePlan(offlineVer)) return;
       planLoading.hidden = false;
       planContent.hidden = true;
       const isNetErr = err && (err instanceof TypeError || /failed to fetch|networkerror/i.test(String(err.message)));
@@ -1108,7 +1163,7 @@
       planLoading.querySelector('.loading-sub').textContent = '';
       const retry = document.createElement('button');
       retry.type = 'button';
-      retry.className = 'plan__retry';
+      retry.className = 'retry-btn';
       retry.textContent = '重新生成';
       retry.addEventListener('click', generate);
       planLoading.appendChild(retry);
@@ -1134,6 +1189,12 @@
 
   // 初始：优先展示已缓存的计划书（避免重复生成）；无缓存或版本不匹配时才调用生成
   (function initPlan() {
+    // 演示模式：?demo=male38 直接展示本地预置计划书（无网可用）
+    const demoVer = new URLSearchParams(window.location.search).get('demo');
+    if (demoVer && window.PLAN_OFFLINE && window.PLAN_OFFLINE[demoVer]) {
+      renderOfflinePlan(demoVer);
+      return;
+    }
     let currentVersion = '';
     try {
       const raw = localStorage.getItem('reportPlanCtx') || sessionStorage.getItem('reportPlanCtx');
