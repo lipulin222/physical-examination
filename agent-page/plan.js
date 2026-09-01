@@ -533,6 +533,17 @@
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
+  // ===== 加载态切换工具 =====
+  // 统一所有"非内容展示"路径（生成中、异常提示、重试）的 UI：
+  // 隐藏顶部 Hero，只保留中间的 loading 区块与说明/重试按钮
+  function showLoadingState(text, sub) {
+    if (planHero) planHero.hidden = true;
+    planLoading.hidden = false;
+    planContent.hidden = true;
+    planLoading.querySelector('.loading-text').textContent = text || '';
+    planLoading.querySelector('.loading-sub').textContent = sub || '';
+  }
+
   // ===== 计划书生成 =====
   async function generate() {
     const raw = localStorage.getItem('reportPlanCtx') || sessionStorage.getItem('reportPlanCtx');
@@ -541,19 +552,13 @@
     if (oldRetry) oldRetry.remove();
 
     if (!raw) {
-      planLoading.hidden = false;
-      planContent.hidden = true;
-      planLoading.querySelector('.loading-text').textContent = '未找到您的信息采集记录，请回到对话完成信息收集后再生成。';
-      planLoading.querySelector('.loading-sub').textContent = '';
+      showLoadingState('未找到您的信息采集记录，请回到对话完成信息收集后再生成。', '');
       return;
     }
 
     let ctx;
     try { ctx = JSON.parse(raw); } catch (e) {
-      planLoading.hidden = false;
-      planContent.hidden = true;
-      planLoading.querySelector('.loading-text').textContent = '数据异常，请回到对话重新收集信息。';
-      planLoading.querySelector('.loading-sub').textContent = '';
+      showLoadingState('数据异常，请回到对话重新收集信息。', '');
       return;
     }
 
@@ -564,10 +569,7 @@
     // 提示词来源为独立的 plan-prompt.js（已移除内置旧模板，单一来源避免失步）
     const planPrompt = isChild ? window.PLAN_PROMPT_TEMPLATE_CHILD : window.PLAN_PROMPT_TEMPLATE;
     if (!planPrompt) {
-      planLoading.hidden = false;
-      planContent.hidden = true;
-      planLoading.querySelector('.loading-text').textContent = '提示词配置加载失败，请刷新页面重试。';
-      planLoading.querySelector('.loading-sub').textContent = '';
+      showLoadingState('提示词配置加载失败，请刷新页面重试。', '');
       return;
     }
     const system = '【用户体检报告解读结果】\n' + report + '\n\n【前置健康信息采集结果】\n' + answers + '\n\n' + planPrompt;
@@ -576,13 +578,8 @@
       { role: 'user', content: isChild ? '请根据以上信息，为我的孩子制定一份专属的《个人健康改善计划书-第一个月》。' : '请根据以上信息，为我制定专属的《个人健康改善计划书-第一个月》。' }
     ];
 
-    planLoading.hidden = false;
-    planContent.hidden = true;
     planContent.innerHTML = '';
-    // 生成期间隐藏顶部 Hero（标题/描述/目录），页面只呈现"内容正在生成中"
-    if (planHero) planHero.hidden = true;
-    planLoading.querySelector('.loading-text').textContent = '正在结合您的体检结果与回答，生成专属计划书…';
-    planLoading.querySelector('.loading-sub').textContent = '生成内容较长，约需 30–60 秒，请耐心等待';
+    showLoadingState('正在结合您的体检结果与回答，生成专属计划书…', '生成内容较长，约需 30–60 秒，请耐心等待');
     scrollToTop();
 
     try {
@@ -635,14 +632,14 @@
         try { return (JSON.parse(localStorage.getItem('reportPlanCtx')) || {}).version || ''; } catch (e) { return ''; }
       })();
       if (offlineVer && renderOfflinePlan(offlineVer)) return;
-      planLoading.hidden = false;
-      planContent.hidden = true;
-      if (planHero) planHero.hidden = false;
+      // 失败态也保持 hero 隐藏，只展示 loading 区块（错误信息 + 重试按钮）
       const isNetErr = err && (err instanceof TypeError || /failed to fetch|networkerror/i.test(String(err.message)));
-      planLoading.querySelector('.loading-text').textContent = isNetErr
-        ? '生成失败：网络或跨域(CORS)请求被拦截。请确认通过 GitHub Pages 线上地址访问（https://lipulin222.github.io/physical-examination/）；本地打开文件或 localhost 预览会因接口跨域白名单限制而失败。'
-        : '生成失败：' + err.message;
-      planLoading.querySelector('.loading-sub').textContent = '';
+      showLoadingState(
+        isNetErr
+          ? '生成失败：网络或跨域(CORS)请求被拦截。请确认通过 GitHub Pages 线上地址访问（https://lipulin222.github.io/physical-examination/）；本地打开文件或 localhost 预览会因接口跨域白名单限制而失败。'
+          : '生成失败：' + err.message,
+        ''
+      );
       const retry = document.createElement('button');
       retry.type = 'button';
       retry.className = 'retry-btn';
