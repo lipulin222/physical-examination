@@ -10,6 +10,7 @@
   // ===== DOM =====
   const planLoading = document.getElementById('planLoading');
   const planContent = document.getElementById('planContent');
+  const planHero = document.getElementById('planHero');
   const toast = document.getElementById('toast');
 
   // ===== 工具函数 =====
@@ -45,9 +46,9 @@
 
   function renderPlan(text) {
     if (!text) return '';
-    // 1) 提取元信息（计划书主人 / 计划周期）
-    let cleaned = text.replace(/^-?\s*\*\*计划书主人\*\*\s*[：:]\s*([^\n（【]+)/gm, (m, v) => { metaStore.owner = v.trim(); return ''; });
-    cleaned = cleaned.replace(/^-?\s*\*\*计划周期\*\*\s*[：:]\s*([^\n（【]+)/gm, (m, v) => { metaStore.period = v.trim(); return ''; });
+    // 1) 提取元信息（计划书主人 / 计划周期）。兼容带/不带 ** 加粗（星号数量 0~2）、带/不带 - 前缀的格式
+    let cleaned = text.replace(/^-?\s*(?:\*\*)?\s*计划书主人\s*\*{0,2}\s*[：:]\s*([^\n（【]+)/gm, (m, v) => { metaStore.owner = v.trim(); return ''; });
+    cleaned = cleaned.replace(/^-?\s*(?:\*\*)?\s*计划周期\s*\*{0,2}\s*[：:]\s*([^\n（【]+)/gm, (m, v) => { metaStore.period = v.trim(); return ''; });
 
     // 2) 按章节切分：# 01｜xxx 或 ## 01｜xxx
     const parts = cleaned.split(/^#{1,2}\s+(0?\d{1,2})\s*[｜|]\s*(.+)$/m);
@@ -79,7 +80,9 @@
       .replace(/^\s*\*\*你现在的问题是什么？\*\*\s*$/gm, '### 你现在的问题是什么？')
       .replace(/^\s*\*\*接下来具体怎么做[:：]?\*\*\s*$/gm, '### 接下来具体怎么做')
       .replace(/^\s*\*\*做什么运动\*\*\s*$/gm, '### 做什么运动')
-      .replace(/^\s*\*\*做到什么强度\*\*\s*$/gm, '### 做到什么强度');
+      .replace(/^\s*\*\*做到什么强度\*\*\s*$/gm, '### 做到什么强度')
+      // 加粗形式的模块标题（**A. 饮食** / **B、运动**）也转成 ### 标题
+      .replace(/^\s*\*\*([A-Ha-h])\s*[.、)）]\s*(.+?)\*\*\s*$/gm, '### $1. $2');
     // 1) 解析为有序块列表
     const list = [];
     let cur = { title: '', lines: [] };
@@ -472,6 +475,17 @@
     const p = document.getElementById('metaPeriod');
     if (metaStore.owner && o) o.textContent = metaStore.owner;
     if (metaStore.period && p) p.textContent = metaStore.period;
+    // 若 AI 未输出"计划书主人"，尝试从体检报告摘要中提取姓名作为兜底
+    if (!metaStore.owner && o) {
+      try {
+        const raw = localStorage.getItem('reportPlanCtx') || sessionStorage.getItem('reportPlanCtx');
+        if (raw) {
+          const c = JSON.parse(raw);
+          const m = String(c.reportSummary || '').match(/姓名[：:]\s*([^\s，,。、]+)/);
+          if (m && m[1] && m[1] !== '--') o.textContent = m[1];
+        }
+      } catch (e) { /* 忽略 */ }
+    }
     const fd = document.getElementById('footerDate');
     if (fd) {
       const now = new Date();
@@ -497,6 +511,7 @@
     planContent.innerHTML = renderPlan(finalContent);
     planLoading.hidden = true;
     planContent.hidden = false;
+    if (planHero) planHero.hidden = false;
     fillMeta();
     scrollToTop();
     showToast('当前为离线演示，展示本地预置计划书');
@@ -553,6 +568,8 @@
     planLoading.hidden = false;
     planContent.hidden = true;
     planContent.innerHTML = '';
+    // 生成期间隐藏顶部 Hero（标题/描述/目录），页面只呈现"内容正在生成中"
+    if (planHero) planHero.hidden = true;
     planLoading.querySelector('.loading-text').textContent = '正在结合您的体检结果与回答，生成专属计划书…';
     planLoading.querySelector('.loading-sub').textContent = '生成内容较长，约需 30–60 秒，请耐心等待';
     scrollToTop();
@@ -586,6 +603,7 @@
       planContent.innerHTML = renderPlan(finalContent);
       planLoading.hidden = true;
       planContent.hidden = false;
+      if (planHero) planHero.hidden = false;
       fillMeta();
       // 回到顶部，直接呈现计划书内容（loading 态完全消失）
       scrollToTop();
@@ -608,6 +626,7 @@
       if (offlineVer && renderOfflinePlan(offlineVer)) return;
       planLoading.hidden = false;
       planContent.hidden = true;
+      if (planHero) planHero.hidden = false;
       const isNetErr = err && (err instanceof TypeError || /failed to fetch|networkerror/i.test(String(err.message)));
       planLoading.querySelector('.loading-text').textContent = isNetErr
         ? '生成失败：网络或跨域(CORS)请求被拦截。请确认通过 GitHub Pages 线上地址访问（https://lipulin222.github.io/physical-examination/）；本地打开文件或 localhost 预览会因接口跨域白名单限制而失败。'
@@ -661,6 +680,7 @@
       planContent.innerHTML = renderPlan(cached.content);
       planLoading.hidden = true;
       planContent.hidden = false;
+      if (planHero) planHero.hidden = false;
       fillMeta();
       scrollToTop();
     } else {
