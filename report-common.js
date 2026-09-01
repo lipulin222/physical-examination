@@ -329,6 +329,15 @@ function initReport(SYS_INFO, defaultKey) {
     });
     window.addEventListener('focus', syncPlanText);
 
+    // 05 生活干预方向卡片内的"制定个人健康改善计划"按钮：进入 agent 并直接呼起计划书制作流程
+    const planOfferBtn = document.querySelector('#planOfferBtn');
+    if (planOfferBtn) {
+      planOfferBtn.addEventListener('click', () => {
+        saveReportCtx(defaultKey, '健康管理');
+        window.location.href = 'agent-page/index.html?plan=1';
+      });
+    }
+
     // 05 部分：卡片内"AI深度建议"按钮（李璞璘/李承华等旧版页面保留）
     // 病症从卡片"针对"行动态读取，系统 key 由映射表提供
     document.querySelectorAll('.lifestyle__more').forEach((btn) => {

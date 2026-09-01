@@ -450,6 +450,12 @@ body {
 .lifestyle__more:active { transform: scale(0.98); }
 .lifestyle__cta { margin-top: 16px; }
 
+/* 05 生活干预方向：单卡片内的计划引导区 */
+.plan-offer { margin-top: 16px; padding: 14px 16px; border-radius: 12px; background: rgba(13, 138, 138, 0.05); border: 1px solid rgba(13, 138, 138, 0.18); }
+.plan-offer__text { font-size: 14px; line-height: 1.8; color: #445; }
+.plan-offer__btn { margin-top: 12px; }
+.plan-offer-points li { line-height: 1.9; }
+
 /* 05 标题栏右侧"深入定制"小按钮 */
 .module__head-btn {
   flex-shrink: 0;

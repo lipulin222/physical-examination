@@ -964,6 +964,11 @@
   // 首次进入（无历史）→ AI 开场：直接打开时自我介绍+功能；从体检页/AI深度解析跳转时简短介绍+确认该方面诉求
   init().then((ctx) => {
     try {
+      // ?plan=1：从报告页"制定个人健康改善计划"按钮进入，直接呼起计划书制作流程
+      if (new URLSearchParams(window.location.search).get('plan') === '1') {
+        startPlanBuild();
+        return;
+      }
       // 恢复过历史（restored=true）则不再重新开场
       if (ctx && ctx.restored) return;
       const disease = (ctx && ctx.disease && ctx.disease !== '健康问题') ? ctx.disease : '';
