@@ -755,7 +755,8 @@
   }
 
   // 首次进入 AI 开场白：前端直接渲染，不走接口；同时写入 messages 保持对话结构完整（system/user/assistant 配对）
-  function showGreeting(text, introUser) {
+  // 若提供 options，额外渲染一组选项按钮（点击即发送，并自动触发特殊意图如制定计划）
+  function showGreeting(text, introUser, options) {
     const item = document.createElement('div');
     item.className = 'chat__item chat__item--bot';
     item.innerHTML = `
@@ -768,7 +769,7 @@
         </svg>
       </div>
       <div class="chat__content">
-        <div class="chat__bubble chat__bubble--bot"><div class="chat__bubble-text"><p>${escapeHtml(text)}</p></div></div>
+        <div class="chat__bubble chat__bubble--bot"><div class="chat__bubble-text"><p>${escapeHtml(text).replace(/\n/g, '</p><p>')}</p></div></div>
       </div>
     `;
     chatList.appendChild(item);
@@ -776,6 +777,32 @@
     messages.push({ role: 'assistant', content: text });
     scrollToBottom();
     if (currentCtx) { try { saveHistory(messages, currentCtx.version); } catch (e) { /* 忽略 */ } }
+    // 渲染开场白后的选项按钮（特殊选项如"制定计划"会直接呼起流程）
+    if (options && options.length) {
+      const wrap = document.createElement('div');
+      wrap.className = 'option-list';
+      options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-list__item';
+        btn.innerHTML =
+          '<span class="option-list__index">' + (i + 1) + '</span>' +
+          '<span class="option-list__text">' + escapeHtml(opt) + '</span>' +
+          '<span class="option-list__arrow">›</span>';
+        btn.addEventListener('click', () => {
+          wrap.querySelectorAll('.option-list__item').forEach((b) => { b.disabled = true; });
+          // 选项含"制定计划"等意图时，直接呼起计划书制作流程（不走对话）
+          if (/(制定|生成|制作|做.{0,4})计划|健康改善计划/.test(opt)) {
+            startPlanBuild();
+          } else {
+            sendPrompt(opt, true);
+          }
+        });
+        wrap.appendChild(btn);
+      });
+      chatList.appendChild(wrap);
+      scrollToBottom();
+    }
   }
 
   // ===== 计划书制作流程（由菜单"制定健康改进计划"或对话中用户表达意图触发）=====
@@ -924,13 +951,15 @@
         // 从体检报告页的 AI 深度解析等入口跳转：走通用版逻辑，确认该方面诉求
         showGreeting(
           '您好，我是卓正健康智能体，可以帮您深度解读体检问题、制定个人健康改善计划书、预约卓正门诊，也可以和您日常聊聊健康话题。\n\n' + (disease ? '关于【' + disease + '】方面，你有什么想了解的吗？' : '关于您的体检情况，你有什么想了解的吗？'),
-          '我刚做完体检，针对' + (disease ? '【' + disease + '】' : '我的体检结果') + '的问题想进一步咨询。'
+          '我刚做完体检，针对' + (disease ? '【' + disease + '】' : '我的体检结果') + '的问题想进一步咨询。',
+          ['想了解病情', '寻求调整建议', '学习相关健康知识', '先聊点别的']
         );
       } else {
         // 直接打开 agent 页（首次）：自我介绍 + 功能
         showGreeting(
           '您好，我是卓正健康智能体，您的专属健康助手。\n\n我可以为您提供：\n1. 体检问题深度解读\n2. 制定个人健康改善计划书\n3. 预约卓正门诊\n4. 日常健康对话\n\n有什么可以帮您的吗？',
-          '你好，我是第一次使用健康咨询。'
+          '你好，我是第一次使用健康咨询。',
+          ['体检问题深度解读', '制定个人健康改善计划书', '预约卓正门诊', '先聊聊健康']
         );
       }
     } catch (e) { /* 开场失败不阻断页面 */ }
