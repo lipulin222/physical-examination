@@ -380,14 +380,13 @@ function initReport(SYS_INFO, defaultKey) {
       }
       if (flatNote(buckets.daily)) html += '<p class="lifestyle__p">' + escapeHtml(flatNote(buckets.daily)) + '</p>';
       html += '<button type="button" class="fu-btn fu-btn--outline" data-fu-device>从设备导入数据</button>' +
-        '<p class="fu-btn__hint">支持从电子手表、手机健康 App 等同步日常健康数据。</p>' +
       '</div>';
 
       // 02 1 个月后 · 线上问卷随访
       html += '<div class="fu-block">' +
         '<h3 class="fu-block__title"><span class="fu-num">02</span>1 个月后 · 线上问卷随访</h3>' +
         '<p class="lifestyle__p">通过线上健康问卷，评估您在生活干预后健康状态是否有提升，并了解您的感受与心理状态，判断当前方案是否适合您、是否需要调整。</p>' +
-        '<label class="fu-check"><input type="checkbox" data-fu-remind /><span class="fu-check__box"></span><span>1 个月后提醒我线上随访</span></label>' +
+        '<label class="fu-check"><input type="checkbox" data-fu-remind /><span class="fu-check__box"></span><span class="fu-check__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></span><span class="fu-check__text">1 个月后提醒我线上随访</span></label>' +
       '</div>';
 
       // 03 3 个月后 · 线下指标复查

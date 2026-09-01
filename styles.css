@@ -467,12 +467,15 @@ body {
 .fu-btn:active { transform: scale(0.98); box-shadow: 0 4px 10px rgba(13, 138, 138, 0.18); }
 .fu-btn--outline { background: #fff; color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
 .fu-btn--outline:active { box-shadow: inset 0 0 0 1.5px var(--accent); }
-.fu-btn__hint { margin-top: 6px; font-size: 12px; color: var(--ink-2); line-height: 1.6; }
-.fu-check { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; color: var(--ink); cursor: pointer; user-select: none; }
+.fu-check { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding: 12px 14px; background: #fff; border: 1.5px dashed var(--accent); border-radius: 12px; font-size: 14px; color: var(--ink); cursor: pointer; user-select: none; transition: background 0.15s ease, border-color 0.15s ease; }
+.fu-check:active { transform: scale(0.99); }
+.fu-check:has(input:checked) { background: rgba(13, 138, 138, 0.08); border-style: solid; }
 .fu-check input { position: absolute; opacity: 0; width: 0; height: 0; }
-.fu-check__box { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--line); background: #fff; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s ease, border-color 0.15s ease; }
+.fu-check__box { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid var(--accent); background: #fff; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s ease, border-color 0.15s ease; }
+.fu-check__icon { display: inline-flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0; }
+.fu-check__text { flex: 1; line-height: 1.5; }
 .fu-check input:checked + .fu-check__box { background: var(--accent); border-color: var(--accent); }
-.fu-check input:checked + .fu-check__box::after { content: '✓'; color: #fff; font-size: 12px; line-height: 1; }
+.fu-check input:checked + .fu-check__box::after { content: '✓'; color: #fff; font-size: 14px; line-height: 1; font-weight: 700; }
 
 /* 05 标题栏右侧"深入定制"小按钮 */
 .module__head-btn {
