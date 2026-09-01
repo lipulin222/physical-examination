@@ -4,7 +4,7 @@
   const API_KEY = 'Bearer pulinli222666uiqo';
 
   // 计划书提示词版本号：调整 System Prompt 后请递增此号，使旧缓存自动失效并重新生成
-  const PROMPT_VERSION = '7';
+  const PROMPT_VERSION = '8';
 
   // ===== 计划书生成 System Prompt（卓正健康智能体 · 个人健康管理计划书）=====
   // 前置于本模板的还有：【用户体检报告解读结果】【前置健康信息采集结果】两个信息块
