@@ -4,6 +4,9 @@ window.REPORT_PROFILE = 'child8';
 const SYS_INFO = {
   growth: {
     name: '生长发育', status: '需关注', warn: true,
+    recheck: [
+      { time: '3 个月后', items: ['儿科/儿保复查身高体重，看 BMI 百分位是否回落'], note: '' }
+    ],
     overall: { text: '身高发育正常，体重增长偏快', color: 'warn' },
     cta: '预约生长发育评估',
     metricsTitle: '生长发育指标',
@@ -20,6 +23,9 @@ const SYS_INFO = {
   },
   eye: {
     name: '视力与眼', status: '需关注', warn: true,
+    recheck: [
+      { time: '尽快（1 个月内）', items: ['眼科散瞳验光，明确近视度数，按医生建议配镜或防控'], note: '' }
+    ],
     overall: { text: '裸眼视力下降，疑似近视', color: 'warn' },
     cta: '预约眼科检查',
     doctor: true,
@@ -37,6 +43,9 @@ const SYS_INFO = {
   },
   oral: {
     name: '口腔健康', status: '需关注', warn: true,
+    recheck: [
+      { time: '尽快（1 个月内）', items: ['口腔科补牙 + 窝沟封闭'], note: '' }
+    ],
     overall: { text: '存在龋齿，口腔清洁需改善', color: 'warn' },
     cta: '预约口腔检查',
     doctor: true,
@@ -51,6 +60,9 @@ const SYS_INFO = {
   },
   digest: {
     name: '消化代谢', status: '需关注', warn: true,
+    recheck: [
+      { time: '3 个月后', items: ['复查甘油三酯'], note: '' }
+    ],
     overall: { text: '肝功能正常，甘油三酯接近偏高', color: 'warn' },
     cta: '预约消化代谢检查',
     metricsTitle: '主要指标',

@@ -1,6 +1,11 @@
 // 体检报告解读 · 公共交互逻辑
 // 各版本页面脚本只需：定义 SYS_INFO，再调用 initReport(SYS_INFO, '默认系统key')
 function initReport(SYS_INFO, defaultKey) {
+  const escapeHtml = (text) => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  };
   // 05 生活方式卡片 → 关联 03 系统 key（用于取该系统的 lab 指标等上下文；病症名从卡片"针对"行动态读取）
   const LIFESTYLE_SYSTEM = {
     male38: {
@@ -337,6 +342,52 @@ function initReport(SYS_INFO, defaultKey) {
         window.location.href = 'agent-page/index.html?plan=1';
       });
     }
+
+    // 06 随访计划：根据 SYS_INFO 各系统的 recheck 配置动态生成（按体检实际情况）
+    const buildFollowup = () => {
+      const wrap = document.querySelector('#followupWrap');
+      if (!wrap || !SYS_INFO) return;
+      const plans = [];
+      Object.keys(SYS_INFO).forEach((key) => {
+        const info = SYS_INFO[key];
+        if (!info || !info.recheck) return;
+        (Array.isArray(info.recheck) ? info.recheck : [info.recheck]).forEach((r) => {
+          plans.push({ time: r.time, items: r.items || [], note: r.note || '' });
+        });
+      });
+      if (!plans.length) {
+        wrap.innerHTML = '<p class="lifestyle__p">本次体检暂未发现需要特殊随访的项目，按常规体检节奏定期复查即可。</p>';
+        return;
+      }
+      // 按时间分组，保持首次出现顺序
+      const groups = [];
+      plans.forEach((p) => {
+        const g = groups.find((x) => x.time === p.time);
+        if (g) {
+          g.items = g.items.concat(p.items);
+          if (p.note) g.note = (g.note ? g.note + ' ' : '') + p.note;
+        } else {
+          groups.push({ time: p.time, items: p.items.slice(), note: p.note });
+        }
+      });
+      // 排序：尽快类最前，每周/日常类其次，其余按出现顺序
+      groups.sort((a, b) => {
+        const pri = (t) => (/尽快/.test(t) ? 0 : /每周/.test(t) ? 1 : 2);
+        return pri(a.time) - pri(b.time);
+      });
+      let html = '<p class="lifestyle__p">随访安排会根据您的体检情况调整，建议按下述时间复查：</p>';
+      groups.forEach((g) => {
+        html += '<p class="lifestyle__p"><b>' + escapeHtml(g.time) + '</b></p><ul class="lifestyle__list">';
+        g.items.forEach((item) => { html += '<li>' + escapeHtml(item) + '</li>'; });
+        html += '</ul>';
+        if (g.note) html += '<p class="lifestyle__p">' + escapeHtml(g.note) + '</p>';
+      });
+      html += '<button type="button" class="lifestyle__cta" data-followup-cta>预约下次复查</button>';
+      wrap.innerHTML = html;
+      const cta = wrap.querySelector('[data-followup-cta]');
+      if (cta) cta.addEventListener('click', () => showToast('已为您生成复查预约意向，请确认预约时间与科室。'));
+    };
+    buildFollowup();
 
     // 05 部分：卡片内"AI深度建议"按钮（李璞璘/李承华等旧版页面保留）
     // 病症从卡片"针对"行动态读取，系统 key 由映射表提供

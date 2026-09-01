@@ -4,6 +4,9 @@ window.REPORT_PROFILE = 'female36';
 const SYS_INFO = {
   endo: {
     name: '内分泌系统', status: '需关注', warn: true,
+    recheck: [
+      { time: '6–12 个月后', items: ['复查乳腺超声、甲状腺超声，观察结节变化'], note: '按医生建议定期复查即可。' }
+    ],
     overall: { text: '甲状腺功能正常，左叶、右乳各发现小结节', color: 'warn' },
     cta: '预约内分泌检查',
     metricsTitle: '甲状腺功能',
@@ -25,6 +28,9 @@ const SYS_INFO = {
   },
   heart: {
     name: '心血管系统', status: '需关注', warn: true,
+    recheck: [
+      { time: '3 个月后', items: ['复查血脂'], note: '重点观察：总胆固醇、LDL-C 是否下降。' }
+    ],
     overall: { text: '血压正常，血脂轻度偏高', color: 'warn' },
     cta: '预约心血管检查',
     desc: [
@@ -55,6 +61,9 @@ const SYS_INFO = {
   },
   blood: {
     name: '血液与营养', status: '需关注', warn: true,
+    recheck: [
+      { time: '3 个月后', items: ['复查血常规、铁蛋白'], note: '重点观察：血红蛋白和铁蛋白是否回升。' }
+    ],
     overall: { text: '存在缺铁性贫血', color: 'warn' },
     cta: '预约血液检查',
     doctor: true,
@@ -122,6 +131,9 @@ const SYS_INFO = {
   },
   meta: {
     name: '基础代谢', status: '需关注', warn: true,
+    recheck: [
+      { time: '每周', items: ['记录体重、腰围'], note: '每周固定时间测量并记录，观察趋势。' }
+    ],
     cta: '预约代谢相关检查',
     metricsTitle: '主要指标',
     metrics: [

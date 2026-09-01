@@ -4,6 +4,9 @@ window.REPORT_PROFILE = 'elder68';
 const SYS_INFO = {
   heart: {
     name: '心血管系统', status: '需关注', warn: true,
+    recheck: [
+      { time: '6 个月后', items: ['复查颈动脉超声，评估斑块变化'], note: '同时继续监测血压、坚持按医嘱服药。' }
+    ],
     overall: { text: '血管已出现斑块，需继续管理血压血脂', color: 'warn' },
     cta: '预约心血管检查',
     doctor: true,
@@ -35,6 +38,9 @@ const SYS_INFO = {
   },
   bone: {
     name: '骨骼肌肉', status: '需关注', warn: true,
+    recheck: [
+      { time: '1 年后', items: ['复查骨密度'], note: '结合运动与营养改善情况评估骨量变化。' }
+    ],
     overall: { text: '骨量减少，跌倒风险升高', color: 'warn' },
     cta: '预约骨科检查',
     doctor: true,
@@ -50,6 +56,9 @@ const SYS_INFO = {
   },
   kidney: {
     name: '肾与泌尿', status: '需关注', warn: true,
+    recheck: [
+      { time: '3–6 个月后', items: ['复查肾功能（肌酐、eGFR）'], note: '重点观察：肾功能是否稳定。' }
+    ],
     overall: { text: '过滤功能略下降，需复查趋势', color: 'warn' },
     cta: '预约肾功能检查',
     doctor: true,
@@ -67,6 +76,9 @@ const SYS_INFO = {
   },
   lung: {
     name: '呼吸系统', status: '需关注', warn: true,
+    recheck: [
+      { time: '6–12 个月后', items: ['复查胸部 CT，对比肺结节变化'], note: '按呼吸科医生建议决定复查间隔。' }
+    ],
     overall: { text: '肺部小结节，定期复查', color: 'warn' },
     cta: '预约呼吸科检查',
     doctor: true,
@@ -81,6 +93,9 @@ const SYS_INFO = {
   },
   endo: {
     name: '内分泌代谢', status: '需关注', warn: true,
+    recheck: [
+      { time: '每周', items: ['记录体重、腰围'], note: '每周固定时间测量并记录，观察趋势。' }
+    ],
     overall: { text: '体重偏重、血糖临界', color: 'warn' },
     cta: '预约内分泌检查',
     metricsTitle: '主要指标',

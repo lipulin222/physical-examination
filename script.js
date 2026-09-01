@@ -4,6 +4,10 @@ window.REPORT_PROFILE = 'male38';
 const SYS_INFO = {
   endo: {
     name: '内分泌系统', status: '需关注', warn: true,
+    recheck: [
+      { time: '3 个月后', items: ['复查空腹血糖、HbA1c'], note: '重点观察：血糖是否有进一步升高趋势。' },
+      { time: '6–12 个月后', items: ['复查甲状腺超声，观察结节大小及影像特征变化'], note: '' }
+    ],
     overall: { text: '代谢方面需要关注，甲状腺功能正常', color: 'warn' },
     cta: '预约内分泌检查',
     metricsTitle: '血糖相关指标',
@@ -27,6 +31,9 @@ const SYS_INFO = {
   },
   heart: {
     name: '心血管系统', status: '需关注', warn: true,
+    recheck: [
+      { time: '3 个月后', items: ['复查血脂（总胆固醇、LDL-C、甘油三酯）'], note: '重点观察：血脂是否下降。' }
+    ],
     overall: { text: '存在代谢相关风险，需要关注', color: 'warn' },
     cta: '预约心血管检查',
     doctor: true,
@@ -73,6 +80,9 @@ const SYS_INFO = {
   },
   kidney: {
     name: '肾功能与泌尿', status: '良好', warn: false,
+    recheck: [
+      { time: '3 个月后', items: ['复查血尿酸'], note: '重点观察：尿酸是否下降，留意有无关节疼痛等痛风表现。' }
+    ],
     overall: { text: '肾功能正常，尿酸偏高需要关注', color: 'good' },
     metricsTitle: '主要指标',
     metrics: [
@@ -100,6 +110,9 @@ const SYS_INFO = {
   },
   liver: {
     name: '肝胆胰与消化', status: '需关注', warn: true,
+    recheck: [
+      { time: '3 个月后', items: ['复查肝功能（ALT、GGT）'], note: '重点观察：肝酶是否回落、脂肪肝是否有改善。' }
+    ],
     overall: { text: '重点关注', color: 'danger' },
     cta: '预约肝脏检查',
     desc: [
@@ -132,6 +145,9 @@ const SYS_INFO = {
   },
   meta: {
     name: '基础代谢', status: '需关注', warn: true,
+    recheck: [
+      { time: '每周', items: ['记录体重、腰围'], note: '每周固定时间测量并记录，观察趋势。' }
+    ],
     cta: '预约代谢相关检查',
     metrics: [
       { name: 'BMI', value: '27.4 kg/m²', flag: '↑', normal: '正常值 18.5–23.9' },
