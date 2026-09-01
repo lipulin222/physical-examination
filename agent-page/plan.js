@@ -260,6 +260,9 @@
     }
     let html = '<div class="action-list">';
     for (const c of cards) {
+      // 过滤空卡片：标题、正文、Plan B 至少要有正文/Plan B 才渲染，避免出现只有标题（甚至只有'—'）的空卡片
+      const hasRealContent = c.body || c.planb;
+      if (!hasRealContent) continue;
       html += '<div class="action-card">';
       if (c.title) html += '<h4 class="action-title">' + inlineMd(c.title) + '</h4>';
       if (c.body) html += '<p class="action-text">' + inlineMd(c.body) + '</p>';
