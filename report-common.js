@@ -280,40 +280,123 @@ function initReport(SYS_INFO, defaultKey) {
       window.location.href = 'agent-page/index.html';
     });
 
-    // 05 部分：计划书按钮——未生成计划书时显示"AI深度建议/深度定制"（进入 agent 采集），
-    // 已生成计划书时自动切换为"查看健康计划书/查看完整版"（直接查看）
-    const btnBig = document.querySelector('.lifestyle__deep-cta[data-plan]');
-    const btnSmall = document.querySelector('.module__head-btn[data-plan]');
-    const hasPlan = () => {
-      try { return !!localStorage.getItem('reportPlan'); } catch (e) { return false; }
-    };
+    // 05 部分：健康改善计划——用"计划书摘要"替代旧的生活方式卡片
+    // 摘要取计划书前 300 字，点击"查看详情"进入计划书页；无计划书时引导定制
+    const buildPlanSummary = () => {
+      const sec05 = Array.from(document.querySelectorAll('section.module')).find((s) => {
+        const num = s.querySelector('.module__num');
+        return num && num.textContent.trim() === '05';
+      });
+      if (!sec05 || sec05.querySelector('.plan-summary')) return;
+      // 隐藏旧的生活方式卡片与旧按钮（内容已由计划书摘要替代）
+      sec05.querySelectorAll('.lifestyle, .lifestyle__deep-cta, .module__head-btn').forEach((el) => { el.style.display = 'none'; });
 
-    const openPlanView = () => {
-      if (hasPlan()) {
-        window.location.href = 'agent-page/plan.html';
-      } else {
+      const card = document.createElement('article');
+      card.className = 'lifestyle plan-summary';
+      card.innerHTML =
+        '<header class="lifestyle__head">' +
+          '<span class="lifestyle__ico">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 8v13H3V8"/><path d="M12 8v5"/><path d="M9 13h6"/><path d="M7 16h10"/></svg>' +
+          '</span>' +
+          '<h3 class="lifestyle__title">您的专属健康改善计划</h3>' +
+        '</header>' +
+        '<p class="lifestyle__p" id="planSummaryText">正在读取您的健康改善计划…</p>' +
+        '<div class="plan-summary__actions">' +
+          '<button type="button" class="lifestyle__cta" id="planDetailBtn">查看详情</button>' +
+          '<button type="button" class="lifestyle__cta" id="planGenBtn" style="display:none">开始定制计划</button>' +
+        '</div>';
+      sec05.appendChild(card);
+
+      const planSummaryText = card.querySelector('#planSummaryText');
+      const planDetailBtn = card.querySelector('#planDetailBtn');
+      const planGenBtn = card.querySelector('#planGenBtn');
+
+      const getPlanContent = () => {
+        try {
+          const raw = localStorage.getItem('reportPlan');
+          if (raw) { const c = JSON.parse(raw); if (c && c.content) return c.content; }
+        } catch (e) { /* 忽略 */ }
+        if (window.PLAN_OFFLINE && window.PLAN_OFFLINE[window.REPORT_PROFILE]) {
+          return window.PLAN_OFFLINE[window.REPORT_PROFILE];
+        }
+        return '';
+      };
+      const toPlainText = (md) => String(md)
+        .replace(/```[\s\S]*?```/g, ' ')
+        .replace(/\{\{[A-Z_]+\}\}/g, ' ')
+        .replace(/^#{1,4}\s+/gm, '')
+        .replace(/^>+\s?/gm, '')
+        .replace(/^[-*]\s+/gm, '')
+        .replace(/^\d+[.、)]\s+/gm, '')
+        .replace(/\|/g, ' ')
+        .replace(/\*\*(.+?)\*\*/g, '$1')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/\s*\n\s*\n\s*/g, '\n')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const fillSummary = () => {
+        const content = getPlanContent();
+        if (!content) {
+          planSummaryText.textContent = '您的专属健康改善计划尚未生成，点击下方按钮开始定制。';
+          planDetailBtn.style.display = 'none';
+          planGenBtn.style.display = '';
+          return;
+        }
+        const plain = toPlainText(content);
+        planSummaryText.textContent = plain.length > 300 ? plain.slice(0, 300) + '…' : plain;
+        planDetailBtn.style.display = '';
+        planGenBtn.style.display = 'none';
+      };
+      planDetailBtn.addEventListener('click', () => { window.location.href = 'agent-page/plan.html'; });
+      planGenBtn.addEventListener('click', () => {
         saveReportCtx(defaultKey, '健康管理');
         window.location.href = 'agent-page/index.html';
-      }
+      });
+      fillSummary();
     };
 
-    // 点击监听只绑定一次；文案在页面加载与切回时动态同步
-    const bindPlanButtons = () => {
-      if (btnBig) btnBig.addEventListener('click', openPlanView);
-      if (btnSmall) btnSmall.addEventListener('click', openPlanView);
+    // 从计划书页生成后切回本页时，自动刷新摘要
+    const refreshPlanSummary = () => {
+      const text = document.getElementById('planSummaryText');
+      if (!text) return;
+      let content = '';
+      try {
+        const raw = localStorage.getItem('reportPlan');
+        if (raw) { const c = JSON.parse(raw); if (c && c.content) content = c.content; }
+      } catch (e) { /* 忽略 */ }
+      if (!content && window.PLAN_OFFLINE && window.PLAN_OFFLINE[window.REPORT_PROFILE]) {
+        content = window.PLAN_OFFLINE[window.REPORT_PROFILE];
+      }
+      const detail = document.getElementById('planDetailBtn');
+      const gen = document.getElementById('planGenBtn');
+      if (!content) {
+        text.textContent = '您的专属健康改善计划尚未生成，点击下方按钮开始定制。';
+        if (detail) detail.style.display = 'none';
+        if (gen) gen.style.display = '';
+        return;
+      }
+      const plain = String(content)
+        .replace(/```[\s\S]*?```/g, ' ')
+        .replace(/\{\{[A-Z_]+\}\}/g, ' ')
+        .replace(/^#{1,4}\s+/gm, '')
+        .replace(/^>+\s?/gm, '')
+        .replace(/^[-*]\s+/gm, '')
+        .replace(/^\d+[.、)]\s+/gm, '')
+        .replace(/\|/g, ' ')
+        .replace(/\*\*(.+?)\*\*/g, '$1')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/\s*\n\s*\n\s*/g, '\n')
+        .replace(/\s+/g, ' ')
+        .trim();
+      text.textContent = plain.length > 300 ? plain.slice(0, 300) + '…' : plain;
+      if (detail) detail.style.display = '';
+      if (gen) gen.style.display = 'none';
     };
-    const syncPlanText = () => {
-      const plan = hasPlan();
-      if (btnBig) btnBig.textContent = plan ? '查看健康计划书' : 'AI深度建议';
-      if (btnSmall) btnSmall.textContent = plan ? '查看完整版' : '深度定制';
-    };
-    bindPlanButtons();
-    syncPlanText();
-    // 从 agent / 计划书页切回本页时，自动同步按钮文案（无需刷新）
+    buildPlanSummary();
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) syncPlanText();
+      if (!document.hidden) refreshPlanSummary();
     });
-    window.addEventListener('focus', syncPlanText);
+    window.addEventListener('focus', refreshPlanSummary);
 
     // 05 部分：卡片内"AI深度建议"按钮（李璞璘/李承华等旧版页面保留）
     // 病症从卡片"针对"行动态读取，系统 key 由映射表提供
