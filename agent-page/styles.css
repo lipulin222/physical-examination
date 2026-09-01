@@ -417,7 +417,13 @@ ul {
   gap: 10px;
   padding: 10px 14px 6px;
   background: #f5f6f8;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  white-space: nowrap;
 }
+.footer-actions::-webkit-scrollbar { display: none; }
 
 .chip {
   display: inline-flex;
@@ -429,6 +435,8 @@ ul {
   border: 1px solid #e5e5e7;
   font-size: 13px;
   color: #333;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: background 0.15s ease, transform 0.1s ease;
 }
 
