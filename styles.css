@@ -450,11 +450,6 @@ body {
 .lifestyle__more:active { transform: scale(0.98); }
 .lifestyle__cta { margin-top: 16px; }
 
-/* 05 健康改善计划：计划书摘要卡片 */
-.plan-summary__actions { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
-.plan-summary__actions .lifestyle__cta { margin-top: 0; }
-.plan-summary .lifestyle__p { line-height: 1.9; }
-
 /* 05 标题栏右侧"深入定制"小按钮 */
 .module__head-btn {
   flex-shrink: 0;
