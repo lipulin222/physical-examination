@@ -4,7 +4,7 @@
   const API_KEY = 'Bearer pulinli222666uiqo';
 
   // 计划书提示词版本号：调整 System Prompt 后请递增此号，使旧缓存自动失效并重新生成
-  const PROMPT_VERSION = '8';
+  const PROMPT_VERSION = '9';
 
 
   // ===== DOM =====
@@ -533,8 +533,10 @@
 
     const report = ctx.reportSummary || '（未提供）';
     const answers = ctx.answers || '（未提供）';
+    // 儿童档案（child 开头的版本标识）或病症含儿童相关词时，使用面向家长的提示词与口吻
+    const isChild = /^child/i.test(ctx.version || '') || /儿童|男童|女童|孩子/.test(ctx.disease || '');
     // 提示词来源为独立的 plan-prompt.js（已移除内置旧模板，单一来源避免失步）
-    const planPrompt = window.PLAN_PROMPT_TEMPLATE;
+    const planPrompt = isChild ? window.PLAN_PROMPT_TEMPLATE_CHILD : window.PLAN_PROMPT_TEMPLATE;
     if (!planPrompt) {
       planLoading.hidden = false;
       planContent.hidden = true;
@@ -545,7 +547,7 @@
     const system = '【用户体检报告解读结果】\n' + report + '\n\n【前置健康信息采集结果】\n' + answers + '\n\n' + planPrompt;
     const messages = [
       { role: 'system', content: system },
-      { role: 'user', content: '请根据以上信息，为我制定专属的《个人健康管理计划书》。' }
+      { role: 'user', content: isChild ? '请根据以上信息，为我的孩子制定一份专属的《个人健康改善计划书-第一个月》。' : '请根据以上信息，为我制定专属的《个人健康改善计划书-第一个月》。' }
     ];
 
     planLoading.hidden = false;

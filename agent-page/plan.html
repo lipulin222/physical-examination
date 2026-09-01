@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <title>个人健康管理计划书</title>
+  <title>个人健康改善计划书</title>
   <style>
-    /* ===== 设计稿主题（个人健康管理计划书） ===== */
+    /* ===== 设计稿主题（个人健康改善计划书） ===== */
     :root {
       --radius: .625rem;
       --background: #f5f6f8;
@@ -324,16 +324,55 @@
     .advisor:hover .advisor__tip, .advisor:focus-visible .advisor__tip {
       opacity: 1; transform: translateX(0);
     }
-    @media (max-width: 640px) {
+    /* ===== 移动端适配（手机优先） ===== */
+    @media (max-width: 768px) {
+      .header-inner { padding: .75rem 1rem; }
+      .section-nav { display: none; }
+      .brand-logo { height: 1.5rem; }
+      .hero { padding: 2.5rem 1rem 2rem; }
+      .hero-eyebrow { letter-spacing: .25em; }
+      .hero-title { margin-top: 1rem; font-size: 1.75rem; line-height: 1.35; }
+      .hero-desc { margin-top: 1rem; line-height: 1.9; font-size: .9375rem; }
+      .hero-meta { margin-top: 1.5rem; grid-template-columns: 1fr; }
+      .meta-card { padding: 1rem; }
+      .toc { margin-top: 1.5rem; padding: 1.25rem; }
+      .toc-link { padding: .625rem 0; }
+      .section { padding: 2.5rem 1rem 2rem; scroll-margin-top: 4rem; }
+      .section-eyebrow { font-size: .8125rem; letter-spacing: .2em; }
+      .section-title { margin-top: .75rem; font-size: 1.375rem; }
+      .sub-title { margin: 2rem 0 1rem; font-size: 1.125rem; }
+      .goal-head { padding: 1rem 1.25rem; gap: .75rem; }
+      .goal-body { padding: 1.25rem; gap: 1rem; }
+      .goal-title { font-size: 1.125rem; }
+      .goal-card { border-radius: 1.25rem; }
+      .module-head { margin-top: 2.5rem; gap: .75rem; }
+      .module-letter { width: 2.25rem; height: 2.25rem; border-radius: .75rem; font-size: .875rem; }
+      .module-title { font-size: 1.25rem; }
+      .issue-card { padding: 1rem 1.25rem; }
+      .action-card { padding: 1.25rem; }
+      .timeline { gap: 1.5rem; }
+      .timeline-item { padding-left: 3.25rem; }
+      .phase-card { padding: 1.25rem; }
+      .phase-foot { grid-template-columns: 1fr; }
+      .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .plan-table { min-width: 30rem; }
+      .plan-table th, .plan-table td { padding: .75rem .875rem; }
+      .check-grid { grid-template-columns: 1fr; }
+      .quote-card { padding: 1.25rem; }
+      .quote-card p { font-size: 1rem; }
+      .chips { gap: .5rem; }
+      .chip { font-size: .875rem; padding: .375rem 1rem; }
+      .prose p { line-height: 1.9; }
+      .plan-loading { padding: 4rem 1rem; }
       .advisor { right: 1rem; bottom: 1rem; }
       .advisor__icon { width: 3rem; height: 3rem; }
       .advisor__tip { display: none; }
     }
-      .hero { padding-top: 3rem; }
-      .hero-title { font-size: 2.125rem; }
-      .section-title { font-size: 1.625rem; }
-      .module-title { font-size: 1.375rem; }
-      .section-nav { gap: .75rem; }
+    /* 超小屏（<380px）进一步收紧 */
+    @media (max-width: 380px) {
+      .hero-title { font-size: 1.5rem; }
+      .section-title { font-size: 1.25rem; }
+      .timeline-item { padding-left: 2.75rem; }
     }
   </style>
 </head>
@@ -361,8 +400,8 @@
   <main>
     <!-- Hero -->
     <section class="hero">
-      <p class="hero-eyebrow">PERSONAL HEALTH MANAGEMENT PLAN</p>
-      <h1 class="hero-title">《个人健康管理计划书-第一阶段》</h1>
+      <p class="hero-eyebrow">PERSONAL HEALTH IMPROVEMENT PLAN</p>
+      <h1 class="hero-title">《个人健康改善计划书-第一个月》</h1>
       <p class="hero-desc">不追求完美，只追求持续。这 30 天，只需要比上个月多走几步路、少喝几杯含糖饮料，就已经在往正确的方向走了。</p>
       <div class="hero-meta">
         <div class="meta-card">
@@ -398,7 +437,7 @@
   </main>
 
   <footer class="site-footer">
-    卓正医疗 · 个人健康管理计划书 · <span id="footerDate"></span>
+    卓正医疗 · 个人健康改善计划书 · <span id="footerDate"></span>
   </footer>
 
   <!-- 右下角健康顾问浮层 -->
