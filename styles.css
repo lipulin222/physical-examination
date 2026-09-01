@@ -236,14 +236,16 @@ body {
     0 10px 30px rgba(0, 0, 0, 0.16);
 }
 
-/* 详情卡底部全宽按钮（如生殖系统的预约专项检查） */
+/* 详情卡底部全宽按钮（如生殖系统的预约专项检查）——绿边白底 */
 .sysmap__detail-cta {
   width: 100%; border: none; cursor: pointer; font-family: var(--font);
-  background: linear-gradient(135deg, #14a3a3 0%, var(--accent) 55%, var(--accent-deep) 100%);
-  color: #fff; border-radius: 14px; padding: 13px; font-size: 14.5px; font-weight: 600;
-  letter-spacing: 0.3px; box-shadow: 0 8px 20px rgba(13, 138, 138, 0.26);
-  transition: transform .15s ease, box-shadow .15s ease;
+  background: #fff; color: var(--accent);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+  border-radius: 14px; padding: 13px; font-size: 14.5px; font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
 }
+.sysmap__detail-cta:hover { background: rgba(13, 138, 138, 0.06); }
 .sysmap__detail-cta:active { transform: scale(0.98); box-shadow: 0 4px 10px rgba(13, 138, 138, 0.18); }
 
 /* 详情卡底部 CTA 按钮组：双按钮布局 */
