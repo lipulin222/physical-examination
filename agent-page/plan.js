@@ -214,8 +214,8 @@
     for (const raw of lines) {
       const line = raw.trim();
       if (!line) continue;
-      // Plan B 行（挂到上一个行动卡）
-      const planb = line.match(/^[-*]\s*\*\*【?\s*Plan B\s*】?\*\*\s*[：:]\s*(.+)$/i);
+      // Plan B 行（挂到上一个行动卡）。** / 【】 都可选，兼容 - Plan B：xxx / - **Plan B**：xxx / - **【Plan B】**：xxx 等
+      const planb = line.match(/^[-*]\s*\**\s*【?\s*Plan\s*B\s*】?\s*\**\s*[：:]\s*(.+)$/i);
       if (planb) {
         if (cur) cur.planb = planb[1].trim();
         else cards.push({ title: '', body: '', planb: planb[1].trim() });
