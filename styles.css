@@ -490,21 +490,16 @@ body {
 }
 .issue__link:hover { color: var(--accent-deep); }
 
-/* 异常指标≥3项时显示的"预约医生面诊"按钮 */
+/* 异常指标≥3项时显示的"预约医生面诊"按钮（与"预约专项检查"同款通栏渐变样式） */
 .issue__doctor-btn {
   margin-top: 14px;
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: 6px;
-  padding: 9px 18px;
-  border-radius: 999px;
-  border: 1px solid var(--warn);
-  background: var(--warn-soft);
-  color: var(--warn);
-  font-size: 13px; font-weight: 600; letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  width: 100%; border: none; cursor: pointer; font-family: var(--font);
+  background: linear-gradient(135deg, #14a3a3 0%, var(--accent) 55%, var(--accent-deep) 100%);
+  color: #fff; border-radius: 14px; padding: 13px; font-size: 14.5px; font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: transform .15s ease, box-shadow .15s ease;
 }
-.issue__doctor-btn:hover { background: var(--warn); color: #fff; box-shadow: 0 2px 8px rgba(211, 127, 50, 0.3); }
+.issue__doctor-btn:active { transform: scale(0.98); box-shadow: 0 4px 10px rgba(13, 138, 138, 0.18); }
 
 .lifestyle__note {
   background: #fff; border: 1px solid var(--line); border-radius: 12px;
