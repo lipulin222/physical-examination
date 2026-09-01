@@ -57,6 +57,7 @@ const SYS_INFO = {
     name: '血液与营养', status: '需关注', warn: true,
     overall: { text: '存在缺铁性贫血', color: 'warn' },
     cta: '预约血液检查',
+    doctor: true,
     metricsTitle: '血常规与铁代谢',
     metrics: [
       { name: '血红蛋白', value: '112 g/L', flag: '↓', normal: '正常值 115–150 g/L' },

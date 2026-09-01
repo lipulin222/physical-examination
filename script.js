@@ -29,6 +29,7 @@ const SYS_INFO = {
     name: '心血管系统', status: '需关注', warn: true,
     overall: { text: '存在代谢相关风险，需要关注', color: 'warn' },
     cta: '预约心血管检查',
+    doctor: true,
     desc: [
       '本次心电图未见明显异常，血压 132/86 mmHg，没有发现明确的心血管疾病证据。',
       '但血脂方面存在一定异常：'

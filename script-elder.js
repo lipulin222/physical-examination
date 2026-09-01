@@ -6,6 +6,7 @@ const SYS_INFO = {
     name: '心血管系统', status: '需关注', warn: true,
     overall: { text: '血管已出现斑块，需继续管理血压血脂', color: 'warn' },
     cta: '预约心血管检查',
+    doctor: true,
     desc: [
       '高血压 8 年、高血脂 5 年，长期服用降压药和降脂药。颈动脉超声发现右侧分叉处一枚斑块（约 8×2.1 毫米），管腔未见明显狭窄。'
     ],
@@ -36,6 +37,7 @@ const SYS_INFO = {
     name: '骨骼肌肉', status: '需关注', warn: true,
     overall: { text: '骨量减少，跌倒风险升高', color: 'warn' },
     cta: '预约骨科检查',
+    doctor: true,
     metricsTitle: '骨密度',
     metrics: [
       { name: '腰椎 T 值', value: '-1.9', flag: '骨量减少', normal: '骨量减少，未到骨质疏松' },
@@ -50,6 +52,7 @@ const SYS_INFO = {
     name: '肾与泌尿', status: '需关注', warn: true,
     overall: { text: '过滤功能略下降，需复查趋势', color: 'warn' },
     cta: '预约肾功能检查',
+    doctor: true,
     metricsTitle: '肾功能指标',
     metrics: [
       { name: '肌酐', value: '91 μmol/L', flag: '↑', normal: '正常值 45–84 μmol/L' },
@@ -66,6 +69,7 @@ const SYS_INFO = {
     name: '呼吸系统', status: '需关注', warn: true,
     overall: { text: '肺部小结节，定期复查', color: 'warn' },
     cta: '预约呼吸科检查',
+    doctor: true,
     desc: [
       '胸部 CT 提示：右肺上叶见实性微小结节，约 5×4 毫米，边界尚清，双肺未见明显活动性炎症。'
     ],

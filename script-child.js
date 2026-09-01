@@ -22,6 +22,7 @@ const SYS_INFO = {
     name: '视力与眼', status: '需关注', warn: true,
     overall: { text: '裸眼视力下降，疑似近视', color: 'warn' },
     cta: '预约眼科检查',
+    doctor: true,
     metricsTitle: '视力检查',
     metrics: [
       { name: '右眼裸眼视力', value: '0.5', flag: '偏低', normal: '—' },
@@ -38,6 +39,7 @@ const SYS_INFO = {
     name: '口腔健康', status: '需关注', warn: true,
     overall: { text: '存在龋齿，口腔清洁需改善', color: 'warn' },
     cta: '预约口腔检查',
+    doctor: true,
     desc: [
       '右下第一恒磨牙窝沟可见龋坏，左上第一恒磨牙疑似早期龋，牙龈轻度充血，每日刷牙约 1 次。'
     ],
