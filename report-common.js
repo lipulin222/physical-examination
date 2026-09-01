@@ -343,7 +343,10 @@ function initReport(SYS_INFO, defaultKey) {
           return;
         }
         const plain = toPlainText(content);
-        planSummaryText.textContent = plain.length > 300 ? plain.slice(0, 300) + '…' : plain;
+        // 从"结合本次体检"（健康画像正文）开始展示，而不是从头复制计划书
+        const startIdx = plain.indexOf('结合本次体检');
+        const body = startIdx > 0 ? plain.slice(startIdx) : plain;
+        planSummaryText.textContent = body.length > 300 ? body.slice(0, 300) + '…' : body;
         planDetailBtn.style.display = '';
         planGenBtn.style.display = 'none';
       };
@@ -388,7 +391,10 @@ function initReport(SYS_INFO, defaultKey) {
         .replace(/\s*\n\s*\n\s*/g, '\n')
         .replace(/\s+/g, ' ')
         .trim();
-      text.textContent = plain.length > 300 ? plain.slice(0, 300) + '…' : plain;
+      // 从"结合本次体检"（健康画像正文）开始展示
+      const startIdx = plain.indexOf('结合本次体检');
+      const body = startIdx > 0 ? plain.slice(startIdx) : plain;
+      text.textContent = body.length > 300 ? body.slice(0, 300) + '…' : body;
       if (detail) detail.style.display = '';
       if (gen) gen.style.display = 'none';
     };
