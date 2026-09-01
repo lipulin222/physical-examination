@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>个人健康改善计划书 · 张先生</title>
+<style>
+  :root {
+    --radius: .625rem;
+    --background: #f5f6f8;
+    --foreground: #3c4145;
+    --card: #ffffff;
+    --card-foreground: #3c4145;
+    --primary: #0f8a7f;
+    --primary-foreground: #f2fbfa;
+    --secondary: #eef1f0;
+    --secondary-foreground: #2f6f66;
+    --muted: #eef1f0;
+    --muted-foreground: #6b747a;
+    --accent: #e0f2f0;
+    --accent-foreground: #17544d;
+    --border: #e7eaea;
+    --ring: #0f8a7f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; line-height: 1.5; }
+  body {
+    background: var(--background); color: var(--foreground);
+    font-family: "Noto Sans SC", "PingFang SC", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1,h2,h3,h4,h5,h6 { font-size: inherit; font-weight: inherit; }
+  a { color: inherit; text-decoration: none; }
+  strong { font-weight: 600; }
+  .serif, .hero-title, .section-title, .goal-title, .module-title, .phase-title, .meta-value { font-family: "Noto Serif SC", "Songti SC", "STSong", serif; }
+
+  /* 顶部导航 */
+  .site-header { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--border); background: rgba(245,246,248,.9); backdrop-filter: blur(8px); }
+  .header-inner { max-width: 48rem; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; }
+  .brand { display: flex; align-items: center; gap: .625rem; }
+  .brand-logo { height: 1.75rem; width: auto; object-fit: contain; }
+  .section-nav { display: flex; align-items: center; gap: 1.25rem; font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
+  .section-nav a:hover { color: var(--primary); }
+
+  /* Hero */
+  .hero { max-width: 48rem; margin: 0 auto; padding: 3.5rem 1.5rem 2.5rem; }
+  .hero-eyebrow { font-size: .75rem; font-weight: 500; letter-spacing: .4em; color: var(--primary); }
+  .hero-title { margin-top: 1.25rem; font-size: 2.25rem; font-weight: 700; line-height: 1.25; letter-spacing: .05em; }
+  .hero-desc { margin-top: 1.25rem; max-width: 36rem; line-height: 2; color: var(--muted-foreground); }
+  .hero-meta { margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+  .meta-card { display: flex; align-items: flex-start; gap: 1rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); padding: 1.25rem; }
+  .meta-icon { margin-top: .125rem; color: var(--primary); flex-shrink: 0; }
+  .meta-label { font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
+  .meta-value { margin-top: .25rem; font-size: 1.125rem; font-weight: 600; line-height: 1.4; }
+
+  /* 目录 */
+  .toc { margin-top: 2rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); padding: 1.5rem; }
+  .toc-label { margin-bottom: 1rem; font-size: .75rem; font-weight: 500; letter-spacing: .3em; color: var(--muted-foreground); }
+  .toc-list { list-style: none; }
+  .toc-list li { border-bottom: 1px solid var(--border); }
+  .toc-list li:last-child { border-bottom: none; }
+  .toc-link { display: flex; align-items: center; justify-content: space-between; padding: .75rem 0; }
+  .toc-link:hover { color: var(--primary); }
+  .toc-link-inner { display: flex; align-items: baseline; gap: 1rem; }
+  .toc-num { font-size: .875rem; font-weight: 600; color: var(--primary); }
+  .toc-title { font-weight: 500; }
+  .toc-arrow { color: var(--muted-foreground); flex-shrink: 0; }
+
+  /* 章节 */
+  .section { max-width: 48rem; margin: 0 auto; padding: 2.5rem 1.5rem; scroll-margin-top: 5rem; }
+  .section--tinted { background: #eef2f1; }
+  .section-eyebrow { display: flex; align-items: center; gap: .75rem; font-size: .875rem; font-weight: 600; letter-spacing: .3em; color: var(--primary); }
+  .section-eyebrow::before { content: ''; width: 2.5rem; height: 1px; background: rgba(15,138,127,.6); }
+  .section-title { margin-top: 1rem; font-size: 1.75rem; font-weight: 700; line-height: 1.3; letter-spacing: .04em; }
+  .sub-title { display: flex; align-items: center; gap: .75rem; margin: 2.5rem 0 1.25rem; font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.25rem; font-weight: 600; }
+  .sub-title::before { content: ''; width: .25rem; height: 1.25rem; border-radius: 9999px; background: var(--primary); flex-shrink: 0; }
+  .section-caption { margin: 1.5rem 0 .75rem; font-size: .75rem; font-weight: 500; letter-spacing: .3em; color: var(--muted-foreground); }
+  .h4 { margin: 1.25rem 0 .625rem; font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 600; }
+
+  /* 正文 */
+  .prose p { line-height: 2; color: rgba(60,65,69,.85); }
+  .prose p + p { margin-top: .75rem; }
+  .prose ul { margin-top: .75rem; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+  .prose ul > li { position: relative; padding-left: 1.25rem; line-height: 1.875; color: rgba(60,65,69,.85); }
+  .prose ul > li::before { content: ''; position: absolute; left: .125rem; top: .8em; width: .4rem; height: .4rem; border-radius: 9999px; background: var(--primary); }
+  .quote-card { margin-top: 1.5rem; border-radius: 1rem; background: var(--accent); padding: 1.25rem 1.5rem; }
+  .quote-card p { font-size: 1.0625rem; font-weight: 600; line-height: 2; color: var(--accent-foreground); }
+  .chips { margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: .625rem; }
+  .chip { border: 1px solid rgba(15,138,127,.3); background: var(--card); border-radius: 9999px; padding: .5rem 1.25rem; font-size: .9375rem; font-weight: 600; color: var(--primary); }
+
+  /* 02 目标卡 */
+  .goals { margin-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+  .goal-card { overflow: hidden; border: 1px solid var(--border); border-radius: 1.25rem; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .goal-head { display: flex; align-items: center; gap: 1rem; border-bottom: 1px solid var(--border); background: rgba(238,241,240,.5); padding: 1.125rem 1.5rem; }
+  .goal-icon { color: var(--primary); flex-shrink: 0; }
+  .goal-tag { font-size: .75rem; font-weight: 500; letter-spacing: .3em; color: var(--primary); }
+  .goal-title { margin-top: .25rem; font-size: 1.125rem; font-weight: 700; line-height: 1.4; }
+  .goal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .goal-quant { border-radius: .75rem; background: rgba(224,242,240,.7); padding: 1rem 1.25rem; }
+  .goal-quant-label { font-size: .75rem; font-weight: 500; letter-spacing: .15em; color: rgba(23,84,77,.7); }
+  .goal-quant-value { margin-top: .375rem; font-weight: 500; line-height: 1.625; color: var(--accent-foreground); }
+  .goal-row { display: grid; grid-template-columns: 110px 1fr; gap: .375rem; }
+  .goal-row-label { font-size: .875rem; font-weight: 500; color: var(--primary); }
+  .goal-row-value { line-height: 2; color: rgba(60,65,69,.85); }
+
+  /* 03 行动模块 */
+  .module-head { display: flex; align-items: center; gap: 1rem; margin-top: 2.5rem; }
+  .module-letter { width: 2.5rem; height: 2.5rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: .875rem; background: var(--primary); font-size: .9375rem; font-weight: 700; color: var(--primary-foreground); }
+  .module-title { display: flex; align-items: center; gap: .75rem; font-size: 1.375rem; font-weight: 700; line-height: 1.3; }
+  .action-list { margin-top: 1rem; display: flex; flex-direction: column; gap: 1.25rem; }
+  .action-card { border: 1px solid var(--border); border-radius: 1rem; background: var(--card); padding: 1.25rem 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .action-title { font-size: 1.0625rem; font-weight: 600; line-height: 1.5; }
+  .action-text { margin-top: .625rem; line-height: 2; color: rgba(60,65,69,.85); }
+  .planb { margin-top: .75rem; border-radius: .75rem; background: rgba(238,241,240,.6); padding: .625rem .875rem; font-size: .875rem; line-height: 1.625; color: var(--secondary-foreground); }
+  .planb strong { color: var(--primary); }
+
+  /* 04 随访 */
+  .followup-block { margin-top: 1.5rem; }
+  .followup-title { display: flex; align-items: center; gap: .625rem; font-size: 1.0625rem; font-weight: 700; margin-bottom: .5rem; }
+  .followup-tag { width: 1.75rem; height: 1.75rem; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: .5rem; background: rgba(15,138,127,.12); color: var(--primary); font-size: .75rem; font-weight: 700; }
+  .followup-desc { font-size: .875rem; color: var(--muted-foreground); line-height: 1.75; }
+
+  .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 1rem; text-align: center; font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
+
+  @media (max-width: 768px) {
+    .header-inner { padding: .75rem 1rem; }
+    .section-nav { display: none; }
+    .brand-logo { height: 1.5rem; }
+    .hero { padding: 2.25rem 1rem 1.75rem; }
+    .hero-title { margin-top: 1rem; font-size: 1.75rem; line-height: 1.35; }
+    .hero-desc { margin-top: 1rem; font-size: .9375rem; line-height: 1.9; }
+    .hero-meta { margin-top: 1.5rem; grid-template-columns: 1fr; }
+    .toc { padding: 1.25rem; }
+    .section { padding: 2rem 1rem 1.5rem; scroll-margin-top: 4rem; }
+    .section-title { font-size: 1.375rem; }
+    .sub-title { font-size: 1.125rem; }
+    .goal-row { grid-template-columns: 1fr; gap: .25rem; }
+    .goal-row-label { margin-top: .5rem; }
+    .goal-head { padding: 1rem 1.25rem; }
+    .goal-body { padding: 1.25rem; }
+    .action-card { padding: 1.125rem 1.25rem; }
+    .module-title { font-size: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <img class="brand-logo" src="pic/卓正医疗标准Logo透明底.png" alt="卓正医疗" />
+      </div>
+      <nav class="section-nav" aria-label="章节导航">
+        <a href="#s01">01</a>
+        <a href="#s02">02</a>
+        <a href="#s03">03</a>
+        <a href="#s04">04</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="hero-eyebrow">PERSONAL HEALTH IMPROVEMENT PLAN</p>
+      <h1 class="hero-title">《个人健康改善计划书-第一个月》</h1>
+      <p class="hero-desc">不追求完美，只追求持续。这 30 天，只需要比上个月多走几步路、少喝几杯含糖饮料，就已经在往正确的方向走了。</p>
+      <div class="hero-meta">
+        <div class="meta-card">
+          <svg class="meta-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div><p class="meta-label">计划书主人</p><p class="meta-value">张先生</p></div>
+        </div>
+        <div class="meta-card">
+          <svg class="meta-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M17 14h-6"/><path d="M13 18H7"/><path d="M7 14h.01"/><path d="M17 18h.01"/></svg>
+          <div><p class="meta-label">计划周期</p><p class="meta-value" id="metaPeriod">30 天</p></div>
+        </div>
+      </div>
+      <div class="toc">
+        <p class="toc-label">目录 CONTENTS</p>
+        <ol class="toc-list">
+          <li><a class="toc-link" href="#s01"><span class="toc-link-inner"><span class="toc-num">01</span><span class="toc-title">这是为你制定的</span></span><span class="toc-arrow">›</span></a></li>
+          <li><a class="toc-link" href="#s02"><span class="toc-link-inner"><span class="toc-num">02</span><span class="toc-title">这一个月，我们只解决3件事</span></span><span class="toc-arrow">›</span></a></li>
+          <li><a class="toc-link" href="#s03"><span class="toc-link-inner"><span class="toc-num">03</span><span class="toc-title">你的专属行动方案</span></span><span class="toc-arrow">›</span></a></li>
+          <li><a class="toc-link" href="#s04"><span class="toc-link-inner"><span class="toc-num">04</span><span class="toc-title">我们怎么知道它有没有效果</span></span><span class="toc-arrow">›</span></a></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 01 -->
+    <section class="section" id="s01">
+      <div class="section-eyebrow">01</div>
+      <h2 class="section-title">这是为你制定的</h2>
+
+      <h3 class="sub-title">你的健康画像</h3>
+      <div class="prose">
+        <p><strong>你目前处于什么状态</strong></p>
+        <p>结合本次体检，你目前最值得关注的是：体重增加带来的一系列代谢紊乱——血脂四项中有三项超标（总胆固醇5.72、甘油三酯2.38、LDL-C 3.56），肝功能酶学指标升高（ALT 68、GGT 86），提示肝脏已经出现轻度脂肪浸润并伴随损伤。同时，尿酸468、糖化血红蛋白5.7%、血压132/86mmHg都处于临界偏高的状态，这些多是同一根链条上的环节。</p>
+        <p>你不需要一次改变所有事情，那既不现实也没必要。你提到过，办过健身房年卡去了几周就放弃了，节食减肥瘦几斤后又反弹更快——这恰恰说明，目标过高反而难以坚持。真正重要的是，先用一种你<strong>能承受的节奏</strong>，把"吃"和"动"这两件事调整起来。</p>
+        <p>对甲状腺右叶的TI-RADS 3类结节，目前无需担忧，只需按建议定期复查即可——这不是本次计划要处理的问题，这次聚焦代谢。</p>
+      </div>
+
+      <p class="section-caption">当前3个主要攻克点</p>
+      <div class="chips">
+        <span class="chip">晚间过量进食</span>
+        <span class="chip">下午甜食+含糖饮料</span>
+        <span class="chip">长期久坐</span>
+      </div>
+    </section>
+
+    <!-- 02 -->
+    <section class="section" id="s02">
+      <div class="section-eyebrow">02</div>
+      <h2 class="section-title">这一个月，我们只解决3件事</h2>
+
+      <div class="goals">
+        <article class="goal-card">
+          <div class="goal-head">
+            <svg class="goal-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <div><p class="goal-tag">目标 1</p><h3 class="goal-title">控制体重，减小腰围</h3></div>
+          </div>
+          <div class="goal-body">
+            <div class="goal-quant"><p class="goal-quant-label">30天目标</p><p class="goal-quant-value">体重下降1–2kg，腰围减少2cm左右</p></div>
+            <div class="goal-row"><p class="goal-row-label">体检发现</p><p class="goal-row-value">BMI 27.4、腰围96cm（男性建议&lt;90cm），已处于超重水平</p></div>
+            <div class="goal-row"><p class="goal-row-label">这意味着什么</p><p class="goal-row-value">腹部脂肪堆积是血脂异常、脂肪肝、尿酸偏高、血糖临界这些问题的共同上游因素。腰围降下来，这串指标的改善就有了基础。</p></div>
+            <div class="goal-row"><p class="goal-row-label">干预路径</p><p class="goal-row-value">晚餐时间过晚+分量偏大→把晚餐提前且减量→减少晚间多余能量摄入，体重和腰围开始松动</p></div>
+          </div>
+        </article>
+
+        <article class="goal-card">
+          <div class="goal-head">
+            <svg class="goal-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <div><p class="goal-tag">目标 2</p><h3 class="goal-title">降低血脂与肝脏脂肪</h3></div>
+          </div>
+          <div class="goal-body">
+            <div class="goal-quant"><p class="goal-quant-label">30天目标</p><p class="goal-quant-value">为血脂和肝功能指标的改善打下行为基础</p></div>
+            <div class="goal-row"><p class="goal-row-label">体检发现</p><p class="goal-row-value">甘油三酯2.38、LDL-C 3.56、ALT 68、GGT 86，肝脏轻度脂肪浸润</p></div>
+            <div class="goal-row"><p class="goal-row-label">这意味着什么</p><p class="goal-row-value">血脂升高和肝酶升高同时出现，提示脂肪正在肝脏堆积并引起轻度损伤，目前仍处于可逆阶段，通过减重和减少酒精摄入，完全有可能改善。</p></div>
+            <div class="goal-row"><p class="goal-row-label">干预路径</p><p class="goal-row-value">每周2–3次啤酒+高脂聚餐→暂减至每2周1次且总量减半→减少酒精和饱和脂肪负荷，给肝脏减负</p></div>
+          </div>
+        </article>
+
+        <article class="goal-card">
+          <div class="goal-head">
+            <svg class="goal-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <div><p class="goal-tag">目标 3</p><h3 class="goal-title">稳定血糖，阻止进一步恶化</h3></div>
+          </div>
+          <div class="goal-body">
+            <div class="goal-quant"><p class="goal-quant-label">30天目标</p><p class="goal-quant-value">通过饮食调整，为糖化血红蛋白值回落创造条件</p></div>
+            <div class="goal-row"><p class="goal-row-label">体检发现</p><p class="goal-row-value">HbA1c 5.7%，处于糖尿病前期临界范围，空腹胰岛素18.6</p></div>
+            <div class="goal-row"><p class="goal-row-label">这意味着什么</p><p class="goal-row-value">血糖调节能力已经开始吃紧，但还没有进入异常区间，现在是干预的最佳窗口期。</p></div>
+            <div class="goal-row"><p class="goal-row-label">干预路径</p><p class="goal-row-value">下午奶茶+甜点造成血糖大幅波动→换成低糖替代并减少频率→减轻胰岛素负担，降低向糖尿病发展的风险</p></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 03 -->
+    <section class="section section--tinted" id="s03">
+      <div class="section-eyebrow">03</div>
+      <h2 class="section-title">你的专属行动方案</h2>
+
+      <div class="module-head"><span class="module-letter">A</span><h3 class="module-title">饮食</h3></div>
+      <p class="section-caption">你现在的问题是什么</p>
+      <div class="prose"><p>核心问题并不是三餐本身，而是两个场景：工作日15–16点的奶茶+甜点，以及21点以后才吃、还容易吃撑的晚餐。这两个习惯一天里多出来的热量和时间差，恰好对血脂和血糖最不友好。</p></div>
+      <p class="section-caption">接下来具体怎么做</p>
+      <div class="action-list">
+        <div class="action-card"><h4 class="action-title">【奶茶/甜点：从每周4–5次降到≤1次】</h4><p class="action-text">下午饿的时候，先用"1小把原味坚果（约10颗）+ 1杯无糖茶水或无糖酸奶"替代，偶尔忍不住可以喝一杯无糖奶茶，但不要加小料。</p></div>
+        <div class="action-card"><h4 class="action-title">【晚餐提前+减量】</h4><p class="action-text">目标：尽量把晚餐提前到20点前（最晚不超过21点），并吃7分饱。如果加班必须晚吃，那就在18–19点先垫一杯酸奶或一根香蕉，免得晚上饿到失控。</p></div>
+        <div class="action-card"><h4 class="action-title">【晚餐份量控制参考】</h4><p class="action-text">主食≈自己一拳（优先选杂粮饭或红薯），蛋白质≈自己一掌心（鱼/鸡肉/豆制品），蔬菜≥两拳。每2周1次聚餐时，啤酒控制在1瓶以内，并先吃蔬菜再吃肉。</p><p class="planb"><strong>Plan B</strong> 如果哪天实在没做到，不用第二天加倍"补偿"，正常继续下一餐就好。</p></div>
+      </div>
+
+      <div class="module-head"><span class="module-letter">B</span><h3 class="module-title">运动</h3></div>
+      <div class="prose"><p>你目前基本没有运动习惯，我们就不从"每周5次"开始，那样容易重蹈健身房年卡的覆辙。</p></div>
+      <div class="action-list">
+        <div class="action-card"><h4 class="action-title">【做什么 + 做到什么程度】</h4><p class="action-text">前2周：每周3次、每次15–20分钟快走，安排在晚饭后1小时或午休时间。强度标准：微微喘、但还能完整说话。第3–4周：加到每周4次、每次25–30分钟。不追求一次性做满，碎片化完成也可以——比如午饭后绕公司走10分钟，晚饭后楼下走15分钟。</p></div>
+        <div class="action-card"><h4 class="action-title">【Plan B】</h4><p class="action-text">当天状态很差或加班太晚时，至少在家做5分钟深蹲（每次15个×3组）或靠墙站立5分钟。不需要第二天额外补偿。</p></div>
+      </div>
+
+      <div class="module-head"><span class="module-letter">C</span><h3 class="module-title">睡眠与久坐</h3></div>
+      <h4 class="h4">睡眠</h4>
+      <div class="prose"><p>你目前23:30–00:30入睡、睡6–6.5小时，问题在于偏晚且时长略短；同时睡前刷手机会让入睡时间后移、睡眠质量下降。这一阶段不要求你提前到23点前，那不现实。</p></div>
+      <div class="action-list">
+        <div class="action-card"><h4 class="action-title">【做什么 + 做到什么程度】</h4><p class="action-text">目标00:00前上床，每周至少做到5天；睡前把手机放在伸手够不到的地方，改为阅读纸质书或听播客15分钟来过渡入睡。起床时间维持7点左右不变。</p><p class="planb"><strong>Plan B</strong> 实在有工作没处理完，也尽量在00:30前放下手机躺下。睡得不够安稳也不要有压力，先保证"躺下的时间"规律。</p></div>
+      </div>
+      <h4 class="h4">久坐</h4>
+      <div class="prose"><p>你白天连续坐8–10小时，久坐本身会增加甘油三酯和血糖负担。我们先用一个最不费力的小习惯切入，每次只花1分钟：</p></div>
+      <div class="action-list">
+        <div class="action-card"><h4 class="action-title">【做什么 + 做到什么程度】</h4><p class="action-text">设置手机闹钟，每坐满1小时就站起来活动1–2分钟——接杯水、去洗手间、或原地伸展。每天至少完成5次。外加午饭后下楼散步10分钟（同时计入快走目标）。</p></div>
+      </div>
+
+      <div class="module-head"><span class="module-letter">D</span><h3 class="module-title">饮酒</h3></div>
+      <div class="prose"><p>你提到应酬较多，每周2–3次喝酒。酒精本身就会直接升高甘油三酯、加重脂肪肝，并干扰尿酸排泄。</p></div>
+      <div class="action-list">
+        <div class="action-card"><h4 class="action-title">【做什么 + 做到什么程度】</h4><p class="action-text">第一个月先把饮酒频率从每周2–3次降到每2周1次，且每次啤酒不超过1瓶（或红酒≤2杯）。应酬场合可以主动说"最近在调理身体"，用无糖茶或气泡水替代。</p></div>
+        <div class="action-card"><h4 class="action-title">【Plan B】</h4><p class="action-text">实在推不掉的场合，选啤酒以外的蒸馏酒（如白酒/威士忌）且不超过1小杯，同时多喝水，不喝含糖饮料兑酒。</p></div>
+      </div>
+    </section>
+
+    <!-- 04 -->
+    <section class="section" id="s04">
+      <div class="section-eyebrow">04</div>
+      <h2 class="section-title">我们怎么知道它有没有效果</h2>
+
+      <div class="followup-block">
+        <h3 class="followup-title"><span class="followup-tag">每周/每日</span>日常数据记录</h3>
+        <div class="prose"><ul>
+          <li>体重：每周固定2次晨起空腹称重并记录</li>
+          <li>腰围：每2周测量1次（用同一把卷尺、同一位置）</li>
+          <li>行为完成情况：每周简单打勾记录——奶茶喝了没、晚餐有没有提前、运动完成了几次、久坐有没有每小时起身</li>
+        </ul></div>
+      </div>
+
+      <div class="followup-block">
+        <h3 class="followup-title"><span class="followup-tag">1 个月后</span>线上问卷随访</h3>
+        <div class="prose"><ul>
+          <li>通过线上健康问卷，评估这一个月饮食和运动调整后的状态变化与主观感受，判断当前方案是否适合、是否需要调整</li>
+        </ul></div>
+      </div>
+
+      <div class="followup-block">
+        <h3 class="followup-title"><span class="followup-tag">3 个月后</span>线下指标复查</h3>
+        <div class="prose"><ul>
+          <li>复查血脂、空腹血糖与糖化血红蛋白、尿酸及肝功能（ALT/GGT），让数据告诉我们方向是否正确</li>
+          <li>建议于同一家体检机构复查，对比变化最可靠。如期间出现明显不适（如右上腹持续疼痛、明显乏力、口渴多尿等），应提前就医</li>
+        </ul></div>
+      </div>
+
+      <div class="followup-block">
+        <h3 class="followup-title"><span class="followup-tag">6 个月后</span>线下指标复查</h3>
+        <div class="prose"><ul>
+          <li>复查甲状腺超声，观察结节大小及影像特征变化</li>
+        </ul></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    卓正医疗 · 个人健康改善计划书 · <span id="footerDate"></span>
+  </footer>
+
+  <script>
+    // 填充计划周期（生成日期 ~ +1 个月）
+    (function () {
+      var now = new Date();
+      var fmt = function (d) { return d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0'); };
+      var end = new Date(now); end.setMonth(end.getMonth() + 1);
+      document.getElementById('footerDate').textContent = fmt(now) + ' — ' + fmt(end);
+      var p = document.getElementById('metaPeriod');
+      if (p) p.textContent = fmt(now) + ' — ' + fmt(end);
+    })();
+  </script>
+</body>
+</html>
