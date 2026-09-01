@@ -77,8 +77,8 @@
     // 0) 规范化：AI 可能用加粗文本代替标题，统一转为 ### 标题以便块识别
     body = body
       .replace(/^\s*\*\*当前3个主要攻克点\*\*\s*$/gm, '### 当前3个主要攻克点')
-      .replace(/^\s*\*\*你现在的问题是什么？\*\*\s*$/gm, '### 你现在的问题是什么？')
-      .replace(/^\s*\*\*接下来具体怎么做[:：]?\*\*\s*$/gm, '### 接下来具体怎么做')
+      .replace(/^\s*\*\*你现在的问题是什么[？?:：\s]*\*\*\s*$/gm, '### 你现在的问题是什么？')
+      .replace(/^\s*\*\*接下来具体怎么做[？?:：\s]*\*\*\s*$/gm, '### 接下来具体怎么做')
       .replace(/^\s*\*\*做什么运动\*\*\s*$/gm, '### 做什么运动')
       .replace(/^\s*\*\*做到什么强度\*\*\s*$/gm, '### 做到什么强度')
       // 加粗形式的模块标题（**A. 饮食** / **B、运动**）也转成 ### 标题
@@ -196,7 +196,7 @@
       const h = (blocks[i] || '').trim();
       const hb = blocks[i + 1] || '';
       if (/你现在的问题是什么/.test(h)) {
-        html += '<div class="issue-card"><p class="card-caption">你现在的问题是什么</p>' + renderProse(hb) + '</div>';
+        html += '<p class="section-caption">你现在的问题是什么</p>' + renderProse(hb);
       } else if (/接下来具体怎么做/.test(h)) {
         html += '<p class="section-caption">接下来具体怎么做</p>' + renderActions(hb);
       } else {
@@ -225,8 +225,16 @@
       const act = line.match(/^[-*]\s*\*\*【\s*做什么\s*\+\s*做到什么程度\s*】\*\*\s*[：:]\s*(.+)$/);
       if (act) content = act[1].trim();
       else if (/^[-*]\s/.test(line)) content = line.replace(/^[-*]\s+/, '').trim();
-      // 用第一个中文冒号拆“标题：说明”
-      const colon = content.match(/^([^：]{4,30}?)[：:]\s*(.+)$/);
+      // 拆"标题：说明"：优先按【】结尾的标题解析（处理 AI 用 - **【xxx】**：yyy 的形式），
+      // 否则按第一个中文冒号或英文冒号分隔
+      let colon = null;
+      const bracketEnd = content.indexOf('】');
+      if (bracketEnd >= 0) {
+        const tail = content.slice(bracketEnd + 1);
+        const m = tail.match(/^[：:]\s*([\s\S]+)$/);
+        if (m) colon = [content, content.slice(0, bracketEnd + 1), m[1].trim(), m[1]];
+      }
+      if (!colon) colon = content.match(/^([^：]{4,30}?)[：:]\s*(.+)$/);
       if (colon && colon[2].length >= colon[1].length) {
         cards.push({ title: colon[1].trim(), body: colon[2].trim(), planb: '' });
       } else {
@@ -652,10 +660,6 @@
       return;
     }
     generate();
-  });
-  const advisorBtn = document.getElementById('advisorBtn');
-  if (advisorBtn) advisorBtn.addEventListener('click', () => {
-    showToast('您好，我是您的健康顾问。如对计划书有疑问，可返回对话页继续咨询。');
   });
 
   // 初始：优先展示已缓存的计划书（避免重复生成）；无缓存或版本不匹配时才调用生成

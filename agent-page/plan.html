@@ -200,9 +200,6 @@
     }
     .module-title { display: flex; align-items: center; gap: .75rem; font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
     .module-icon { color: var(--primary); }
-    .issue-card { margin-top: 1.5rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); padding: 1.25rem 1.5rem; }
-    .card-caption { margin-bottom: .5rem; font-size: .75rem; font-weight: 500; letter-spacing: .3em; color: var(--muted-foreground); }
-    .issue-card p:last-child { line-height: 2; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
     .action-list { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; }
     .action-card { border: 1px solid var(--border); border-radius: 1rem; background: var(--card); padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
     .action-title { font-size: 1.125rem; font-weight: 600; line-height: 1.5; }
@@ -293,37 +290,6 @@
     }
     .toast.is-visible { opacity: 1; }
 
-    /* ===== 右下角健康顾问浮层 ===== */
-    .advisor {
-      position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 40;
-      display: flex; align-items: center; gap: .625rem;
-    }
-    .advisor__icon {
-      width: 3.25rem; height: 3.25rem; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 9999px;
-      background: var(--primary); color: var(--primary-foreground);
-      box-shadow: 0 6px 18px rgba(0,0,0,.18);
-      transition: transform .2s, box-shadow .2s;
-    }
-    .advisor__icon::after {
-      content: ''; position: absolute; right: .25rem; bottom: .25rem;
-      width: .75rem; height: .75rem; border-radius: 9999px;
-      background: #34d399; border: 2px solid var(--primary-foreground);
-    }
-    .advisor:hover .advisor__icon { transform: scale(1.06); box-shadow: 0 8px 22px rgba(0,0,0,.24); }
-    .advisor__tip {
-      opacity: 0; pointer-events: none; white-space: nowrap;
-      transform: translateX(6px);
-      transition: opacity .25s, transform .25s;
-      background: var(--card); color: var(--foreground);
-      border: 1px solid var(--border); border-radius: 9999px;
-      padding: .5rem .875rem; font-size: .8125rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,.1);
-    }
-    .advisor:hover .advisor__tip, .advisor:focus-visible .advisor__tip {
-      opacity: 1; transform: translateX(0);
-    }
     /* ===== 移动端适配（手机优先） ===== */
     @media (max-width: 768px) {
       .header-inner { padding: .75rem 1rem; }
@@ -348,7 +314,6 @@
       .module-head { margin-top: 2.5rem; gap: .75rem; }
       .module-letter { width: 2.25rem; height: 2.25rem; border-radius: .75rem; font-size: .875rem; }
       .module-title { font-size: 1.25rem; }
-      .issue-card { padding: 1rem 1.25rem; }
       .action-card { padding: 1.25rem; }
       .timeline { gap: 1.5rem; }
       .timeline-item { padding-left: 3.25rem; }
@@ -439,14 +404,6 @@
   <footer class="site-footer">
     卓正医疗 · 个人健康改善计划书 · <span id="footerDate"></span>
   </footer>
-
-  <!-- 右下角健康顾问浮层 -->
-  <button class="advisor" id="advisorBtn" aria-label="健康顾问" title="健康顾问">
-    <span class="advisor__icon" aria-hidden="true">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
-    </span>
-    <span class="advisor__tip">您好，我是您的健康顾问</span>
-  </button>
 
   <!-- 轻提示 -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
