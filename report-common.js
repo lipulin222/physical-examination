@@ -386,7 +386,7 @@ function initReport(SYS_INFO, defaultKey) {
       html += '<div class="fu-block">' +
         '<h3 class="fu-block__title"><span class="fu-num">02</span>1 个月后 · 线上问卷随访</h3>' +
         '<p class="lifestyle__p">通过线上健康问卷，评估您在生活干预后健康状态是否有提升，并了解您的感受与心理状态，判断当前方案是否适合您、是否需要调整。</p>' +
-        '<label class="fu-check"><input type="checkbox" data-fu-remind /><span class="fu-check__box"></span><span class="fu-check__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></span><span class="fu-check__text">1 个月后提醒我线上随访</span></label>' +
+        '<label class="fu-check"><span class="fu-check__text">1 个月后提醒我线上随访</span><span class="fu-check__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></span><span class="fu-check__box"></span><input type="checkbox" data-fu-remind /></label>' +
       '</div>';
 
       // 03 3 个月后 · 线下指标复查
@@ -397,8 +397,13 @@ function initReport(SYS_INFO, defaultKey) {
         html += '<p class="fu-block__warn"><b>尽快完成：</b>' + escapeHtml(flatItems(buckets.quick).join('；')) + '</p>';
       }
       if (q3Items.length) {
-        html += '<ul class="lifestyle__list">' + q3Items.map((i) => '<li>' + escapeHtml(i) + '</li>').join('') + '</ul>';
-        if (flatNote(buckets.q3m)) html += '<p class="lifestyle__p">' + escapeHtml(flatNote(buckets.q3m)) + '</p>';
+        // 把每项复查对应的「重点观察」说明直接拼到对应项目后面，避免每项重复前缀
+        const q3ByItem = {};
+        buckets.q3m.forEach((p) => (p.items || []).forEach((it) => { if (p.note && !q3ByItem[it]) q3ByItem[it] = p.note; }));
+        html += '<ul class="lifestyle__list">' + q3Items.map((i) => {
+          const note = q3ByItem[i] ? q3ByItem[i].replace(/^重点观察[：:]\s*/, '').trim() : '';
+          return '<li>' + escapeHtml(i) + (note ? '<span class="fu-item__note">（关注：' + escapeHtml(note) + '）</span>' : '') + '</li>';
+        }).join('') + '</ul>';
       } else {
         html += '<p class="lifestyle__p">按医生建议安排复查，评估干预后的改善情况。</p>';
       }
@@ -410,8 +415,12 @@ function initReport(SYS_INFO, defaultKey) {
       html += '<div class="fu-block">' +
         '<h3 class="fu-block__title"><span class="fu-num">04</span>6 个月后 · 线下指标复查</h3>';
       if (q6Items.length) {
-        html += '<ul class="lifestyle__list">' + q6Items.map((i) => '<li>' + escapeHtml(i) + '</li>').join('') + '</ul>';
-        if (flatNote(buckets.q6m)) html += '<p class="lifestyle__p">' + escapeHtml(flatNote(buckets.q6m)) + '</p>';
+        const q6ByItem = {};
+        buckets.q6m.forEach((p) => (p.items || []).forEach((it) => { if (p.note && !q6ByItem[it]) q6ByItem[it] = p.note; }));
+        html += '<ul class="lifestyle__list">' + q6Items.map((i) => {
+          const note = q6ByItem[i] ? q6ByItem[i].replace(/^重点观察[：:]\s*/, '').trim() : '';
+          return '<li>' + escapeHtml(i) + (note ? '<span class="fu-item__note">（关注：' + escapeHtml(note) + '）</span>' : '') + '</li>';
+        }).join('') + '</ul>';
       } else {
         html += '<p class="lifestyle__p">视干预效果与医生建议安排后续复查。</p>';
       }
