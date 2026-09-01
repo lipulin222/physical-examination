@@ -232,6 +232,20 @@ function initReport(SYS_INFO, defaultKey) {
 
     // 需求：按实际情况判断是否需要面诊——SYS_INFO 中配置了 doctor 的系统（如儿童龋齿应立刻看牙、贫血应就医评估、颈动脉斑块应就诊评估等），
     // 在 02 重点问题对应卡片增加"预约医生面诊"按钮；未配置 doctor 的系统保留原逻辑，不出现该按钮
+    // 轻提示 Toast（替代原生 alert，体验更友好）
+    let toastEl = null;
+    const showToast = (msg) => {
+      if (!toastEl) {
+        toastEl = document.createElement('div');
+        toastEl.className = 'rc-toast';
+        document.body.appendChild(toastEl);
+      }
+      toastEl.textContent = msg;
+      toastEl.classList.add('is-visible');
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove('is-visible'), 2200);
+    };
+
     document.querySelectorAll('.issue').forEach((card) => {
       const link = card.querySelector('.issue__link');
       if (!link || !link.dataset.key || !SYS_INFO[link.dataset.key]) return;
@@ -241,13 +255,13 @@ function initReport(SYS_INFO, defaultKey) {
       btn.type = 'button';
       btn.className = 'issue__doctor-btn';
       btn.textContent = typeof info.doctor === 'string' ? info.doctor : '预约医生面诊';
-      btn.addEventListener('click', () => alert('已为您生成医生面诊预约意向，请确认预约时间与科室。'));
+      btn.addEventListener('click', () => showToast('已为您生成医生面诊预约意向，请确认预约时间与科室。'));
       card.appendChild(btn);
     });
 
     // 详情卡底部 CTA 按钮：跳转到专项检查预约
     sysDetailCta.addEventListener('click', () => {
-      alert('已为您生成专项检查预约意向，请确认预约信息。');
+      showToast('已为您生成专项检查预约意向，请确认预约信息。');
     });
 
     // 从 02 卡片标题取病症名（03 详情卡没有独立标题时使用）

@@ -769,7 +769,7 @@
         </svg>
       </div>
       <div class="chat__content">
-        <div class="chat__bubble chat__bubble--bot"><div class="chat__bubble-text"><p>${escapeHtml(text).replace(/\n/g, '</p><p>')}</p></div></div>
+        <div class="chat__bubble chat__bubble--bot"><div class="chat__bubble-text">${mdToHtml(text)}</div></div>
       </div>
     `;
     chatList.appendChild(item);
@@ -808,6 +808,22 @@
   // ===== 计划书制作流程（由菜单"制定健康改进计划"或对话中用户表达意图触发）=====
   let isPlanBuildMode = false;
   const PLAN_BUILD_INTENT_RE = /(?:制定|生成|制作|定制)(?:个人|专属|健康|改善)?计划(?:书)?|做(?:个|份|一下).{0,6}计划|健康(?:改善)?计划|改善计划/;
+  // 计划书流程中，用户表达暂停/退出/换话题 → 退出计划书流程
+  const PLAN_BUILD_EXIT_RE = /暂停|退出|不做了|先(?:聊|问|说|做)别的|算了|换个话题|不制定|不做计划|停一下|别问了|下次再说/;
+
+  // 退出计划书制作流程：切回通用对话（重建 system 为通用模板，保留对话历史）
+  function exitPlanBuild() {
+    isPlanBuildMode = false;
+    const ctx = currentCtx || { disease: '健康问题', profile: {}, lab: null };
+    try {
+      const sys = buildSystemPrompt(ctx);
+      if (messages.length && messages[0] && messages[0].role === 'system') {
+        messages[0].content = sys;
+      } else {
+        messages.unshift({ role: 'system', content: sys });
+      }
+    } catch (e) { /* 忽略 */ }
+  }
 
   // 呼起计划书制作流程：重置 system 为计划书制作版，AI 按提纲收集生活方式信息
   function startPlanBuild(userText) {
@@ -830,6 +846,10 @@
     if (!text) return;
     messageInput.value = '';
     updateSendButton();
+    // 计划书流程中，用户明确暂停/退出/换话题 → 切回通用对话
+    if (isPlanBuildMode && PLAN_BUILD_EXIT_RE.test(text)) {
+      exitPlanBuild();
+    }
     // 用户表达计划书制作意图且当前不在计划书流程 → 切换为计划书制作流程
     if (!isPlanBuildMode && PLAN_BUILD_INTENT_RE.test(text)) {
       startPlanBuild(text);
