@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>体检报告解读 · Physical Examination</title>
+  <meta name="description" content="专业、清晰、易懂的体检报告智能解读，帮您读懂每一项指标背后的健康含义。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="phone">
+    <!-- 顶部导航 -->
+    <header class="topbar">
+      <button class="topbar__back" aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="topbar__title">体检报告解读</div>
+      <button class="topbar__more" aria-label="更多">
+        <span></span><span></span><span></span>
+      </button>
+
+      <!-- 报告切换菜单 -->
+      <nav class="topbar__menu" id="reportMenu" hidden>
+        <a class="topbar__menu-item" href="male-in-plain-language.html">张先生 · 38 岁</a>
+        <a class="topbar__menu-item" href="female.html">李女士 · 36 岁</a>
+        <a class="topbar__menu-item" href="child.html">乐乐 · 8 岁</a>
+        <a class="topbar__menu-item" href="elder.html">王阿姨 · 68 岁</a>
+      </nav>
+    </header>
+
+    <main class="page">
+      <!-- ① 健康总览 -->
+      <section class="module module--overview">
+        <div class="module__head">
+          <h2 class="module__title"><span class="module__num">01</span>健康总览</h2>
+        </div>
+
+        <div class="overview">
+          <div class="overview__head">
+            <span class="overview__eyebrow">2026 年度健康评估</span>
+            <h1 class="overview__name">李璞璘 · 38 岁</h1>
+            <p class="overview__meta">综合体检 · 报告日期 2026-07-11</p>
+            <div class="overview__tags">
+              <span class="tag tag--good">整体良好</span>
+              <span class="tag tag--warn">4 项需关注</span>
+            </div>
+          </div>
+
+          <div class="overview__ai">
+            <p class="overview__ai-text">本次体检整体情况不错，多数指标都正常。需要关注的主要有四件事：<b>双侧乳腺有几个小结节</b>（BI-RADS 3 类，良性可能性大）、<b>子宫有一枚小肌瘤</b>、<b>骨量减少</b>，以及<b>血压和心率略偏低</b>。甲状腺功能、肝功能、肾功能、血糖、血脂、血常规都正常。乳腺结节和子宫肌瘤按医生建议定期复查即可；骨量减少建议趁早补钙、多运动，到骨质疏松门诊明确一下；血压心率偏慢，注意起立动作慢一点就行。</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ② 重点问题 -->
+      <section class="module">
+        <div class="module__head">
+          <h2 class="module__title"><span class="module__num">02</span>重点问题</h2>
+        </div>
+
+        <article class="issue">
+          <header class="issue__head">
+            <h3 class="issue__summary">乳腺结节（BI-RADS 3 类）</h3>
+            <a class="issue__link" href="#" data-key="endo">查看详情</a>
+          </header>
+
+          <div class="issue__block">
+            <p>双侧乳腺都发现了<b>小结节</b>：右侧一个约 8×5 mm、左侧一个约 9×3 mm，评级都是 <b>BI-RADS 3 类（良性可能性大）</b>，左侧还有一个 2 类的囊性小灶。绝大多数 3 类结节是良性的，不用一看到"结节"就紧张。按医生建议到<b>乳腺外科</b>安排随访，每 3–6 个月复查一次乳腺彩超，确认它一直稳定就好。</p>
+          </div>
+        </article>
+
+        <article class="issue">
+          <header class="issue__head">
+            <h3 class="issue__summary">子宫肌瘤（约 1.8 cm）</h3>
+            <a class="issue__link" href="#" data-key="repro">查看详情</a>
+          </header>
+
+          <div class="issue__block">
+            <p>妇科超声发现<b>子宫后壁有一枚小结节，约 18×16 mm，考虑子宫肌瘤</b>。子宫肌瘤是女性最常见的良性肿瘤，你的这枚还不大、通常没有症状，<b>一般定期复查即可</b>。如果出现月经过多、经期延长或肌瘤明显增大，再到妇科就诊处理。</p>
+          </div>
+        </article>
+
+        <article class="issue">
+          <header class="issue__head">
+            <h3 class="issue__summary">骨量减少</h3>
+            <a class="issue__link" href="#" data-key="bone">查看详情</a>
+          </header>
+
+          <div class="issue__block">
+            <p>骨密度检查提示<b>骨量减少</b>，是骨质疏松的前期表现。女性随着年龄增长、尤其临近绝经，骨量流失会加快，<b>现在发现得早是好事</b>。建议到<b>骨质疏松门诊</b>进一步明确，同时把补钙、晒太阳、户外运动做起来，注意防摔倒。</p>
+          </div>
+        </article>
+
+        <article class="issue">
+          <header class="issue__head">
+            <h3 class="issue__summary">血压偏低、心率偏慢</h3>
+            <a class="issue__link" href="#" data-key="heart">查看详情</a>
+          </header>
+
+          <div class="issue__block">
+            <p>本次血压 <b>98/55 mmHg</b>（舒张压略低）、心率约 <b>54 次/分</b>，心电图提示"窦性心动过缓伴不齐"。这种情况在体质偏瘦的人里比较常见，<b>多数没有病理意义</b>。注意起立时动作慢一点、别泡太久的热水澡，避免头晕；如果心率低于 50 次/分或经常头晕，建议做 24 小时动态心电图，到心血管内科看看。</p>
+          </div>
+        </article>
+      </section>
+
+      <!-- ③ 各系统健康状态（成人女性定制系统） -->
+      <section class="module">
+        <div class="module__head">
+          <h2 class="module__title"><span class="module__num">03</span>各系统健康状态</h2>
+        </div>
+
+        <!-- 整图（SVG 绘制）+ 透明热区 -->
+        <div class="sysmap">
+          <div class="sysmap__canvas">
+            <svg class="sysmap__svg" viewBox="0 0 1212 842" xmlns="http://www.w3.org/2000/svg" aria-label="人体各系统健康状态示意图">
+              <defs>
+                <style>
+                  .box { fill: #ffffff; }
+                  .box--warn { fill: #fbf0e8; }        /* 需关注：浅橙（与详情卡需关注一致） */
+                  .box--good { fill: #e6f4ec; }         /* 正常：浅绿 */
+                  .box--none { fill: #f0f1f3; }         /* 无数据：浅灰 */
+                  .box-text {
+                    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+                    font-size: 38px; font-weight: 500; fill: #1a1a1a;
+                    text-anchor: middle; dominant-baseline: middle;
+                  }
+                  .lead { fill: none; stroke: #a5aab0; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; }
+                  .end-dot { fill: #a5aab0; }
+                </style>
+                <filter id="shadowRight" x="-20%" y="-20%" width="150%" height="150%">
+                  <feDropShadow dx="2" dy="0" stdDeviation="2" flood-color="#000000" flood-opacity="0.12" />
+                </filter>
+                <filter id="shadowLeft" x="-20%" y="-20%" width="150%" height="150%">
+                  <feDropShadow dx="-2" dy="0" stdDeviation="2" flood-color="#000000" flood-opacity="0.12" />
+                </filter>
+              </defs>
+
+              <!-- 卡片（需关注=浅橙 / 正常=浅绿） -->
+              <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="20"  width="320" height="156" rx="36" />
+              <text class="box-text" x="200" y="98">基础代谢</text>
+              <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="216" width="320" height="156" rx="36" />
+              <text class="box-text" x="200" y="294">呼吸系统</text>
+              <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="412" width="320" height="156" rx="36" />
+              <text class="box-text" x="200" y="490">肾与泌尿</text>
+              <rect class="box box--good" filter="url(#shadowRight)" x="40"  y="608" width="320" height="156" rx="36" />
+              <text class="box-text" x="200" y="686">血液与营养</text>
+
+              <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="20"  width="320" height="156" rx="36" />
+              <text class="box-text" x="1012" y="98">内分泌系统</text>
+              <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="216" width="320" height="156" rx="36" />
+              <text class="box-text" x="1012" y="294">心血管系统</text>
+              <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="412" width="320" height="156" rx="36" />
+              <text class="box-text" x="1012" y="490">生殖系统</text>
+              <rect class="box box--warn" filter="url(#shadowLeft)" x="852" y="608" width="320" height="156" rx="36" />
+              <text class="box-text" x="1012" y="686">骨骼系统</text>
+
+              <!-- 折线指引（终点实心圆，拐点无标记） -->
+              <polyline class="lead" points="360,100 600,100" />
+              <circle class="end-dot" cx="600" cy="100" r="6" />
+              <polyline class="lead" points="360,300 450,300 450,250 600,250" />
+              <circle class="end-dot" cx="600" cy="250" r="6" />
+              <polyline class="lead" points="360,480 450,480 450,380 600,380" />
+              <circle class="end-dot" cx="600" cy="380" r="6" />
+              <polyline class="lead" points="360,680 600,680" />
+              <circle class="end-dot" cx="600" cy="680" r="6" />
+
+              <polyline class="lead" points="852,100 750,100 750,180 650,180" />
+              <circle class="end-dot" cx="650" cy="180" r="6" />
+              <polyline class="lead" points="852,300 750,300 750,250 650,250" />
+              <circle class="end-dot" cx="650" cy="250" r="6" />
+              <polyline class="lead" points="852,480 750,480 750,400 650,400" />
+              <circle class="end-dot" cx="650" cy="400" r="6" />
+              <polyline class="lead" points="852,680 650,680 650,450" />
+              <circle class="end-dot" cx="650" cy="450" r="6" />
+            </svg>
+
+            <!-- 热区：覆盖在 SVG 卡片位置上 -->
+            <button type="button" class="sysmap__zone" data-key="meta"   style="left:3.3%;  top:2.4%;  width:26.4%; height:18.5%" aria-label="基础代谢"></button>
+            <button type="button" class="sysmap__zone" data-key="lung"   style="left:3.3%;  top:25.7%; width:26.4%; height:18.5%" aria-label="呼吸系统"></button>
+            <button type="button" class="sysmap__zone" data-key="kidney" style="left:3.3%;  top:48.9%; width:26.4%; height:18.5%" aria-label="肾与泌尿"></button>
+            <button type="button" class="sysmap__zone" data-key="blood"  style="left:3.3%;  top:72.2%; width:26.4%; height:18.5%" aria-label="血液与营养"></button>
+            <button type="button" class="sysmap__zone" data-key="endo"   style="left:70.3%; top:2.4%;  width:26.4%; height:18.5%" aria-label="内分泌系统"></button>
+            <button type="button" class="sysmap__zone" data-key="heart"  style="left:70.3%; top:25.7%; width:26.4%; height:18.5%" aria-label="心血管系统"></button>
+            <button type="button" class="sysmap__zone" data-key="repro"  style="left:70.3%; top:48.9%; width:26.4%; height:18.5%" aria-label="生殖系统"></button>
+            <button type="button" class="sysmap__zone" data-key="bone"   style="left:70.3%; top:72.2%; width:26.4%; height:18.5%" aria-label="骨骼系统"></button>
+          </div>
+
+          <!-- 人像：叠在图片下方，保持重叠效果（成人女性人像） -->
+          <div class="sysmap__body">
+            <style>
+              .sysmap__body-img { height: 100%; width: auto; }
+            </style>
+            <img src="pic/短发亚裔青年女性全身像_副本.png" alt="人体示意图" class="sysmap__body-img" />
+          </div>
+        </div>
+
+        <!-- 点击热区后展示的系统详情解读 -->
+        <div class="sysmap__detail" id="sysDetail" hidden>
+          <div class="sysmap__detail-head">
+            <strong id="sysDetailName">—</strong>
+            <span class="sysmap__detail-badge" id="sysDetailBadge">—</span>
+          </div>
+
+          <div class="sysmap__detail-block" id="overallBlock" hidden>
+            <span class="sysmap__overall-dot" id="overallDot"></span>
+            <span class="sysmap__overall-text">整体状态：</span>
+            <span class="sysmap__overall-value" id="sysDetailOverall">—</span>
+          </div>
+
+          <div class="sysmap__detail-block" id="descBlock" hidden>
+            <div class="sysmap__detail-note" id="sysDetailDesc"></div>
+          </div>
+
+          <div class="sysmap__detail-block">
+            <h4 class="sysmap__detail-title" id="metricsTitle">主要关注指标</h4>
+            <ul class="sysmap__metrics" id="sysDetailMetrics"></ul>
+          </div>
+
+          <div class="sysmap__detail-block" id="extraDescBlock" hidden>
+            <div class="sysmap__detail-note" id="sysDetailExtra"></div>
+          </div>
+
+          <div class="sysmap__detail-block">
+            <h4 class="sysmap__detail-title" id="interpretTitle">解读</h4>
+            <div class="sysmap__detail-note" id="sysDetailNote"></div>
+          </div>
+
+          <div class="sysmap__detail-block" id="sysDetailCtaBlock" hidden>
+            <div class="sysmap__detail-cta-group">
+              <button type="button" class="sysmap__detail-cta" id="sysDetailCta">预约专项检查</button>
+              <button type="button" class="sysmap__detail-cta sysmap__detail-cta--secondary" id="sysDetailAiCta">AI深度解析</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ④ 健康趋势 -->
+      <section class="module">
+        <div class="module__head">
+          <h2 class="module__title"><span class="module__num">04</span>健康趋势</h2>
+        </div>
+
+        <div class="trend">
+          <div class="trend__summary">
+            <p>与去年（2025-09）相比：<b>体重和 BMI 略有上升</b>，心率从 72 次/分降到 60 次/分，舒张压仍偏低；本次<b>新发现</b>双侧乳腺结节（BI-RADS 3 类）和子宫肌瘤，骨密度也开始出现"骨量减少"。多数指标变化平稳，但<b>乳腺结节和骨量需要按计划复查跟进</b>。</p>
+          </div>
+
+          <div class="trend__tabs">
+            <button class="trend__tab is-active" data-trend="weight" type="button">
+              <span class="trend__tab-name">体重</span>
+            </button>
+            <button class="trend__tab" data-trend="bp" type="button">
+              <span class="trend__tab-name">血压</span>
+            </button>
+            <button class="trend__tab" data-trend="hr" type="button">
+              <span class="trend__tab-name">心率</span>
+            </button>
+            <button class="trend__tab" data-trend="hb" type="button">
+              <span class="trend__tab-name">血红蛋白</span>
+            </button>
+          </div>
+
+          <div class="trend__panel is-active" data-panel="weight">
+            <div class="trend__head">
+              <div class="trend__legend">
+                <span class="trend__key"><i class="trend__dot trend__dot--warn"></i>BMI</span>
+              </div>
+              <span class="trend__delta">本次 22.21</span>
+            </div>
+            <div class="trend__compare">
+              <div class="trend__cmp"><span class="trend__cmp-label">本次</span><span class="trend__cmp-val">59 <em>kg</em> · 22.21</span><span class="trend__cmp-flag is-mid">略升</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">上次 (2025-09)</span><span class="trend__cmp-val">58.2 <em>kg</em> · 21.64</span><span class="trend__cmp-flag is-good">正常</span></div>
+            </div>
+          </div>
+
+          <div class="trend__panel" data-panel="bp">
+            <div class="trend__head">
+              <div class="trend__legend">
+                <span class="trend__key"><i class="trend__dot trend__dot--warn"></i>舒张压</span>
+              </div>
+              <span class="trend__delta">本次 55</span>
+            </div>
+            <div class="trend__compare">
+              <div class="trend__cmp"><span class="trend__cmp-label">本次</span><span class="trend__cmp-val">98/55 <em>mmHg</em></span><span class="trend__cmp-flag is-mid">舒张压偏低</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">上次 (2025-09)</span><span class="trend__cmp-val">95/59 <em>mmHg</em></span><span class="trend__cmp-flag is-mid">偏低</span></div>
+            </div>
+          </div>
+
+          <div class="trend__panel" data-panel="hr">
+            <div class="trend__head">
+              <div class="trend__legend">
+                <span class="trend__key"><i class="trend__dot trend__dot--warn"></i>心率</span>
+              </div>
+              <span class="trend__delta">本次 60</span>
+            </div>
+            <div class="trend__compare">
+              <div class="trend__cmp"><span class="trend__cmp-label">本次</span><span class="trend__cmp-val">60 <em>次/分</em></span><span class="trend__cmp-flag is-mid">偏慢</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">上次 (2025-09)</span><span class="trend__cmp-val">72 <em>次/分</em></span><span class="trend__cmp-flag is-good">正常</span></div>
+            </div>
+            <p class="trend__note">心电图提示窦性心动过缓伴不齐；若心率低于 50 次/分或伴头晕，建议做动态心电图。</p>
+          </div>
+
+          <div class="trend__panel" data-panel="hb">
+            <div class="trend__head">
+              <div class="trend__legend">
+                <span class="trend__key"><i class="trend__dot trend__dot--good"></i>血红蛋白</span>
+              </div>
+              <span class="trend__delta">本次 124</span>
+            </div>
+            <div class="trend__compare">
+              <div class="trend__cmp"><span class="trend__cmp-label">本次</span><span class="trend__cmp-val">124 <em>g/L</em></span><span class="trend__cmp-flag is-good">正常</span></div>
+              <div class="trend__cmp"><span class="trend__cmp-label">上次 (2025-09)</span><span class="trend__cmp-val">122 <em>g/L</em></span><span class="trend__cmp-flag is-good">正常</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ⑤ 生活方式管理 -->
+      <section class="module">
+        <div class="module__head">
+          <h2 class="module__title"><span class="module__num">05</span>生活方式管理</h2>
+        </div>
+
+        <article class="lifestyle" id="lifestyle-diet">
+          <header class="lifestyle__head">
+            <span class="lifestyle__ico"><img src="pic/饮食 icon.png" alt="饮食" /></span>
+            <h3 class="lifestyle__title">补钙护骨：先从一日三餐开始</h3>
+          </header>
+          <p class="lifestyle__target"><b>针对</b>：骨量减少、乳腺结节</p>
+
+          <h4 class="lifestyle__h">怎么做</h4>
+          <ul class="lifestyle__list">
+            <li>每天<b>一杯牛奶或酸奶</b>，再加豆腐、豆制品、鱼虾等补钙食物</li>
+            <li>少吃烧烤、熏腊、油炸和过甜的食物</li>
+            <li>尽量少用成分不明的保健品和"美白抗衰"类护肤品</li>
+          </ul>
+
+          <h4 class="lifestyle__h">做到什么程度</h4>
+          <div class="lifestyle__note">
+            <p>先做到"<b>每天一杯奶 + 每周两三次鱼虾</b>"，补钙量就上来了。是否需要吃钙片，等骨质疏松门诊医生评估后再说。</p>
+          </div>
+
+          <h4 class="lifestyle__h">为什么有帮助</h4>
+          <p class="lifestyle__p">饮食里的钙是骨骼的"原料"，早点补、持续补，能让骨量流失慢下来；均衡清淡的饮食对乳腺也是友好的。</p>
+
+          <button type="button" class="lifestyle__more">AI深度建议</button>
+        </article>
+
+        <article class="lifestyle" id="lifestyle-exercise">
+          <header class="lifestyle__head">
+            <span class="lifestyle__ico"><img src="pic/运动 icon.png" alt="运动" /></span>
+            <h3 class="lifestyle__title">动起来：走路、晒太阳两不误</h3>
+          </header>
+          <p class="lifestyle__target"><b>针对</b>：骨量减少、运动不足</p>
+
+          <h4 class="lifestyle__h">怎么做</h4>
+          <ul class="lifestyle__list">
+            <li>每天<b>30 分钟快走或散步</b>，微微出汗为宜</li>
+            <li>每周再加<b>2 次力量训练</b>：靠墙静蹲、举小哑铃、弹力带拉伸</li>
+            <li>上午或傍晚<b>晒 15–20 分钟太阳</b>，帮助合成维生素 D</li>
+          </ul>
+
+          <h4 class="lifestyle__h">做到什么程度</h4>
+          <div class="lifestyle__stage">
+            <div class="lifestyle__stage-row"><span class="lifestyle__stage-time">第 1–2 周</span><span class="lifestyle__stage-do">每天散步 20 分钟，先养成习惯</span></div>
+            <div class="lifestyle__stage-row"><span class="lifestyle__stage-time">第 3–4 周</span><span class="lifestyle__stage-do">增加到 30 分钟 + 每周 2 次力量</span></div>
+          </div>
+
+          <h4 class="lifestyle__h">为什么有帮助</h4>
+          <p class="lifestyle__p">骨量会"用进废退"：负重运动能刺激骨骼变结实，晒太阳补维生素 D 帮助钙吸收，双管齐下最能稳住骨量。</p>
+
+          <button type="button" class="lifestyle__more">AI深度建议</button>
+        </article>
+
+        <article class="lifestyle" id="lifestyle-heart">
+          <header class="lifestyle__head">
+            <span class="lifestyle__ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+            </span>
+            <h3 class="lifestyle__title">血压心率偏慢：起身慢一点，别泡热水澡</h3>
+          </header>
+          <p class="lifestyle__target"><b>针对</b>：血压偏低、心率偏慢</p>
+
+          <h4 class="lifestyle__h">怎么做</h4>
+          <ul class="lifestyle__list">
+            <li>起床、久坐起身时<b>动作放慢，先坐一下再站</b></li>
+            <li>洗澡水别太热、时间别太长，尽量别泡热水澡</li>
+            <li>头晕时及时坐下或扶墙，别硬撑</li>
+          </ul>
+
+          <h4 class="lifestyle__h">做到什么程度</h4>
+          <div class="lifestyle__note">
+            <p>如果出现<b>头晕、乏力、眼前发黑</b>，或心率低于 50 次/分，就到心血管内科做 24 小时动态心电图评估一下。</p>
+          </div>
+
+          <h4 class="lifestyle__h">为什么有帮助</h4>
+          <p class="lifestyle__p">血压偏低的人，猛起身时血液容易"跟不上"，脑供血不足会头晕；慢一点，就是对血管系统最大的照顾。</p>
+
+          <button type="button" class="lifestyle__more">AI深度建议</button>
+        </article>
+      </section>
+
+      <!-- ⑥ 随访计划 -->
+      <section class="module">
+        <div class="module__head">
+          <h2 class="module__title"><span class="module__num">06</span>随访计划</h2>
+        </div>
+
+        <div class="lifestyle__followup">
+          <header class="lifestyle__followup-head">
+            <span class="lifestyle__ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4"/><path d="M16 3v4"/><path d="M3.5 10.5h17"/></svg>
+            </span>
+            <h3 class="lifestyle__title">接下来怎么安排？</h3>
+          </header>
+          <p class="lifestyle__p">这次的几件事都还不需要紧张，按计划复查、把生活方式跟上就行。</p>
+
+          <p class="lifestyle__p"><b>现在开始（尽快）</b></p>
+          <ul class="lifestyle__list">
+            <li><b>乳腺外科就诊</b>，安排乳腺彩超随访计划</li>
+            <li><b>骨质疏松门诊</b>，明确骨量减少的诊断和补钙方案</li>
+          </ul>
+
+          <p class="lifestyle__p"><b>每 3–6 个月</b></p>
+          <ul class="lifestyle__list">
+            <li>复查<b>乳腺彩超</b>，观察结节大小及影像变化</li>
+          </ul>
+
+          <p class="lifestyle__p"><b>约 6–12 个月</b></p>
+          <ul class="lifestyle__list">
+            <li>复查<b>妇科超声</b>（子宫肌瘤）</li>
+            <li>复查<b>骨密度</b></li>
+          </ul>
+
+          <p class="lifestyle__p"><b>随时</b></p>
+          <ul class="lifestyle__list">
+            <li>如出现月经过多、经期明显延长，或肌瘤明显增大，及时到妇科就诊</li>
+            <li>如心率低于 50 次/分、经常头晕乏力，做 24 小时动态心电图</li>
+          </ul>
+
+          <button type="button" class="lifestyle__cta">预约下次复查</button>
+        </div>
+      </section>
+
+      <p class="disclaimer">本报告解读仅供参考，不能替代专业医师的诊断与治疗建议。如有不适请及时就医。</p>
+    </main>
+  </div>
+
+  <script src="report-common.js"></script>
+  <script src="script-lipulin.js"></script>
+  <script src="topbar-menu.js"></script>
+</body>
+</html>
