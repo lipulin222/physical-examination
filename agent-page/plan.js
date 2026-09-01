@@ -658,8 +658,8 @@
     let cleaned = text.replace(/^-?\s*\*\*计划书主人\*\*\s*[：:]\s*([^\n（【]+)/gm, (m, v) => { metaStore.owner = v.trim(); return ''; });
     cleaned = cleaned.replace(/^-?\s*\*\*计划周期\*\*\s*[：:]\s*([^\n（【]+)/gm, (m, v) => { metaStore.period = v.trim(); return ''; });
 
-    // 2) 按章节切分：# 01｜xxx
-    const parts = cleaned.split(/^#\s+(0?\d{1,2})\s*[｜|]\s*(.+)$/m);
+    // 2) 按章节切分：# 01｜xxx 或 ## 01｜xxx
+    const parts = cleaned.split(/^#{1,2}\s+(0?\d{1,2})\s*[｜|]\s*(.+)$/m);
     let html = '';
     const toc = [];
     for (let i = 1; i < parts.length; i += 3) {
@@ -678,15 +678,93 @@
     return html;
   }
 
-  // 章节内部：按 ## 切块后逐个渲染
+  // 章节内部：统一的块路由器，兼容 AI 输出 ## 或 ### 两种标题层级
+  //   目标N｜ → 目标卡集合；A. 饮食 → 模块；第N阶段｜ → 阶段卡
+  //   当前3个主要攻克点 → 关键词 chips；其余 → 子标题 + 正文
   function renderSectionBody(body) {
-    const blocks = body.split(/^##\s+(.*)$/m);
+    // 0) 规范化：AI 可能用加粗文本代替标题，统一转为 ### 标题以便块识别
+    body = body
+      .replace(/^\s*\*\*当前3个主要攻克点\*\*\s*$/gm, '### 当前3个主要攻克点')
+      .replace(/^\s*\*\*你现在的问题是什么？\*\*\s*$/gm, '### 你现在的问题是什么？')
+      .replace(/^\s*\*\*接下来具体怎么做[:：]?\*\*\s*$/gm, '### 接下来具体怎么做')
+      .replace(/^\s*\*\*做什么运动\*\*\s*$/gm, '### 做什么运动')
+      .replace(/^\s*\*\*做到什么强度\*\*\s*$/gm, '### 做到什么强度');
+    // 1) 解析为有序块列表
+    const list = [];
+    let cur = { title: '', lines: [] };
+    const pushLine = (raw) => { const t = raw.trim(); if (t) cur.lines.push(raw); };
+    for (const raw of body.split('\n')) {
+      const m = raw.trim().match(/^#{2,4}\s+(.+)$/);
+      if (m) { list.push(cur); cur = { title: m[1].trim(), lines: [] }; }
+      else pushLine(raw);
+    }
+    list.push(cur);
+    const blocks = list.filter((b) => b.title || b.lines.length);
+
     let html = '';
-    if (blocks[0] && blocks[0].trim()) html += renderProse(blocks[0]);
-    for (let i = 1; i < blocks.length; i += 2) {
-      const sub = (blocks[i] || '').trim();
-      const subBody = blocks[i + 1] || '';
-      html += renderBlock(sub, subBody);
+    let i = 0;
+    while (i < blocks.length) {
+      const b = blocks[i];
+      // 目标卡集合（可连续多个目标块）
+      const goalM = b.title.match(/^目标\s*\d+\s*[｜|]\s*(.+)$/);
+      if (goalM) {
+        const goalBlocks = [];
+        while (i < blocks.length) {
+          const gm = blocks[i].title.match(/^目标\s*\d+\s*[｜|]\s*(.+)$/);
+          if (!gm) break;
+          goalBlocks.push(blocks[i]);
+          i++;
+        }
+        html += '<div class="goals">' + goalBlocks.map((gb, idx) =>
+          renderGoalCard(String(idx + 1), gb.title.replace(/^目标\s*\d+\s*[｜|]\s*/, '').trim(), gb.lines.join('\n'))
+        ).join('') + '</div>';
+        continue;
+      }
+      // 关键词 chips 块
+      const kwM = b.title.match(/^(?:当前3个主要攻克点|当前3个关键词|你的\s*3个关键词|你的3个关键词)$/);
+      if (kwM) {
+        const chipTexts = [];
+        for (const ln of b.lines) {
+          let t = ln.trim();
+          if (/^```/.test(t)) continue; // 跳过代码块围栏
+          const cu = t.match(/^[-*]\s+(.+)$/);
+          const cq = t.match(/^>\s?(.+)$/);
+          const item = cu ? cu[1] : (cq ? cq[1] : t);
+          item.split(/[｜|]/).forEach((s) => { const v = s.trim(); if (v) chipTexts.push(v); });
+        }
+        html += '<p class="section-caption">' + escapeHtml(kwM[1]) + '</p>';
+        if (chipTexts.length) html += '<div class="chips">' + chipTexts.map((c) => '<span class="chip">' + inlineMd(c) + '</span>').join('') + '</div>';
+        i++;
+        continue;
+      }
+      // 行动模块 A. 饮食（收集其内部子块）
+      const modM = b.title.match(/^([A-Ha-h])\s*[.、]\s*(.+)$/);
+      if (modM) {
+        const innerTitles = /你现在的问题是什么|接下来具体怎么做|做什么运动|做到什么强度|每次多久|每周几次|每周\/每日|30天|本阶段目标|你要做的|完成标准|没做到|怎么测/;
+        let j = i + 1;
+        let bodyLines = b.lines.slice();
+        while (j < blocks.length) {
+          const nb = blocks[j];
+          const isInner = nb.title && innerTitles.test(nb.title) && !/^[A-Ha-h]\s*[.、]\s/.test(nb.title);
+          if (!isInner) break;
+          bodyLines = bodyLines.concat(['### ' + nb.title], nb.lines);
+          j++;
+        }
+        html += renderModule(modM[1].toUpperCase(), modM[2].trim(), bodyLines.join('\n'));
+        i = j;
+        continue;
+      }
+      // 阶段卡
+      const phM = b.title.match(/^第(\d+)阶段\s*[｜|]\s*(.+)$/);
+      if (phM) {
+        html += renderPhase(phM[1], phM[2].trim(), b.lines.join('\n'));
+        i++;
+        continue;
+      }
+      // 普通子标题块
+      if (b.title) html += '<h3 class="sub-title">' + escapeHtml(b.title) + '</h3>';
+      html += renderProse(b.lines.join('\n'));
+      i++;
     }
     return html;
   }
