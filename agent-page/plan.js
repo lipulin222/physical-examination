@@ -1127,6 +1127,10 @@
     }
     generate();
   });
+  const advisorBtn = document.getElementById('advisorBtn');
+  if (advisorBtn) advisorBtn.addEventListener('click', () => {
+    showToast('您好，我是您的健康顾问。如对计划书有疑问，可返回对话页继续咨询。');
+  });
 
   // 初始：优先展示已缓存的计划书（避免重复生成）；无缓存或版本不匹配时才调用生成
   (function initPlan() {
