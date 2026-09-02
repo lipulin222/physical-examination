@@ -258,7 +258,7 @@
       '</p>' +
       '<div class="launch-widgets">' +
         '<div class="launch-widget-cell">' +
-          '<p class="launch-widget-label">桌面每日提醒</p>' + widgetDaily +
+          '<p class="launch-widget-label">桌面widget：每日健康MEMO</p>' + widgetDaily +
         '</div>' +
         '<div class="launch-widget-cell">' +
           '<p class="launch-widget-label">每周回顾<span class="launch-widget-note">（通过卓正医疗微信公众号推送）</span></p>' + widgetWeekly +
