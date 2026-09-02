@@ -261,7 +261,7 @@
           '<p class="launch-widget-label">桌面每日提醒</p>' + widgetDaily +
         '</div>' +
         '<div class="launch-widget-cell">' +
-          '<p class="launch-widget-label">每周回顾推送</p>' + widgetWeekly +
+          '<p class="launch-widget-label">每周回顾<span class="launch-widget-note">（通过卓正医疗微信公众号推送）</span></p>' + widgetWeekly +
         '</div>' +
       '</div>' +
       '<button type="button" class="fu-btn launch-btn" data-launch-plan>一键启动行动方案</button>' +
