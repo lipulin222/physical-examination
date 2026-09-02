@@ -306,6 +306,29 @@
     .launch-list > li { position: relative; padding-left: 1.25rem; line-height: 1.875; font-size: .9375rem; color: rgba(60,65,69,.85); }
     .launch-list > li::before { content: ''; position: absolute; left: .125rem; top: .8em; width: .4rem; height: .4rem; border-radius: 9999px; background: var(--primary); }
     .launch-btn { margin-top: 1.25rem; }
+    /* Widget 预览容器 */
+    .launch-widgets { margin-top: 1.25rem; display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media (min-width: 640px) { .launch-widgets { grid-template-columns: 1fr 1fr; } }
+    .launch-widget-cell { display: flex; flex-direction: column; gap: .5rem; }
+    .launch-widget-label { font-size: .75rem; letter-spacing: .2em; color: var(--muted-foreground); }
+    /* 桌面 widget 卡片样式（按图设计） */
+    .memo-widget { background: var(--card); border-radius: 1rem; padding: 1.5rem 1.5rem 1.25rem; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.9); border: 1px solid var(--line); }
+    .memo-widget__eyebrow { font-size: 1rem; font-weight: 500; letter-spacing: .15em; color: var(--foreground); }
+    .memo-widget__tagline { margin-top: .375rem; font-size: .8125rem; letter-spacing: .05em; color: var(--muted-foreground); }
+    .memo-widget__divider { margin: 1rem auto; width: 2.5rem; border: 0; border-top: 1px solid var(--line); }
+    .memo-widget__task { display: flex; align-items: center; justify-content: center; gap: .625rem; }
+    .memo-widget__emoji { font-size: 1.75rem; line-height: 1; }
+    .memo-widget__task-title { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.375rem; font-weight: 700; line-height: 1.4; color: var(--foreground); }
+    .memo-widget__benefit { margin-top: .5rem; font-size: .875rem; color: var(--muted-foreground); letter-spacing: .05em; }
+    .memo-widget__done { margin-top: 1.25rem; display: inline-flex; align-items: center; gap: .5rem; border: 1px solid var(--line); border-radius: 9999px; padding: .625rem 1.25rem; font-size: .9375rem; color: var(--foreground); background: var(--card); }
+    .memo-widget__check { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 9999px; background: var(--primary); color: var(--primary-foreground); }
+    /* 周回顾 widget */
+    .memo-widget__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-top: .25rem; }
+    .memo-stat { padding: .5rem; border-radius: .625rem; background: rgba(15,138,127,.06); }
+    .memo-stat__value { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+    .memo-stat__unit { margin-left: 2px; font-size: .75rem; font-weight: 500; }
+    .memo-stat__label { margin-top: .125rem; font-size: .75rem; color: var(--muted-foreground); }
+    .memo-widget__hint { margin-top: 1rem; padding: .5rem .875rem; border-radius: .5rem; background: rgba(15,138,127,.08); font-size: .8125rem; color: var(--accent-foreground); }
 
     /* ===== Footer ===== */
     .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 1rem; text-align: center; font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }

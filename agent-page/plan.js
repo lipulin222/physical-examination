@@ -221,6 +221,30 @@
 
   // ===== 03 末尾：一键启动行动方案引导（承接健康管理服务） =====
   function renderActionLauncher() {
+    // 两个桌面 widget 预览（每日健康 memo / 上周健康情况回顾）
+    const widgetDaily = '<div class="memo-widget" data-widget="daily">' +
+      '<p class="memo-widget__eyebrow">今日健康 MEMO</p>' +
+      '<p class="memo-widget__tagline">每天一件事，见证健康改善</p>' +
+      '<hr class="memo-widget__divider" />' +
+      '<div class="memo-widget__task">' +
+        '<span class="memo-widget__emoji" aria-hidden="true">🚶</span>' +
+        '<p class="memo-widget__task-title">晚饭后步行 20 分钟</p>' +
+      '</div>' +
+      '<p class="memo-widget__benefit">改善：餐后血糖 · 体重管理</p>' +
+      '<div class="memo-widget__done"><span class="memo-widget__check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"></polyline></svg></span>今天已完成</div>' +
+    '</div>';
+    const widgetWeekly = '<div class="memo-widget" data-widget="weekly">' +
+      '<p class="memo-widget__eyebrow">本周健康 REVIEW</p>' +
+      '<p class="memo-widget__tagline">上周做了 5 / 7 天，本周继续保持</p>' +
+      '<hr class="memo-widget__divider" />' +
+      '<div class="memo-widget__stats">' +
+        '<div class="memo-stat"><p class="memo-stat__value">5<span class="memo-stat__unit">天</span></p><p class="memo-stat__label">本周已做</p></div>' +
+        '<div class="memo-stat"><p class="memo-stat__value">-0.6<span class="memo-stat__unit">kg</span></p><p class="memo-stat__label">体重变化</p></div>' +
+        '<div class="memo-stat"><p class="memo-stat__value">3<span class="memo-stat__unit">次</span></p><p class="memo-stat__label">快走完成</p></div>' +
+      '</div>' +
+      '<p class="memo-widget__hint">下周重点：晚餐提前到 20 点前</p>' +
+    '</div>';
+
     return '<div class="launch-card">' +
       '<div class="launch-head">' +
         '<span class="launch-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>' +
@@ -232,10 +256,14 @@
         '如果你希望有人可以提醒你、引导你启动，陪你一起适应这套方案，让改善健康的行为真正开始——' +
         '可以设置「一键启动行动方案」。' +
       '</p>' +
-      '<ul class="launch-list">' +
-        '<li>开启桌面「每日健康 memo」组件，每天提醒你当天的健康小任务</li>' +
-        '<li>每周收到上周健康情况回顾，以及下周健康计划提醒</li>' +
-      '</ul>' +
+      '<div class="launch-widgets">' +
+        '<div class="launch-widget-cell">' +
+          '<p class="launch-widget-label">桌面每日提醒</p>' + widgetDaily +
+        '</div>' +
+        '<div class="launch-widget-cell">' +
+          '<p class="launch-widget-label">每周回顾推送</p>' + widgetWeekly +
+        '</div>' +
+      '</div>' +
       '<button type="button" class="fu-btn launch-btn" data-launch-plan>一键启动行动方案</button>' +
     '</div>';
   }
