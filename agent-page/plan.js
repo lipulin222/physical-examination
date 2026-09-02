@@ -61,12 +61,12 @@
       toc.push({ num, title });
       const tinted = num === '04';
       // 04 随访计划：按时间节点分块渲染，并注入导流组件
-      let bodyHtml = num === '04' ? renderFollowupSection(body) : renderSectionBody(body);
-      // 03 行动方案：末尾追加"一键启动行动方案"引导，承接健康管理服务
-      if (num === '03') bodyHtml += renderActionLauncher();
+      const bodyHtml = num === '04' ? renderFollowupSection(body) : renderSectionBody(body);
       html += '<section class="section' + (tinted ? ' section--tinted' : '') + '" id="s' + num + '">' +
               '<div class="section-head"><p class="section-eyebrow">' + num + '</p><h2 class="section-title">' + escapeHtml(title) + '</h2></div>' +
               bodyHtml + '</section>';
+      // 03 之后插入独立区块「让计划成为行动」（承接健康管理服务，含桌面 widget 预览）
+      if (num === '03') html += renderLaunchSection();
     }
     if (parts[0] && parts[0].trim()) html = renderProse(parts[0]) + html;
     buildToc(toc);
@@ -219,7 +219,21 @@
     return html;
   }
 
-  // ===== 03 末尾：一键启动行动方案引导（承接健康管理服务） =====
+  // ===== 03 与 04 之间的独立区块「让计划成为行动」（承接健康管理服务，含桌面 widget 预览） =====
+  function renderLaunchSection() {
+    const launcher = renderActionLauncher();
+    return '<section class="section section--launch" id="sLaunch">' +
+      '<div class="section-head">' +
+        '<p class="section-eyebrow">' +
+          '<span class="launch-eyebrow-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>' +
+        '</p>' +
+        '<h2 class="section-title">让计划成为行动</h2>' +
+      '</div>' +
+      launcher +
+    '</section>';
+  }
+
+  // 启动卡片内容（文案 + 两个桌面 widget 预览 + 一键启动按钮）
   function renderActionLauncher() {
     // 两个桌面 widget 预览（每日健康 memo / 上周健康情况回顾）
     const widgetDaily = '<div class="memo-widget" data-widget="daily">' +
@@ -246,10 +260,6 @@
     '</div>';
 
     return '<div class="launch-card">' +
-      '<div class="launch-head">' +
-        '<span class="launch-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>' +
-        '<h3 class="launch-title">让改变真正开始</h3>' +
-      '</div>' +
       '<p class="launch-text">' +
         '这套行动方案，是我们结合你的体检结果和实际情况专门定制的。' +
         '但我们知道，行动最难的是迈出第一步。' +
