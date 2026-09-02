@@ -54,19 +54,25 @@
     const parts = cleaned.split(/^#{1,2}\s+(0?\d{1,2})\s*[｜|]\s*(.+)$/m);
     let html = '';
     const toc = [];
+    let aiIdx = 0; // AI 输出的章节顺序号（1 起）
     for (let i = 1; i < parts.length; i += 3) {
-      const num = String(parseInt(parts[i], 10) || 0).padStart(2, '0');
+      aiIdx++;
+      const aiNum = String(parseInt(parts[i], 10) || 0).padStart(2, '0');
       const title = parts[i + 1].trim();
       const body = parts[i + 2] || '';
+      const isFollowup = aiNum === '04';
+      // 04 编号预留给「让计划成为行动」，AI 第 4 章起顺延编号（原 04 → 05）
+      let num = aiNum;
+      if (aiIdx >= 4) num = String((parseInt(aiNum, 10) || 0) + 1).padStart(2, '0');
       toc.push({ num, title });
-      const tinted = num === '04';
-      // 04 随访计划：按时间节点分块渲染，并注入导流组件
-      const bodyHtml = num === '04' ? renderFollowupSection(body) : renderSectionBody(body);
+      const tinted = isFollowup;
+      // 随访计划：按时间节点分块渲染，并注入导流组件
+      const bodyHtml = isFollowup ? renderFollowupSection(body) : renderSectionBody(body);
       html += '<section class="section' + (tinted ? ' section--tinted' : '') + '" id="s' + num + '">' +
               '<div class="section-head"><p class="section-eyebrow">' + num + '</p><h2 class="section-title">' + escapeHtml(title) + '</h2></div>' +
               bodyHtml + '</section>';
-      // 03 之后插入独立区块「让计划成为行动」（承接健康管理服务，含桌面 widget 预览）
-      if (num === '03') html += renderLaunchSection();
+      // AI 第 3 章（原 03）之后插入正式的第 04 章「让计划成为行动」
+      if (aiIdx === 3) html += renderLaunchSection(toc);
     }
     if (parts[0] && parts[0].trim()) html = renderProse(parts[0]) + html;
     buildToc(toc);
@@ -219,14 +225,13 @@
     return html;
   }
 
-  // ===== 03 与 04 之间的独立区块「让计划成为行动」（承接健康管理服务，含桌面 widget 预览） =====
-  function renderLaunchSection() {
+  // ===== 正式的第 04 章「让计划成为行动」（承接健康管理服务，含桌面 widget 预览） =====
+  function renderLaunchSection(toc) {
     const launcher = renderActionLauncher();
-    return '<section class="section section--launch" id="sLaunch">' +
+    if (toc) toc.push({ num: '04', title: '让计划成为行动' });
+    return '<section class="section section--launch" id="s04">' +
       '<div class="section-head">' +
-        '<p class="section-eyebrow">' +
-          '<span class="launch-eyebrow-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>' +
-        '</p>' +
+        '<p class="section-eyebrow">04</p>' +
         '<h2 class="section-title">让计划成为行动</h2>' +
       '</div>' +
       launcher +
