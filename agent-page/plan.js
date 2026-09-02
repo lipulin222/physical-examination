@@ -61,7 +61,9 @@
       toc.push({ num, title });
       const tinted = num === '04';
       // 04 随访计划：按时间节点分块渲染，并注入导流组件
-      const bodyHtml = num === '04' ? renderFollowupSection(body) : renderSectionBody(body);
+      let bodyHtml = num === '04' ? renderFollowupSection(body) : renderSectionBody(body);
+      // 03 行动方案：末尾追加"一键启动行动方案"引导，承接健康管理服务
+      if (num === '03') bodyHtml += renderActionLauncher();
       html += '<section class="section' + (tinted ? ' section--tinted' : '') + '" id="s' + num + '">' +
               '<div class="section-head"><p class="section-eyebrow">' + num + '</p><h2 class="section-title">' + escapeHtml(title) + '</h2></div>' +
               bodyHtml + '</section>';
@@ -217,6 +219,27 @@
     return html;
   }
 
+  // ===== 03 末尾：一键启动行动方案引导（承接健康管理服务） =====
+  function renderActionLauncher() {
+    return '<div class="launch-card">' +
+      '<div class="launch-head">' +
+        '<span class="launch-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>' +
+        '<h3 class="launch-title">让改变真正开始</h3>' +
+      '</div>' +
+      '<p class="launch-text">' +
+        '这套行动方案，是我们结合你的体检结果和实际情况专门定制的。' +
+        '但我们知道，行动最难的是迈出第一步。' +
+        '如果你希望有人可以提醒你、引导你启动，陪你一起适应这套方案，让改善健康的行为真正开始——' +
+        '可以设置「一键启动行动方案」。' +
+      '</p>' +
+      '<ul class="launch-list">' +
+        '<li>开启桌面「每日健康 memo」组件，每天提醒你当天的健康小任务</li>' +
+        '<li>每周收到上周健康情况回顾，以及下周健康计划提醒</li>' +
+      '</ul>' +
+      '<button type="button" class="fu-btn launch-btn" data-launch-plan>一键启动行动方案</button>' +
+    '</div>';
+  }
+
   // 绑定 04 章节内的导流组件事件（设备导入 / 提醒 / 预约）
   function bindFollowupActions() {
     const scope = document.getElementById('planContent') || document;
@@ -230,6 +253,11 @@
     });
     scope.querySelectorAll('[data-fu-appt]').forEach((b) => {
       b.addEventListener('click', () => showToast('已为您生成线下复查预约意向，请确认预约时间与科室。'));
+    });
+    scope.querySelectorAll('[data-launch-plan]').forEach((b) => {
+      b.addEventListener('click', () => {
+        showToast('已为您启动行动方案：桌面「每日健康 memo」已开启，每周将推送上周回顾与下周计划提醒。');
+      });
     });
   }
 

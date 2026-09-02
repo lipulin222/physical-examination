@@ -135,6 +135,16 @@
   .fu-check__text { flex: 1; line-height: 1.5; }
   .fu-check:has(input:checked) .fu-check__box { background: var(--primary); border-color: var(--primary); }
   .fu-check:has(input:checked) .fu-check__box::after { content: '✓'; color: var(--primary-foreground); font-size: .875rem; line-height: 1; font-weight: 700; }
+  /* 一键启动行动方案 */
+  .launch-card { margin-top: 2.5rem; border: 1px solid rgba(15,138,127,.25); border-radius: 1rem; background: linear-gradient(135deg, rgba(224,242,240,.9) 0%, var(--card) 60%); padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .launch-head { display: flex; align-items: center; gap: .75rem; }
+  .launch-icon { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; flex-shrink: 0; border-radius: .75rem; background: rgba(15,138,127,.12); color: var(--primary); }
+  .launch-title { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.125rem; font-weight: 700; }
+  .launch-text { margin-top: .875rem; line-height: 2; color: rgba(60,65,69,.85); }
+  .launch-list { margin-top: .875rem; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+  .launch-list > li { position: relative; padding-left: 1.25rem; line-height: 1.875; font-size: .9375rem; color: rgba(60,65,69,.85); }
+  .launch-list > li::before { content: ''; position: absolute; left: .125rem; top: .8em; width: .4rem; height: .4rem; border-radius: 9999px; background: var(--primary); }
+  .launch-btn { margin-top: 1.25rem; }
 
   .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 1rem; text-align: center; font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
 
@@ -306,6 +316,20 @@
       <div class="action-list">
         <div class="action-card"><h4 class="action-title">【做什么 + 做到什么程度】</h4><p class="action-text">第一个月先把饮酒频率从每周2–3次降到每2周1次，且每次啤酒不超过1瓶（或红酒≤2杯）。应酬场合可以主动说"最近在调理身体"，用无糖茶或气泡水替代。</p><p class="planb"><strong>Plan B</strong> 实在推不掉的场合，选啤酒以外的蒸馏酒（如白酒/威士忌）且不超过1小杯，同时多喝水，不喝含糖饮料兑酒。</p></div>
       </div>
+
+      <!-- 一键启动行动方案 -->
+      <div class="launch-card">
+        <div class="launch-head">
+          <span class="launch-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+          <h3 class="launch-title">让改变真正开始</h3>
+        </div>
+        <p class="launch-text">这套行动方案，是我们结合你的体检结果和实际情况专门定制的。但我们知道，行动最难的是迈出第一步。如果你希望有人可以提醒你、引导你启动，陪你一起适应这套方案，让改善健康的行为真正开始——可以设置「一键启动行动方案」。</p>
+        <ul class="launch-list">
+          <li>开启桌面「每日健康 memo」组件，每天提醒你当天的健康小任务</li>
+          <li>每周收到上周健康情况回顾，以及下周健康计划提醒</li>
+        </ul>
+        <button type="button" class="fu-btn launch-btn" data-launch-plan>一键启动行动方案</button>
+      </div>
     </section>
 
     <!-- 04 -->
@@ -394,6 +418,11 @@
       });
       document.querySelectorAll('[data-fu-appt]').forEach(function (b) {
         b.addEventListener('click', function () { showToast('已为您生成线下复查预约意向，请确认预约时间与科室。'); });
+      });
+      document.querySelectorAll('[data-launch-plan]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          showToast('已为您启动行动方案：桌面「每日健康 memo」已开启，每周将推送上周回顾与下周计划提醒。');
+        });
       });
     })();
   </script>
