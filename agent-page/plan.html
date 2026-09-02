@@ -277,6 +277,25 @@
 
     /* ===== 结尾寄语（05 末尾 AI 段落自动落入 prose） ===== */
 
+    /* ===== 04 随访计划：分块 + 导流组件 ===== */
+    .followup-block { margin-top: 1.5rem; }
+    .followup-title { display: flex; align-items: center; gap: .625rem; margin-bottom: .625rem; font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; }
+    .followup-tag { height: 1.5rem; min-width: 3.25rem; padding: 0 .5rem; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: .375rem; background: rgba(15,138,127,.12); color: var(--primary); font-family: inherit; font-size: .8125rem; font-weight: 700; white-space: nowrap; line-height: 1; }
+    /* 导流按钮 */
+    .fu-btn { width: 100%; margin-top: 1rem; border: none; cursor: pointer; font-family: inherit; font-size: .9375rem; font-weight: 600; padding: .75rem 1rem; border-radius: .75rem; background: var(--primary); color: var(--primary-foreground); transition: transform .15s ease, box-shadow .15s ease; }
+    .fu-btn:active { transform: scale(.98); }
+    .fu-btn--outline { background: var(--card); color: var(--primary); box-shadow: inset 0 0 0 1.5px var(--primary); }
+    /* 线上随访提醒勾选 */
+    .fu-check { display: flex; align-items: center; gap: .625rem; margin-top: 1rem; padding: .75rem .875rem; background: var(--card); border: 1px solid var(--border); border-radius: .75rem; font-size: .9375rem; color: var(--foreground); cursor: pointer; user-select: none; transition: background .15s ease, border-color .15s ease; }
+    .fu-check:active { transform: scale(.99); }
+    .fu-check:has(input:checked) { background: rgba(15,138,127,.08); border-color: var(--primary); }
+    .fu-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .fu-check__box { width: 1.25rem; height: 1.25rem; flex-shrink: 0; border-radius: .375rem; border: 1.5px solid var(--primary); background: var(--card); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease, border-color .15s ease; }
+    .fu-check__icon { display: inline-flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0; }
+    .fu-check__text { flex: 1; line-height: 1.5; }
+    .fu-check:has(input:checked) .fu-check__box { background: var(--primary); border-color: var(--primary); }
+    .fu-check:has(input:checked) .fu-check__box::after { content: '✓'; color: var(--primary-foreground); font-size: .875rem; line-height: 1; font-weight: 700; }
+
     /* ===== Footer ===== */
     .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 1rem; text-align: center; font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
 

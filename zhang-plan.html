@@ -120,6 +120,21 @@
   .followup-title { display: flex; align-items: center; gap: .625rem; font-size: 1.0625rem; font-weight: 700; margin-bottom: .5rem; }
   .followup-tag { height: 1.5rem; min-width: 3.25rem; padding: 0 .5rem; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: .375rem; background: rgba(15,138,127,.12); color: var(--primary); font-size: .8125rem; font-weight: 700; white-space: nowrap; line-height: 1; }
   .followup-desc { font-size: .875rem; color: var(--muted-foreground); line-height: 1.75; }
+  /* 导流组件 */
+  .toast { position: fixed; left: 50%; bottom: 3rem; transform: translateX(-50%) translateY(.75rem); z-index: 60; max-width: min(90vw, 22rem); border-radius: 999px; background: rgba(60,65,69,.92); color: #fff; padding: .625rem 1.25rem; font-size: .875rem; line-height: 1.5; text-align: center; opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
+  .toast.is-show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .fu-btn { width: 100%; margin-top: 1rem; border: none; cursor: pointer; font-family: inherit; font-size: .9375rem; font-weight: 600; padding: .75rem 1rem; border-radius: .75rem; background: var(--primary); color: var(--primary-foreground); transition: transform .15s ease, box-shadow .15s ease; }
+  .fu-btn:active { transform: scale(.98); }
+  .fu-btn--outline { background: var(--card); color: var(--primary); box-shadow: inset 0 0 0 1.5px var(--primary); }
+  .fu-check { display: flex; align-items: center; gap: .625rem; margin-top: 1rem; padding: .75rem .875rem; background: var(--card); border: 1px solid var(--border); border-radius: .75rem; font-size: .9375rem; color: var(--foreground); cursor: pointer; user-select: none; transition: background .15s ease, border-color .15s ease; }
+  .fu-check:active { transform: scale(.99); }
+  .fu-check:has(input:checked) { background: rgba(15,138,127,.08); border-color: var(--primary); }
+  .fu-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .fu-check__box { width: 1.25rem; height: 1.25rem; flex-shrink: 0; border-radius: .375rem; border: 1.5px solid var(--primary); background: var(--card); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease, border-color .15s ease; }
+  .fu-check__icon { display: inline-flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0; }
+  .fu-check__text { flex: 1; line-height: 1.5; }
+  .fu-check:has(input:checked) .fu-check__box { background: var(--primary); border-color: var(--primary); }
+  .fu-check:has(input:checked) .fu-check__box::after { content: '✓'; color: var(--primary-foreground); font-size: .875rem; line-height: 1; font-weight: 700; }
 
   .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 1rem; text-align: center; font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
 
@@ -305,6 +320,7 @@
           <li>腰围：每2周测量1次（用同一把卷尺、同一位置）</li>
           <li>行为完成情况：每周简单打勾记录——奶茶喝了没、晚餐有没有提前、运动完成了几次、久坐有没有每小时起身</li>
         </ul></div>
+        <button type="button" class="fu-btn fu-btn--outline" data-fu-device>从设备导入数据</button>
       </div>
 
       <div class="followup-block">
@@ -312,6 +328,12 @@
         <div class="prose"><ul>
           <li>通过线上健康问卷，评估这一个月饮食和运动调整后的状态变化与主观感受，判断当前方案是否适合、是否需要调整</li>
         </ul></div>
+        <label class="fu-check">
+          <span class="fu-check__text">1 个月后提醒我线上随访</span>
+          <span class="fu-check__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+          <span class="fu-check__box"></span>
+          <input type="checkbox" data-fu-remind />
+        </label>
       </div>
 
       <div class="followup-block">
@@ -320,6 +342,7 @@
           <li>复查血脂、空腹血糖与糖化血红蛋白、尿酸及肝功能（ALT/GGT），让数据告诉我们方向是否正确</li>
           <li>建议于同一家体检机构复查，对比变化最可靠。如期间出现明显不适（如右上腹持续疼痛、明显乏力、口渴多尿等），应提前就医</li>
         </ul></div>
+        <button type="button" class="fu-btn" data-fu-appt>预约线下复查</button>
       </div>
 
       <div class="followup-block">
@@ -327,6 +350,7 @@
         <div class="prose"><ul>
           <li>复查甲状腺超声，观察结节大小及影像特征变化</li>
         </ul></div>
+        <button type="button" class="fu-btn" data-fu-appt>预约线下复查</button>
       </div>
     </section>
   </main>
@@ -334,6 +358,8 @@
   <footer class="site-footer">
     卓正医疗 · 个人健康改善计划书 · <span id="footerDate"></span>
   </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
     // 填充计划周期（生成日期 ~ +1 个月）
@@ -344,6 +370,31 @@
       document.getElementById('footerDate').textContent = fmt(now) + ' — ' + fmt(end);
       var p = document.getElementById('metaPeriod');
       if (p) p.textContent = fmt(now) + ' — ' + fmt(end);
+    })();
+
+    // 轻提示
+    (function () {
+      var toast = document.getElementById('toast');
+      var timer = null;
+      window.showToast = function (msg) {
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('is-show');
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(function () { toast.classList.remove('is-show'); }, 2600);
+      };
+      // 04 导流组件交互
+      document.querySelectorAll('[data-fu-device]').forEach(function (b) {
+        b.addEventListener('click', function () { showToast('正在从设备同步您的日常健康数据…'); });
+      });
+      document.querySelectorAll('[data-fu-remind]').forEach(function (c) {
+        c.addEventListener('change', function () {
+          showToast(c.checked ? '已为您开启 1 个月后线上随访提醒' : '已取消线上随访提醒');
+        });
+      });
+      document.querySelectorAll('[data-fu-appt]').forEach(function (b) {
+        b.addEventListener('click', function () { showToast('已为您生成线下复查预约意向，请确认预约时间与科室。'); });
+      });
     })();
   </script>
 </body>

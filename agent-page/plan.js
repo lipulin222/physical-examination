@@ -60,9 +60,11 @@
       const body = parts[i + 2] || '';
       toc.push({ num, title });
       const tinted = num === '04';
+      // 04 随访计划：按时间节点分块渲染，并注入导流组件
+      const bodyHtml = num === '04' ? renderFollowupSection(body) : renderSectionBody(body);
       html += '<section class="section' + (tinted ? ' section--tinted' : '') + '" id="s' + num + '">' +
               '<div class="section-head"><p class="section-eyebrow">' + num + '</p><h2 class="section-title">' + escapeHtml(title) + '</h2></div>' +
-              renderSectionBody(body) + '</section>';
+              bodyHtml + '</section>';
     }
     if (parts[0] && parts[0].trim()) html = renderProse(parts[0]) + html;
     buildToc(toc);
@@ -161,6 +163,74 @@
       i++;
     }
     return html;
+  }
+
+  // ===== 04 随访计划：按时间节点分块，并注入导流组件（设备导入 / 线上随访提醒 / 预约复查） =====
+  function renderFollowupSection(body) {
+    // 解析为块列表（与 renderSectionBody 一致）
+    const list = [];
+    let cur = { title: '', lines: [] };
+    for (const raw of body.split('\n')) {
+      const m = raw.trim().match(/^#{2,4}\s+(.+)$/);
+      if (m) { list.push(cur); cur = { title: m[1].trim(), lines: [] }; }
+      else { const t = raw.trim(); if (t) cur.lines.push(raw); }
+    }
+    list.push(cur);
+    const blocks = list.filter((b) => b.title || b.lines.length);
+
+    const BELL_SVG = '<span class="fu-check__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></span>';
+
+    let html = '';
+    for (const b of blocks) {
+      const t = b.title || '';
+      const isDaily = /每周|每日|日常数据/.test(t);
+      const isQ1 = /1\s*个月后|线上问卷/.test(t);
+      const isQ3 = /3\s*个月后/.test(t);
+      const isQ6 = /6\s*个月后/.test(t);
+
+      // 标签：从标题中提取时间部分（如"每周/每日"、"1 个月后"）
+      let tag = '';
+      let label = t;
+      const tm = t.match(/^((?:每周|每日|每周\/每日|日常数据记录|[\d一二三四五六七八九十]+\s*个月?后|[\d]+\s*个月后)[^：:]*)[·・\s]*(.*)$/);
+      if (tm) {
+        tag = tm[1].trim();
+        if (tm[2]) label = tm[2].trim();
+      }
+      if (isDaily && !tag) { tag = '每周/每日'; label = '日常数据记录'; }
+
+      html += '<div class="followup-block">';
+      html += '<h3 class="followup-title">' +
+        (tag ? '<span class="followup-tag">' + escapeHtml(tag) + '</span>' : '') +
+        escapeHtml(label) + '</h3>';
+      html += renderProse(b.lines.join('\n'));
+
+      // 导流组件
+      if (isDaily) {
+        html += '<button type="button" class="fu-btn fu-btn--outline" data-fu-device>从设备导入数据</button>';
+      } else if (isQ1) {
+        html += '<label class="fu-check"><span class="fu-check__text">1 个月后提醒我线上随访</span>' + BELL_SVG + '<span class="fu-check__box"></span><input type="checkbox" data-fu-remind /></label>';
+      } else if (isQ3 || isQ6) {
+        html += '<button type="button" class="fu-btn" data-fu-appt>预约线下复查</button>';
+      }
+      html += '</div>';
+    }
+    return html;
+  }
+
+  // 绑定 04 章节内的导流组件事件（设备导入 / 提醒 / 预约）
+  function bindFollowupActions() {
+    const scope = document.getElementById('planContent') || document;
+    scope.querySelectorAll('[data-fu-device]').forEach((b) => {
+      b.addEventListener('click', () => showToast('正在从设备同步您的日常健康数据…'));
+    });
+    scope.querySelectorAll('[data-fu-remind]').forEach((c) => {
+      c.addEventListener('change', () => {
+        showToast(c.checked ? '已为您开启 1 个月后线上随访提醒' : '已取消线上随访提醒');
+      });
+    });
+    scope.querySelectorAll('[data-fu-appt]').forEach((b) => {
+      b.addEventListener('click', () => showToast('已为您生成线下复查预约意向，请确认预约时间与科室。'));
+    });
   }
 
   // ===== 02 目标卡片 =====
@@ -523,6 +593,7 @@
     planLoading.hidden = true;
     planContent.hidden = false;
     if (planHero) planHero.hidden = false;
+    bindFollowupActions();
     fillMeta();
     scrollToTop();
     showToast('当前为离线演示，展示本地预置计划书');
@@ -685,6 +756,7 @@
       planLoading.hidden = true;
       planContent.hidden = false;
       if (planHero) planHero.hidden = false;
+      bindFollowupActions();
       fillMeta();
       scrollToTop();
     } else {
