@@ -259,64 +259,62 @@
               '<span class="hm-f__check-text">启用</span>' +
             '</label>';
 
-          // —— 定制食谱 ——
-          const recipe =
-            '<div class="hm-f hm-f--recipe">' +
-              nameTop('recipe', '定制食谱') +
-              '<p class="hm-f__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，<strong>适合有饮食管理需求的用户</strong>。</p>' +
-              '<div class="hm-f__card">' +
-                '<p class="hm-f__title-center">减重食谱 · 35岁 · 男性</p>' +
-                '<p class="hm-recipe-day"><b>第一周</b></p>' +
-                '<p class="hm-recipe-line"><em>早餐</em><span>全麦燕麦30g 配 无糖酸奶100g</span></p>' +
-                '<p class="hm-recipe-line"><em>午餐</em><span>杂粮饭100g · 清蒸鱼100g · 时蔬200g</span></p>' +
-                '<p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉 · 少量坚果 · 无糖茶</span></p>' +
-              '</div>' +
-              checkRow('recipe') +
-            '</div>';
+          // —— 定制食谱（精简内容，单行不换行） ——
+              const recipe =
+                '<div class="hm-f hm-f--recipe">' +
+                  nameTop('recipe', '定制食谱') +
+                  '<p class="hm-f__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，<strong>适合有饮食管理需求的用户</strong>。</p>' +
+                  '<div class="hm-f__card">' +
+                    '<p class="hm-f__title-center">减重食谱 · 35岁 · 男性</p>' +
+                    '<p class="hm-recipe-day"><b>第一周</b></p>' +
+                    '<p class="hm-recipe-line"><em>早餐</em><span>全麦燕麦+酸奶</span></p>' +
+                    '<p class="hm-recipe-line"><em>午餐</em><span>杂粮饭+清蒸鱼+时蔬</span></p>' +
+                    '<p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉+无糖茶</span></p>' +
+                  '</div>' +
+                  checkRow('recipe') +
+                '</div>';
 
-          // —— 每日健康打卡（精简：去掉底部"今天已完成"胶囊，让卡片更紧凑接近正方形） ——
-          const daily =
-            '<div class="hm-f">' +
-              nameTop('daily', '每日健康打卡') +
-              '<p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，<strong>适合有运动/睡眠/戒烟/戒酒管理需求的用户</strong>。</p>' +
-              '<div class="hm-f__card hm-f__card--widget">' +
-                '<p class="memo-widget__eyebrow">今日健康 MEMO</p>' +
-                '<p class="memo-widget__tagline">每天一件事，见证健康改善</p>' +
-                '<hr class="memo-widget__divider">' +
-                '<p class="memo-widget__task">' +
-                  '<span class="memo-widget__emoji" aria-hidden="true">🚶</span>' +
-                  '<span class="memo-widget__task-title">晚饭后步行 20 分钟</span>' +
-                '</p>' +
-                '<p class="memo-widget__benefit">改善：餐后血糖 · 体重管理</p>' +
-              '</div>' +
-              checkRow('daily') +
-            '</div>';
+              // —— 每日健康打卡（精简 benefit 文本避免换行） ——
+              const daily =
+                '<div class="hm-f">' +
+                  nameTop('daily', '每日健康打卡') +
+                  '<p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，<strong>适合有运动/睡眠/戒烟/戒酒管理需求的用户</strong>。</p>' +
+                  '<div class="hm-f__card hm-f__card--widget">' +
+                    '<p class="memo-widget__eyebrow">今日健康 MEMO</p>' +
+                    '<p class="memo-widget__tagline">每天一件事，见证健康改善</p>' +
+                    '<hr class="memo-widget__divider">' +
+                    '<p class="memo-widget__task">' +
+                      '<span class="memo-widget__emoji" aria-hidden="true">🚶</span>' +
+                      '<span class="memo-widget__task-title">晚饭后步行 20 分钟</span>' +
+                    '</p>' +
+                    '<p class="memo-widget__benefit">改善餐后血糖·体重</p>' +
+                  '</div>' +
+                  checkRow('daily') +
+                '</div>';
 
-      // —— 每周健康回顾（充实：eyebrow + 副标题 + 进度条 + 三格 + 下周重点） ——
-      const weekly =
-        '<div class="hm-f">' +
-          nameTop('weekly', '每周健康回顾') +
-          '<p class="hm-f__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，<strong>适合有健康状况改善需求的用户</strong>。</p>' +
-          '<div class="hm-f__card hm-f__card--widget">' +
-            '<p class="memo-widget__eyebrow">本周健康 REVIEW</p>' +
-            '<p class="memo-widget__tagline">上周做了 5 / 7 天，本周继续保持</p>' +
-            '<hr class="memo-widget__divider">' +
-            '<div class="memo-weekly__progress" aria-label="本周达标率 71%">' +
-              '<span class="memo-weekly__progress-bar" style="width:71%"></span>' +
-              '<span class="memo-weekly__progress-value">71%</span>' +
-            '</div>' +
-            '<div class="hm-weekly-stats">' +
-              '<span class="hm-stat"><b>5</b><i>天</i><small>本周达标</small></span>' +
-              '<span class="hm-stat"><b>-0.6</b><i>kg</i><small>体重变化</small></span>' +
-              '<span class="hm-stat"><b>3</b><i>次</i><small>快走完成</small></span>' +
-            '</div>' +
-            '<div class="memo-weekly__hint">' +
-              '<span class="memo-weekly__hint-tag">下周重点</span>' +
-              '<span class="memo-weekly__hint-text">晚餐提前到 20 点前</span>' +
-            '</div>' +
-          '</div>' +
-          checkRow('weekly') +
-        '</div>';
+              // —— 每周健康回顾（精简：去掉副标题、压缩三格、缩短提示文案） ——
+              const weekly =
+                '<div class="hm-f">' +
+                  nameTop('weekly', '每周健康回顾') +
+                  '<p class="hm-f__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，<strong>适合有健康状况改善需求的用户</strong>。</p>' +
+                  '<div class="hm-f__card hm-f__card--widget">' +
+                    '<p class="memo-widget__eyebrow">本周健康 REVIEW</p>' +
+                    '<div class="memo-weekly__progress" aria-label="本周达标率 71%">' +
+                      '<span class="memo-weekly__progress-bar" style="width:71%"></span>' +
+                      '<span class="memo-weekly__progress-value">71%</span>' +
+                    '</div>' +
+                    '<div class="hm-weekly-stats">' +
+                      '<span class="hm-stat"><b>5</b><i>天</i><small>达标</small></span>' +
+                      '<span class="hm-stat"><b>-0.6</b><i>kg</i><small>体重</small></span>' +
+                      '<span class="hm-stat"><b>3</b><i>次</i><small>快走</small></span>' +
+                    '</div>' +
+                    '<div class="memo-weekly__hint">' +
+                      '<span class="memo-weekly__hint-tag">下周</span>' +
+                      '<span class="memo-weekly__hint-text">晚餐提前到 20 点</span>' +
+                    '</div>' +
+                  '</div>' +
+                  checkRow('weekly') +
+                '</div>';
 
       return '<div class="hm-panel">' +
         intro +
