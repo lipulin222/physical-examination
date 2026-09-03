@@ -158,7 +158,7 @@
   .hm-f__sample { margin-top: 1rem; }
   .hm-f__desc { margin-top: .875rem; font-size: .8125rem; line-height: 1.8; color: var(--muted-foreground); }
   /* 功能名（卡上方居中） */
-  .hm-f__name-center { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; color: var(--foreground); margin: 0; letter-spacing: .05em; }
+  .hm-f__name-center { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; color: var(--foreground); margin: 0; letter-spacing: .05em; text-align: center; align-self: center; }
   /* 说明（卡上方居中） */
   .hm-f__desc { margin-top: .625rem; font-size: .8125rem; line-height: 1.85; color: var(--muted-foreground); }
   .hm-f__desc strong { color: var(--foreground); font-weight: 700; }
@@ -167,10 +167,10 @@
   .hm-f:has(input:checked) .hm-f__card { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary), 0 6px 16px rgba(15,138,127,.08); }
   /* 卡内顶部居中标题 */
   .hm-f__title-center { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; color: var(--foreground); margin: 0 0 1rem; }
-  /* 勾选按钮行（卡片下方独立一行） */
-  .hm-f__check-row { margin-top: 1rem; display: inline-flex; align-items: center; gap: .5rem; padding: .375rem 1rem; border-radius: 9999px; border: 1px solid var(--border); background: var(--card); font-size: .8125rem; color: var(--muted-foreground); cursor: pointer; user-select: none; transition: border-color .15s ease; }
-  .hm-f__check-row:hover { border-color: var(--primary); }
-  .hm-f:has(input:checked) .hm-f__check-row { border-color: var(--primary); color: var(--primary); }
+  /* 勾选按钮行（卡片下方独立一行，无描边） */
+  .hm-f__check-row { margin-top: 1rem; display: inline-flex; align-items: center; gap: .5rem; font-size: .9375rem; color: var(--foreground); cursor: pointer; user-select: none; }
+  .hm-f__check-row .hm-f__check-text { font-weight: 500; }
+  .hm-f:has(input:checked) .hm-f__check-text { color: var(--primary); font-weight: 600; }
   .hm-check { position: relative; display: inline-flex; flex-shrink: 0; }
   .hm-check input { position: absolute; opacity: 0; width: 0; height: 0; }
   .hm-check__box { width: 1rem; height: 1rem; border-radius: .375rem; border: 1.5px solid var(--primary); background: var(--card); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease, border-color .15s ease; }
@@ -402,7 +402,7 @@
               <p class="hm-recipe-line"><em>午餐</em><span>杂粮饭100g · 清蒸鱼100g · 时蔬200g</span></p>
               <p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉 · 少量坚果 · 无糖茶</span></p>
             </div>
-            <label class="hm-f__check-row"><span class="hm-check"><input type="checkbox" checked data-hm-item="recipe" /><span class="hm-check__box"></span></span><span>已勾选，启用该功能</span></label>
+            <label class="hm-f__check-row"><span class="hm-check"><input type="checkbox" checked data-hm-item="recipe" /><span class="hm-check__box"></span></span><span class="hm-f__check-text">启用</span></label>
           </div>
           <div class="hm-f">
             <h4 class="hm-f__name-center">每日健康打卡</h4>
@@ -416,9 +416,8 @@
                 <span class="memo-widget__task-title">晚饭后步行 20 分钟</span>
               </p>
               <p class="memo-widget__benefit">改善：餐后血糖 · 体重管理</p>
-              <div class="memo-widget__done"><span class="memo-widget__check" aria-hidden="true">✓</span>今天已完成</div>
             </div>
-            <label class="hm-f__check-row"><span class="hm-check"><input type="checkbox" checked data-hm-item="daily" /><span class="hm-check__box"></span></span><span>已勾选，启用该功能</span></label>
+            <label class="hm-f__check-row"><span class="hm-check"><input type="checkbox" checked data-hm-item="daily" /><span class="hm-check__box"></span></span><span class="hm-f__check-text">启用</span></label>
           </div>
           <div class="hm-f">
             <h4 class="hm-f__name-center">每周健康回顾</h4>
@@ -441,7 +440,7 @@
                 <span class="memo-weekly__hint-text">晚餐提前到 20 点前</span>
               </div>
             </div>
-            <label class="hm-f__check-row"><span class="hm-check"><input type="checkbox" checked data-hm-item="weekly" /><span class="hm-check__box"></span></span><span>已勾选，启用该功能</span></label>
+            <label class="hm-f__check-row"><span class="hm-check"><input type="checkbox" checked data-hm-item="weekly" /><span class="hm-check__box"></span></span><span class="hm-f__check-text">启用</span></label>
           </div>
         </div>
         <button type="button" class="fu-btn hm-confirm" data-hm-confirm>确认启动健康辅助功能</button>
@@ -535,8 +534,15 @@
       document.querySelectorAll('[data-fu-appt]').forEach(function (b) {
         b.addEventListener('click', function () { showToast('已为您生成线下复查预约意向，请确认预约时间与科室。'); });
       });
-      // 04 健康辅助：确认时汇总勾选的功能项
+      // 04 健康辅助：勾选切换文案；确认时汇总勾选功能项
       var HM_NAMES = { recipe: '定制食谱', daily: '每日健康打卡', weekly: '每周健康回顾' };
+      document.querySelectorAll('[data-hm-item]').forEach(function (it) {
+        it.addEventListener('change', function () {
+          var row = it.closest('.hm-f__check-row');
+          var text = row ? row.querySelector('.hm-f__check-text') : null;
+          if (text) text.textContent = it.checked ? '启用' : '不启用';
+        });
+      });
       document.querySelectorAll('[data-hm-confirm]').forEach(function (b) {
         b.addEventListener('click', function () {
           var names = [];

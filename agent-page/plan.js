@@ -254,44 +254,43 @@
         '<h4 class="hm-f__name-center">' + name + '</h4>';
 
       const checkRow = (key) =>
-        '<label class="hm-f__check-row">' +
-          '<span class="hm-check"><input type="checkbox" checked data-hm-item="' + key + '" /><span class="hm-check__box"></span></span>' +
-          '<span>已勾选，启用该功能</span>' +
-        '</label>';
+            '<label class="hm-f__check-row">' +
+              '<span class="hm-check"><input type="checkbox" checked data-hm-item="' + key + '" /><span class="hm-check__box"></span></span>' +
+              '<span class="hm-f__check-text">启用</span>' +
+            '</label>';
 
-      // —— 定制食谱 ——
-      const recipe =
-        '<div class="hm-f hm-f--recipe">' +
-          nameTop('recipe', '定制食谱') +
-          '<p class="hm-f__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，<strong>适合有饮食管理需求的用户</strong>。</p>' +
-          '<div class="hm-f__card">' +
-            '<p class="hm-f__title-center">减重食谱 · 35岁 · 男性</p>' +
-            '<p class="hm-recipe-day"><b>第一周</b></p>' +
-            '<p class="hm-recipe-line"><em>早餐</em><span>全麦燕麦30g 配 无糖酸奶100g</span></p>' +
-            '<p class="hm-recipe-line"><em>午餐</em><span>杂粮饭100g · 清蒸鱼100g · 时蔬200g</span></p>' +
-            '<p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉 · 少量坚果 · 无糖茶</span></p>' +
-          '</div>' +
-          checkRow('recipe') +
-        '</div>';
+          // —— 定制食谱 ——
+          const recipe =
+            '<div class="hm-f hm-f--recipe">' +
+              nameTop('recipe', '定制食谱') +
+              '<p class="hm-f__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，<strong>适合有饮食管理需求的用户</strong>。</p>' +
+              '<div class="hm-f__card">' +
+                '<p class="hm-f__title-center">减重食谱 · 35岁 · 男性</p>' +
+                '<p class="hm-recipe-day"><b>第一周</b></p>' +
+                '<p class="hm-recipe-line"><em>早餐</em><span>全麦燕麦30g 配 无糖酸奶100g</span></p>' +
+                '<p class="hm-recipe-line"><em>午餐</em><span>杂粮饭100g · 清蒸鱼100g · 时蔬200g</span></p>' +
+                '<p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉 · 少量坚果 · 无糖茶</span></p>' +
+              '</div>' +
+              checkRow('recipe') +
+            '</div>';
 
-      // —— 每日健康打卡（widget 居中卡） ——
-      const daily =
-        '<div class="hm-f">' +
-          nameTop('daily', '每日健康打卡') +
-          '<p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，<strong>适合有运动/睡眠/戒烟/戒酒管理需求的用户</strong>。</p>' +
-          '<div class="hm-f__card hm-f__card--widget">' +
-            '<p class="memo-widget__eyebrow">今日健康 MEMO</p>' +
-            '<p class="memo-widget__tagline">每天一件事，见证健康改善</p>' +
-            '<hr class="memo-widget__divider">' +
-            '<p class="memo-widget__task">' +
-              '<span class="memo-widget__emoji" aria-hidden="true">🚶</span>' +
-              '<span class="memo-widget__task-title">晚饭后步行 20 分钟</span>' +
-            '</p>' +
-            '<p class="memo-widget__benefit">改善：餐后血糖 · 体重管理</p>' +
-            '<div class="memo-widget__done"><span class="memo-widget__check" aria-hidden="true">✓</span>今天已完成</div>' +
-          '</div>' +
-          checkRow('daily') +
-        '</div>';
+          // —— 每日健康打卡（精简：去掉底部"今天已完成"胶囊，让卡片更紧凑接近正方形） ——
+          const daily =
+            '<div class="hm-f">' +
+              nameTop('daily', '每日健康打卡') +
+              '<p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，<strong>适合有运动/睡眠/戒烟/戒酒管理需求的用户</strong>。</p>' +
+              '<div class="hm-f__card hm-f__card--widget">' +
+                '<p class="memo-widget__eyebrow">今日健康 MEMO</p>' +
+                '<p class="memo-widget__tagline">每天一件事，见证健康改善</p>' +
+                '<hr class="memo-widget__divider">' +
+                '<p class="memo-widget__task">' +
+                  '<span class="memo-widget__emoji" aria-hidden="true">🚶</span>' +
+                  '<span class="memo-widget__task-title">晚饭后步行 20 分钟</span>' +
+                '</p>' +
+                '<p class="memo-widget__benefit">改善：餐后血糖 · 体重管理</p>' +
+              '</div>' +
+              checkRow('daily') +
+            '</div>';
 
       // —— 每周健康回顾（充实：eyebrow + 副标题 + 进度条 + 三格 + 下周重点） ——
       const weekly =
@@ -340,7 +339,14 @@
     scope.querySelectorAll('[data-fu-appt]').forEach((b) => {
       b.addEventListener('click', () => showToast('已为您生成线下复查预约意向，请确认预约时间与科室。'));
     });
-    // 04 健康辅助功能选择：确认时汇总勾选的功能
+    // 04 健康辅助功能选择：勾选框切换文案（启用 / 不启用）；确认时汇总勾选的功能
+    scope.querySelectorAll('[data-hm-item]').forEach((it) => {
+      it.addEventListener('change', () => {
+        const row = it.closest('.hm-f__check-row');
+        const text = row ? row.querySelector('.hm-f__check-text') : null;
+        if (text) text.textContent = it.checked ? '启用' : '不启用';
+      });
+    });
     scope.querySelectorAll('[data-hm-confirm]').forEach((b) => {
       b.addEventListener('click', () => {
         const names = [];
