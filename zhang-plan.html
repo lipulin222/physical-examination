@@ -135,38 +135,27 @@
   .fu-check__text { flex: 1; line-height: 1.5; }
   .fu-check:has(input:checked) .fu-check__box { background: var(--primary); border-color: var(--primary); }
   .fu-check:has(input:checked) .fu-check__box::after { content: '✓'; color: var(--primary-foreground); font-size: .875rem; line-height: 1; font-weight: 700; }
-  /* 独立区块「让计划成为行动」 */
+  /* 04「让计划成为行动」= 健康辅助功能选择 */
   .section--launch { background: linear-gradient(180deg, #eef2f1 0%, rgba(238,241,240,0) 100%); scroll-margin-top: 5rem; }
-  .launch-card { margin-top: 2rem; border: 1px solid rgba(15,138,127,.25); border-radius: 1rem; background: linear-gradient(135deg, rgba(224,242,240,.9) 0%, var(--card) 60%); padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
-  .launch-text { line-height: 2; color: rgba(60,65,69,.85); }
-  .launch-list { margin-top: 1rem; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: .5rem; }
-  .launch-list > li { position: relative; padding-left: 1.25rem; line-height: 1.875; font-size: .9375rem; color: rgba(60,65,69,.85); }
-  .launch-list > li::before { content: ''; position: absolute; left: .125rem; top: .8em; width: .4rem; height: .4rem; border-radius: 9999px; background: var(--primary); }
-  .launch-btn { margin-top: 1.25rem; }
-  /* Widget 预览 */
-  .launch-widgets { margin-top: 1.25rem; display: grid; grid-template-columns: 1fr; gap: 1rem; align-items: stretch; }
-  @media (min-width: 640px) { .launch-widgets { grid-template-columns: 1fr 1fr; } }
-  .launch-widget-cell { display: flex; flex-direction: column; gap: .5rem; }
-  .launch-widget-cell .memo-widget { flex: 1; display: flex; flex-direction: column; }
-  .launch-widget-cell .memo-widget__done { margin: auto auto 0; align-self: center; }
-  .launch-widget-label { font-size: .75rem; letter-spacing: .2em; color: var(--muted-foreground); line-height: 1.6; }
-  .launch-widget-note { letter-spacing: normal; color: var(--muted-foreground); opacity: .85; }
-  .memo-widget { background: var(--card); border-radius: 1rem; padding: 1.5rem 1.5rem 1.25rem; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.9); border: 1px solid var(--line); }
-  .memo-widget__eyebrow { font-size: 1rem; font-weight: 500; letter-spacing: .15em; color: var(--foreground); }
-  .memo-widget__tagline { margin-top: .375rem; font-size: .8125rem; letter-spacing: .05em; color: var(--muted-foreground); }
-  .memo-widget__divider { margin: 1rem auto; width: 2.5rem; border: 0; border-top: 1px solid var(--line); }
-  .memo-widget__task { display: flex; align-items: center; justify-content: center; gap: .625rem; }
-  .memo-widget__emoji { font-size: 1.75rem; line-height: 1; }
-  .memo-widget__task-title { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.375rem; font-weight: 700; line-height: 1.4; color: var(--foreground); }
-  .memo-widget__benefit { margin-top: .5rem; font-size: .875rem; color: var(--muted-foreground); letter-spacing: .05em; }
-  .memo-widget__done { margin-top: 1.25rem; display: inline-flex; align-items: center; gap: .5rem; border: 1px solid var(--line); border-radius: 9999px; padding: .625rem 1.25rem; font-size: .9375rem; color: var(--foreground); background: var(--card); }
-  .memo-widget__check { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 9999px; background: var(--primary); color: var(--primary-foreground); }
-  .memo-widget__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-top: .25rem; }
-  .memo-stat { padding: .5rem; border-radius: .625rem; background: rgba(15,138,127,.06); }
-  .memo-stat__value { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.25rem; font-weight: 700; color: var(--primary); }
-  .memo-stat__unit { margin-left: 2px; font-size: .75rem; font-weight: 500; }
-  .memo-stat__label { margin-top: .125rem; font-size: .75rem; color: var(--muted-foreground); }
-  .memo-widget__hint { margin-top: 1rem; padding: .5rem .875rem; border-radius: .5rem; background: rgba(15,138,127,.08); font-size: .8125rem; color: var(--accent-foreground); }
+  .launch-text { line-height: 2; color: rgba(60,65,69,.85); margin-bottom: 1.5rem; }
+  .hm-panel { margin-top: 2rem; }
+  .hm-modules { display: flex; flex-direction: column; gap: 1rem; }
+  .hm-module { border: 1px solid var(--border); border-radius: 1rem; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.05); overflow: hidden; }
+  .hm-toggle { display: flex; align-items: center; gap: .75rem; padding: 1rem 1.25rem; cursor: pointer; user-select: none; border-bottom: 1px solid var(--border); }
+  .hm-toggle__title { flex: 1; font-size: 1rem; font-weight: 600; color: var(--foreground); }
+  .hm-subs { padding: .25rem 0; }
+  .hm-sub { display: flex; align-items: flex-start; gap: .75rem; padding: .875rem 1.25rem; cursor: pointer; user-select: none; }
+  .hm-sub + .hm-sub { border-top: 1px dashed var(--border); }
+  .hm-sub__body { display: flex; flex-direction: column; gap: .25rem; flex: 1; }
+  .hm-sub__name { font-size: .9375rem; font-weight: 600; color: var(--foreground); line-height: 1.5; }
+  .hm-sub__desc { font-size: .8125rem; color: var(--muted-foreground); line-height: 1.7; }
+  /* 自定义方框勾选 */
+  .hm-cb { position: relative; display: inline-flex; flex-shrink: 0; margin-top: .125rem; }
+  .hm-cb input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .hm-cb__box { width: 1.25rem; height: 1.25rem; border-radius: .375rem; border: 1.5px solid var(--primary); background: var(--card); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease, border-color .15s ease; }
+  .hm-cb input:checked + .hm-cb__box { background: var(--primary); border-color: var(--primary); }
+  .hm-cb input:checked + .hm-cb__box::after { content: '✓'; color: var(--primary-foreground); font-size: .875rem; font-weight: 700; line-height: 1; }
+  .hm-confirm { margin-top: 1.5rem; }
 
   .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 1rem; text-align: center; font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
 
@@ -349,43 +338,38 @@
         <p class="section-eyebrow">04</p>
         <h2 class="section-title">让计划成为行动</h2>
       </div>
-      <div class="launch-card">
-        <p class="launch-text">这套行动方案，是我们结合你的体检结果和实际情况专门定制的。但我们知道，行动最难的是迈出第一步。如果你希望有人可以提醒你、引导你启动，陪你一起适应这套方案，让改善健康的行为真正开始——可以设置「一键启动行动方案」。</p>
-        <ul class="launch-list">
-          <li>开启桌面「每日健康 memo」组件，每天提醒你当天的健康小任务</li>
-          <li>每周收到上周健康情况回顾，以及下周健康计划提醒</li>
-        </ul>
-        <div class="launch-widgets">
-          <div class="launch-widget-cell">
-            <p class="launch-widget-label">桌面widget：每日健康MEMO</p>
-            <div class="memo-widget" data-widget="daily">
-              <p class="memo-widget__eyebrow">今日健康 MEMO</p>
-              <p class="memo-widget__tagline">每天一件事，见证健康改善</p>
-              <hr class="memo-widget__divider" />
-              <div class="memo-widget__task">
-                <span class="memo-widget__emoji" aria-hidden="true">🚶</span>
-                <p class="memo-widget__task-title">晚饭后步行 20 分钟</p>
-              </div>
-              <p class="memo-widget__benefit">改善：餐后血糖 · 体重管理</p>
-              <div class="memo-widget__done"><span class="memo-widget__check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"></polyline></svg></span>今天已完成</div>
+      <div class="hm-panel">
+        <p class="launch-text">这套改善计划基于你的体检结果、生活习惯、客观情况量身定制，但"知易行难"，我们深知迈出第一步并不容易。为了更好的帮助你适应生活方式的变化，卓正将提供一系列配套功能，让改善健康的行为真正开始。</p>
+        <div class="hm-modules">
+          <div class="hm-module">
+            <label class="hm-toggle"><span class="hm-cb"><input type="checkbox" checked data-hm-toggle="0" /><span class="hm-cb__box"></span></span><span class="hm-toggle__title">开启饮食管理辅助功能</span></label>
+            <div class="hm-subs">
+              <label class="hm-sub"><span class="hm-cb"><input type="checkbox" checked data-hm-sub="0" /><span class="hm-cb__box"></span></span><span class="hm-sub__body"><span class="hm-sub__name">定制食谱</span><span class="hm-sub__desc">1分钟问卷，根据健康状况和饮食习惯，设计切实可行的食谱菜单</span></span></label>
+              <label class="hm-sub"><span class="hm-cb"><input type="checkbox" checked data-hm-sub="0" /><span class="hm-cb__box"></span></span><span class="hm-sub__body"><span class="hm-sub__name">每餐评估</span><span class="hm-sub__desc">拍张照片，帮你评估这餐吃的对不对，好不好</span></span></label>
+              <label class="hm-sub"><span class="hm-cb"><input type="checkbox" checked data-hm-sub="0" /><span class="hm-cb__box"></span></span><span class="hm-sub__body"><span class="hm-sub__name">补剂评估</span><span class="hm-sub__desc">根据饮食习惯，评估是否需要补充补剂</span></span></label>
             </div>
           </div>
-          <div class="launch-widget-cell">
-            <p class="launch-widget-label">每周回顾<span class="launch-widget-note">（通过卓正医疗微信公众号推送）</span></p>
-            <div class="memo-widget" data-widget="weekly">
-              <p class="memo-widget__eyebrow">本周健康 REVIEW</p>
-              <p class="memo-widget__tagline">上周做了 5 / 7 天，本周继续保持</p>
-              <hr class="memo-widget__divider" />
-              <div class="memo-widget__stats">
-                <div class="memo-stat"><p class="memo-stat__value">5<span class="memo-stat__unit">天</span></p><p class="memo-stat__label">本周已做</p></div>
-                <div class="memo-stat"><p class="memo-stat__value">-0.6<span class="memo-stat__unit">kg</span></p><p class="memo-stat__label">体重变化</p></div>
-                <div class="memo-stat"><p class="memo-stat__value">3<span class="memo-stat__unit">次</span></p><p class="memo-stat__label">快走完成</p></div>
-              </div>
-              <p class="memo-widget__hint">下周重点：晚餐提前到 20 点前</p>
+          <div class="hm-module">
+            <label class="hm-toggle"><span class="hm-cb"><input type="checkbox" checked data-hm-toggle="1" /><span class="hm-cb__box"></span></span><span class="hm-toggle__title">开启运动管理辅助功能</span></label>
+            <div class="hm-subs">
+              <label class="hm-sub"><span class="hm-cb"><input type="checkbox" checked data-hm-sub="1" /><span class="hm-cb__box"></span></span><span class="hm-sub__body"><span class="hm-sub__name">每日健康打卡</span><span class="hm-sub__desc">快速记录每日健康行为，促进好习惯快速养成</span></span></label>
+              <label class="hm-sub"><span class="hm-cb"><input type="checkbox" checked data-hm-sub="1" /><span class="hm-cb__box"></span></span><span class="hm-sub__body"><span class="hm-sub__name">运动提醒助手</span><span class="hm-sub__desc">快速制定运动计划，并添加到日历和待办中，避免遗忘</span></span></label>
+            </div>
+          </div>
+          <div class="hm-module">
+            <label class="hm-toggle"><span class="hm-cb"><input type="checkbox" checked data-hm-toggle="2" /><span class="hm-cb__box"></span></span><span class="hm-toggle__title">开启睡眠管理辅助功能</span></label>
+            <div class="hm-subs">
+              <label class="hm-sub"><span class="hm-cb"><input type="checkbox" checked data-hm-sub="2" /><span class="hm-cb__box"></span></span><span class="hm-sub__body"><span class="hm-sub__name">入睡助手</span><span class="hm-sub__desc">设置入睡时间，到点提醒</span></span></label>
+            </div>
+          </div>
+          <div class="hm-module">
+            <label class="hm-toggle"><span class="hm-cb"><input type="checkbox" checked data-hm-toggle="3" /><span class="hm-cb__box"></span></span><span class="hm-toggle__title">开启戒烟/戒酒管理辅助功能</span></label>
+            <div class="hm-subs">
+              <label class="hm-sub"><span class="hm-cb"><input type="checkbox" checked data-hm-sub="3" /><span class="hm-cb__box"></span></span><span class="hm-sub__body"><span class="hm-sub__name">每日健康打卡</span><span class="hm-sub__desc">快速记录每日健康行为，促进好习惯快速养成</span></span></label>
             </div>
           </div>
         </div>
-        <button type="button" class="fu-btn launch-btn" data-launch-plan>一键启动行动方案</button>
+        <button type="button" class="fu-btn hm-confirm" data-hm-confirm>确认启动健康辅助</button>
       </div>
     </section>
 
@@ -476,9 +460,37 @@
       document.querySelectorAll('[data-fu-appt]').forEach(function (b) {
         b.addEventListener('click', function () { showToast('已为您生成线下复查预约意向，请确认预约时间与科室。'); });
       });
-      document.querySelectorAll('[data-launch-plan]').forEach(function (b) {
+      // 04 健康辅助：子功能联动模块总选项
+      document.querySelectorAll('[data-hm-toggle]').forEach(function (toggle) {
+        toggle.addEventListener('change', function () {
+          var mod = toggle.closest('.hm-module');
+          if (!mod) return;
+          mod.querySelectorAll('[data-hm-sub]').forEach(function (s) { s.checked = toggle.checked; });
+        });
+      });
+      document.querySelectorAll('[data-hm-sub]').forEach(function (sub) {
+        sub.addEventListener('change', function () {
+          var mod = sub.closest('.hm-module');
+          if (!mod) return;
+          var toggle = mod.querySelector('[data-hm-toggle]');
+          var subs = Array.prototype.slice.call(mod.querySelectorAll('[data-hm-sub]'));
+          toggle.checked = subs.length > 0 && subs.every(function (s) { return s.checked; });
+        });
+      });
+      document.querySelectorAll('[data-hm-confirm]').forEach(function (b) {
         b.addEventListener('click', function () {
-          showToast('已为您启动行动方案：桌面「每日健康 memo」已开启，每周将推送上周回顾与下周计划提醒。');
+          var names = [];
+          document.querySelectorAll('.hm-module').forEach(function (mod) {
+            var toggle = mod.querySelector('[data-hm-toggle]');
+            if (toggle && toggle.checked) {
+              var titleEl = mod.querySelector('.hm-toggle__title');
+              if (titleEl) {
+                var t = titleEl.textContent.replace(/^开启/, '').replace(/管理辅助功能$/, '');
+                names.push(t);
+              }
+            }
+          });
+          showToast(names.length ? '已为您开启' + names.join('、') + '健康辅助' : '未选择任何健康辅助功能，可随时在后续调整');
         });
       });
     })();

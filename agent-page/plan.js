@@ -225,7 +225,7 @@
     return html;
   }
 
-  // ===== 正式的第 04 章「让计划成为行动」（承接健康管理服务，含桌面 widget 预览） =====
+  // ===== 正式的第 04 章「让计划成为行动」（健康辅助功能勾选启动） =====
   function renderLaunchSection(toc) {
     const launcher = renderActionLauncher();
     if (toc) toc.push({ num: '04', title: '让计划成为行动' });
@@ -238,48 +238,70 @@
     '</section>';
   }
 
-  // 启动卡片内容（文案 + 两个桌面 widget 预览 + 一键启动按钮）
-  function renderActionLauncher() {
-    // 两个桌面 widget 预览（每日健康 memo / 上周健康情况回顾）
-    const widgetDaily = '<div class="memo-widget" data-widget="daily">' +
-      '<p class="memo-widget__eyebrow">今日健康 MEMO</p>' +
-      '<p class="memo-widget__tagline">每天一件事，见证健康改善</p>' +
-      '<hr class="memo-widget__divider" />' +
-      '<div class="memo-widget__task">' +
-        '<span class="memo-widget__emoji" aria-hidden="true">🚶</span>' +
-        '<p class="memo-widget__task-title">晚饭后步行 20 分钟</p>' +
-      '</div>' +
-      '<p class="memo-widget__benefit">改善：餐后血糖 · 体重管理</p>' +
-      '<div class="memo-widget__done"><span class="memo-widget__check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"></polyline></svg></span>今天已完成</div>' +
-    '</div>';
-    const widgetWeekly = '<div class="memo-widget" data-widget="weekly">' +
-      '<p class="memo-widget__eyebrow">本周健康 REVIEW</p>' +
-      '<p class="memo-widget__tagline">上周做了 5 / 7 天，本周继续保持</p>' +
-      '<hr class="memo-widget__divider" />' +
-      '<div class="memo-widget__stats">' +
-        '<div class="memo-stat"><p class="memo-stat__value">5<span class="memo-stat__unit">天</span></p><p class="memo-stat__label">本周已做</p></div>' +
-        '<div class="memo-stat"><p class="memo-stat__value">-0.6<span class="memo-stat__unit">kg</span></p><p class="memo-stat__label">体重变化</p></div>' +
-        '<div class="memo-stat"><p class="memo-stat__value">3<span class="memo-stat__unit">次</span></p><p class="memo-stat__label">快走完成</p></div>' +
-      '</div>' +
-      '<p class="memo-widget__hint">下周重点：晚餐提前到 20 点前</p>' +
-    '</div>';
+  // ===== 04 内容：健康辅助功能选择 =====
+  // 每个模块：模块总选项 + 子功能（子功能默认选中，全部选中时模块总选项为勾选态）
+  const HEALTH_MODULES = [
+    {
+      title: '开启饮食管理辅助功能',
+      subs: [
+        { name: '定制食谱', desc: '1分钟问卷，根据健康状况和饮食习惯，设计切实可行的食谱菜单' },
+        { name: '每餐评估', desc: '拍张照片，帮你评估这餐吃的对不对，好不好' },
+        { name: '补剂评估', desc: '根据饮食习惯，评估是否需要补充补剂' }
+      ]
+    },
+    {
+      title: '开启运动管理辅助功能',
+      subs: [
+        { name: '每日健康打卡', desc: '快速记录每日健康行为，促进好习惯快速养成' },
+        { name: '运动提醒助手', desc: '快速制定运动计划，并添加到日历和待办中，避免遗忘' }
+      ]
+    },
+    {
+      title: '开启睡眠管理辅助功能',
+      subs: [
+        { name: '入睡助手', desc: '设置入睡时间，到点提醒' }
+      ]
+    },
+    {
+      title: '开启戒烟/戒酒管理辅助功能',
+      subs: [
+        { name: '每日健康打卡', desc: '快速记录每日健康行为，促进好习惯快速养成' }
+      ]
+    }
+  ];
 
-    return '<div class="launch-card">' +
+  function renderActionLauncher() {
+    // 说明文案
+    const intro =
       '<p class="launch-text">' +
-        '这套行动方案，是我们结合你的体检结果和实际情况专门定制的。' +
-        '但我们知道，行动最难的是迈出第一步。' +
-        '如果你希望有人可以提醒你、引导你启动，陪你一起适应这套方案，让改善健康的行为真正开始——' +
-        '可以设置「一键启动行动方案」。' +
-      '</p>' +
-      '<div class="launch-widgets">' +
-        '<div class="launch-widget-cell">' +
-          '<p class="launch-widget-label">桌面widget：每日健康MEMO</p>' + widgetDaily +
-        '</div>' +
-        '<div class="launch-widget-cell">' +
-          '<p class="launch-widget-label">每周回顾<span class="launch-widget-note">（通过卓正医疗微信公众号推送）</span></p>' + widgetWeekly +
-        '</div>' +
-      '</div>' +
-      '<button type="button" class="fu-btn launch-btn" data-launch-plan>一键启动行动方案</button>' +
+        '这套改善计划基于你的体检结果、生活习惯、客观情况量身定制，但"知易行难"，我们深知迈出第一步并不容易。' +
+        '为了更好的帮助你适应生活方式的变化，卓正将提供一系列配套功能，让改善健康的行为真正开始。' +
+      '</p>';
+
+    // 每个功能模块：总选项 + 子功能列表
+    const modulesHtml = HEALTH_MODULES.map((mod, mi) => {
+      const subsHtml = mod.subs.map((s, si) =>
+        '<label class="hm-sub">' +
+          '<span class="hm-cb"><input type="checkbox" checked data-hm-sub="' + mi + '" /><span class="hm-cb__box"></span></span>' +
+          '<span class="hm-sub__body">' +
+            '<span class="hm-sub__name">' + escapeHtml(s.name) + '</span>' +
+            '<span class="hm-sub__desc">' + escapeHtml(s.desc) + '</span>' +
+          '</span>' +
+        '</label>'
+      ).join('');
+      return '<div class="hm-module" data-hm="' + mi + '">' +
+        '<label class="hm-toggle">' +
+          '<span class="hm-cb"><input type="checkbox" checked data-hm-toggle="' + mi + '" /><span class="hm-cb__box"></span></span>' +
+          '<span class="hm-toggle__title">' + escapeHtml(mod.title) + '</span>' +
+        '</label>' +
+        (mod.subs.length > 1 ? '<div class="hm-subs">' + subsHtml + '</div>' : subsHtml) +
+      '</div>';
+    }).join('');
+
+    return '<div class="hm-panel">' +
+      intro +
+      '<div class="hm-modules">' + modulesHtml + '</div>' +
+      '<button type="button" class="fu-btn hm-confirm" data-hm-confirm>确认启动健康辅助</button>' +
     '</div>';
   }
 
@@ -297,9 +319,39 @@
     scope.querySelectorAll('[data-fu-appt]').forEach((b) => {
       b.addEventListener('click', () => showToast('已为您生成线下复查预约意向，请确认预约时间与科室。'));
     });
-    scope.querySelectorAll('[data-launch-plan]').forEach((b) => {
+    // 04 健康辅助功能选择：子功能联动模块总选项（子功能全部选中 → 模块总选项勾选；反之取消）
+    scope.querySelectorAll('[data-hm-toggle]').forEach((toggle) => {
+      toggle.addEventListener('change', () => {
+        const mod = toggle.closest('.hm-module');
+        if (mod) {
+          const subs = mod.querySelectorAll('[data-hm-sub]');
+          const checked = toggle.checked;
+          subs.forEach((s) => { s.checked = checked; });
+        }
+      });
+    });
+    scope.querySelectorAll('[data-hm-sub]').forEach((sub) => {
+      sub.addEventListener('change', () => {
+        const mod = sub.closest('.hm-module');
+        if (mod) {
+          const toggle = mod.querySelector('[data-hm-toggle]');
+          const subs = Array.prototype.slice.call(mod.querySelectorAll('[data-hm-sub]'));
+          toggle.checked = subs.length > 0 && subs.every((s) => s.checked);
+        }
+      });
+    });
+    scope.querySelectorAll('[data-hm-confirm]').forEach((b) => {
       b.addEventListener('click', () => {
-        showToast('已为您启动行动方案：桌面「每日健康 memo」已开启，每周将推送上周回顾与下周计划提醒。');
+        // 汇总已勾选的模块标题
+        const names = [];
+        scope.querySelectorAll('.hm-module').forEach((mod) => {
+          const toggle = mod.querySelector('[data-hm-toggle]');
+          if (toggle && toggle.checked) {
+            const titleEl = mod.querySelector('.hm-toggle__title');
+            if (titleEl) names.push(titleEl.textContent.replace(/^开启/, '').replace(/管理辅助功能$/, ''));
+          }
+        });
+        showToast(names.length ? '已为您开启' + names.join('、') + '健康辅助' : '未选择任何健康辅助功能，可随时在后续调整');
       });
     });
   }
