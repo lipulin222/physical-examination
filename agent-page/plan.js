@@ -276,7 +276,7 @@
 
               // —— 每日健康打卡（精简 benefit 文本避免换行） ——
               const daily =
-                '<div class="hm-f">' +
+                '<div class="hm-f hm-f--daily">' +
                   nameTop('daily', '每日健康打卡') +
                   '<p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，<strong>适合有运动/睡眠/戒烟/戒酒管理需求的用户</strong>。</p>' +
                   '<div class="hm-f__card hm-f__card--widget">' +
@@ -294,7 +294,7 @@
 
               // —— 每周健康回顾（精简：去掉副标题、压缩三格、缩短提示文案） ——
               const weekly =
-                '<div class="hm-f">' +
+                '<div class="hm-f hm-f--weekly">' +
                   nameTop('weekly', '每周健康回顾') +
                   '<p class="hm-f__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，<strong>适合有健康状况改善需求的用户</strong>。</p>' +
                   '<div class="hm-f__card hm-f__card--widget">' +
