@@ -139,47 +139,43 @@
   .section--launch { background: linear-gradient(180deg, #eef2f1 0%, rgba(238,241,240,0) 100%); scroll-margin-top: 5rem; }
   .launch-text { line-height: 2; color: rgba(60,65,69,.85); margin-bottom: 1.5rem; }
   .hm-panel { margin-top: 2rem; }
-  /* 功能卡片：三张并排（移动端单列） */
-  .hm-cards { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
-  @media (min-width: 760px) { .hm-cards { grid-template-columns: repeat(3, 1fr); } }
-  .hm-card { position: relative; display: flex; flex-direction: column; padding: 1.25rem; border: 1px solid var(--border); border-radius: 1.125rem; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.05); cursor: pointer; user-select: none; transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease; }
-  .hm-card:hover { border-color: rgba(15,138,127,.4); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.08); }
-  .hm-card__top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-  .hm-card__badge { font-size: .8125rem; font-weight: 700; letter-spacing: .12em; color: var(--primary); }
+  /* 功能项：功能名（上）→ 卡片（标题+示例）→ 功能说明（下）；三列（移动端单列） */
+  .hm-fs { display: grid; grid-template-columns: 1fr; gap: 1.75rem 1.5rem; align-items: stretch; }
+  @media (min-width: 880px) { .hm-fs { grid-template-columns: repeat(3, 1fr); } }
+  .hm-f { display: flex; flex-direction: column; }
+  /* 功能名（卡外上方，可点击勾选整项） */
+  .hm-f__head { display: flex; align-items: center; gap: .625rem; cursor: pointer; user-select: none; align-self: flex-start; }
   .hm-check { position: relative; display: inline-flex; flex-shrink: 0; }
   .hm-check input { position: absolute; opacity: 0; width: 0; height: 0; }
   .hm-check__box { width: 1.375rem; height: 1.375rem; border-radius: .5rem; border: 2px solid var(--primary); background: var(--card); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease, border-color .15s ease; }
   .hm-check input:checked + .hm-check__box { background: var(--primary); border-color: var(--primary); }
   .hm-check input:checked + .hm-check__box::after { content: '✓'; color: var(--primary-foreground); font-size: .875rem; font-weight: 700; line-height: 1; }
-  .hm-card:has(input:checked) { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
-  .hm-card__title { display: block; margin-top: 1rem; font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.125rem; font-weight: 700; line-height: 1.4; color: var(--foreground); }
-  .hm-card__desc { display: block; margin-top: .75rem; font-size: .8125rem; line-height: 1.8; color: var(--muted-foreground); }
-  /* 定制食谱卡（新设计） */
-  .hm-card--recipe { background: linear-gradient(160deg, #fff8ef 0%, var(--card) 55%); }
-  .hm-card--recipe .hm-card__badge { color: #c8731f; }
-  .hm-card--recipe:has(input:checked) { border-color: #e08a2e; box-shadow: 0 0 0 1px #e08a2e; }
-  .hm-recipe__emblem { display: block; margin-top: 1rem; font-size: 2.5rem; line-height: 1; text-align: center; }
-  .hm-recipe__list { display: flex; flex-direction: column; gap: .5rem; margin-top: 1rem; border: 1px dashed #e8c9a0; border-radius: .75rem; background: rgba(255,255,255,.6); padding: .875rem 1rem; }
-  .hm-recipe__row { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; font-size: .8125rem; color: rgba(60,65,69,.9); }
-  .hm-recipe__row em { font-style: normal; font-weight: 600; color: #b96a1d; flex-shrink: 0; }
-  /* 每日打卡 / 每周回顾（沿用 widget 卡片观感） */
-  .hm-widget__visual { display: block; margin: 1.25rem auto .75rem; font-size: 2.75rem; line-height: 1; text-align: center; }
-  .hm-widget__eyebrow { display: block; text-align: center; font-size: .8125rem; letter-spacing: .25em; color: var(--muted-foreground); }
-  .hm-widget__value { display: block; margin-top: .5rem; text-align: center; font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.125rem; font-weight: 700; color: var(--foreground); line-height: 1.5; }
-  .hm-widget__pill { display: inline-flex; align-items: center; gap: .375rem; margin: .75rem auto 0; padding: .375rem .875rem; border-radius: 9999px; background: rgba(15,138,127,.08); font-size: .75rem; color: var(--accent-foreground); }
-  .hm-widget__dot { width: .5rem; height: .5rem; border-radius: 9999px; background: var(--primary); }
-  .hm-widget__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-top: 1rem; }
-  .hm-stat { display: flex; flex-direction: column; align-items: center; padding: .5rem; border-radius: .625rem; background: rgba(15,138,127,.06); }
+  .hm-f__name { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; color: var(--foreground); }
+  /* 白卡 */
+  .hm-f__card { flex: 1; margin-top: .875rem; padding: 1.125rem 1.25rem; border: 1px solid var(--border); border-radius: 1.125rem; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.05); transition: border-color .15s ease, box-shadow .15s ease; }
+  .hm-f:has(input:checked) .hm-f__card { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary), 0 6px 16px rgba(15,138,127,.08); }
+  .hm-f__title { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; color: var(--foreground); line-height: 1.4; }
+  .hm-f__sample { margin-top: 1rem; }
+  .hm-f__desc { margin-top: .875rem; font-size: .8125rem; line-height: 1.8; color: var(--muted-foreground); }
+  /* 定制食谱：暖橙示例 */
+  .hm-f--recipe .hm-f__card { background: linear-gradient(160deg, #fff7ec 0%, var(--card) 60%); border-color: #eed9bb; }
+  .hm-f--recipe:has(input:checked) .hm-f__card { border-color: #e08a2e; box-shadow: 0 0 0 1px #e08a2e, 0 6px 16px rgba(224,138,46,.1); }
+  .hm-recipe-day { font-size: .8125rem; color: var(--muted-foreground); margin-bottom: .5rem; }
+  .hm-recipe-day b { color: #b96a1d; font-weight: 700; }
+  .hm-recipe-line { display: flex; align-items: baseline; gap: .75rem; font-size: .8125rem; line-height: 2; color: rgba(60,65,69,.9); }
+  .hm-recipe-line em { flex-shrink: 0; width: 2.6em; font-style: normal; font-weight: 600; color: #b96a1d; }
+  .hm-recipe-line span { flex: 1; }
+  /* 每日打卡：打卡清单 */
+  .hm-daily-item { display: flex; align-items: center; gap: .625rem; font-size: .875rem; line-height: 2.2; color: rgba(60,65,69,.9); }
+  .hm-daily-check { width: 1.25rem; height: 1.25rem; flex-shrink: 0; border-radius: 9999px; background: var(--primary); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; }
+  .hm-daily-check--off { background: #e4e9e8; }
+  /* 每周回顾：数据格 */
+  .hm-weekly-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+  .hm-stat { display: flex; flex-direction: column; align-items: center; padding: .625rem .25rem; border-radius: .625rem; background: rgba(15,138,127,.06); }
   .hm-stat b { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.25rem; font-weight: 700; color: var(--primary); line-height: 1.2; }
   .hm-stat i { font-style: normal; font-size: .75rem; font-weight: 500; margin-left: 2px; }
   .hm-stat small { font-size: .6875rem; color: var(--muted-foreground); margin-top: .125rem; }
-  /* 自定义方框勾选 */
-  .hm-cb { position: relative; display: inline-flex; flex-shrink: 0; margin-top: .125rem; }
-  .hm-cb input { position: absolute; opacity: 0; width: 0; height: 0; }
-  .hm-cb__box { width: 1.25rem; height: 1.25rem; border-radius: .375rem; border: 1.5px solid var(--primary); background: var(--card); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease, border-color .15s ease; }
-  .hm-cb input:checked + .hm-cb__box { background: var(--primary); border-color: var(--primary); }
-  .hm-cb input:checked + .hm-cb__box::after { content: '✓'; color: var(--primary-foreground); font-size: .875rem; font-weight: 700; line-height: 1; }
-  .hm-confirm { margin-top: 1.5rem; }
+  .hm-confirm { margin-top: 1.75rem; }
 
   .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 1rem; text-align: center; font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
 
@@ -364,37 +360,46 @@
       </div>
       <div class="hm-panel">
         <p class="launch-text">这套改善计划基于你的体检结果、生活习惯、客观情况量身定制，但"知易行难"，我们深知迈出第一步并不容易。为了更好的帮助你适应生活方式的变化，卓正将提供一系列配套功能，让改善健康的行为真正开始。现在点击「确认启动健康辅助功能」，开启你的健康行动吧！</p>
-        <div class="hm-cards">
-          <label class="hm-card hm-card--recipe" data-card="recipe">
-            <span class="hm-card__top"><span class="hm-check"><input type="checkbox" checked data-hm-item="recipe" /><span class="hm-check__box"></span></span><span class="hm-card__badge">定制食谱</span></span>
-            <span class="hm-recipe__emblem" aria-hidden="true">🍱</span>
-            <span class="hm-card__title">今日健康菜单</span>
-            <span class="hm-recipe__list">
-              <span class="hm-recipe__row"><em>早餐</em>全麦燕麦 + 水煮蛋 + 牛奶</span>
-              <span class="hm-recipe__row"><em>午餐</em>杂粮饭 + 清蒸鱼 + 时蔬</span>
-              <span class="hm-recipe__row"><em>晚餐</em>鸡胸沙拉 + 无糖酸奶</span>
-            </span>
-            <span class="hm-card__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，适合有饮食管理需求的用户。</span>
-          </label>
-          <label class="hm-card hm-card--daily" data-card="daily">
-            <span class="hm-card__top"><span class="hm-check"><input type="checkbox" checked data-hm-item="daily" /><span class="hm-check__box"></span></span><span class="hm-card__badge">每日健康打卡</span></span>
-            <span class="hm-widget__visual" aria-hidden="true">🏃</span>
-            <span class="hm-widget__eyebrow">今日打卡</span>
-            <span class="hm-widget__value">晚饭后步行 20 分钟</span>
-            <span class="hm-widget__pill"><span class="hm-widget__dot"></span>待完成 · 可设置桌面提醒</span>
-            <span class="hm-card__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，适合有运动/睡眠/戒烟/戒酒管理需求的用户。</span>
-          </label>
-          <label class="hm-card hm-card--weekly" data-card="weekly">
-            <span class="hm-card__top"><span class="hm-check"><input type="checkbox" checked data-hm-item="weekly" /><span class="hm-check__box"></span></span><span class="hm-card__badge">每周健康回顾</span></span>
-            <span class="hm-widget__visual" aria-hidden="true">📊</span>
-            <span class="hm-widget__eyebrow">本周健康 REVIEW</span>
-            <span class="hm-widget__stats">
-              <span class="hm-stat"><b>5</b><i>天</i><small>达标</small></span>
-              <span class="hm-stat"><b>-0.6</b><i>kg</i><small>体重变化</small></span>
-              <span class="hm-stat"><b>3</b><i>次</i><small>快走完成</small></span>
-            </span>
-            <span class="hm-card__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，适合有健康状况改善需求的用户。</span>
-          </label>
+        <div class="hm-fs">
+          <div class="hm-f hm-f--recipe">
+            <label class="hm-f__head"><span class="hm-check"><input type="checkbox" checked data-hm-item="recipe" /><span class="hm-check__box"></span></span><span class="hm-f__name">定制食谱</span></label>
+            <div class="hm-f__card">
+              <p class="hm-f__title">减重食谱 · 35岁 · 男性</p>
+              <div class="hm-f__sample">
+                <p class="hm-recipe-day"><b>第一周</b>（示意）</p>
+                <p class="hm-recipe-line"><em>早餐</em><span>全麦燕麦30g 配 无糖酸奶100g</span></p>
+                <p class="hm-recipe-line"><em>午餐</em><span>杂粮饭100g · 清蒸鱼100g · 时蔬200g</span></p>
+                <p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉 · 少量坚果 · 无糖茶</span></p>
+              </div>
+            </div>
+            <p class="hm-f__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，适合有饮食管理需求的用户。</p>
+          </div>
+          <div class="hm-f">
+            <label class="hm-f__head"><span class="hm-check"><input type="checkbox" checked data-hm-item="daily" /><span class="hm-check__box"></span></span><span class="hm-f__name">每日健康打卡</span></label>
+            <div class="hm-f__card">
+              <p class="hm-f__title">今日 · 健康打卡</p>
+              <div class="hm-f__sample">
+                <p class="hm-daily-item"><span class="hm-daily-check">✓</span>晚饭后步行 20 分钟</p>
+                <p class="hm-daily-item"><span class="hm-daily-check">✓</span>三餐规律 · 无含糖饮料</p>
+                <p class="hm-daily-item"><span class="hm-daily-check hm-daily-check--off"></span>23:00 前入睡</p>
+              </div>
+            </div>
+            <p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，适合有运动/睡眠/戒烟/戒酒管理需求的用户。</p>
+          </div>
+          <div class="hm-f">
+            <label class="hm-f__head"><span class="hm-check"><input type="checkbox" checked data-hm-item="weekly" /><span class="hm-check__box"></span></span><span class="hm-f__name">每周健康回顾</span></label>
+            <div class="hm-f__card">
+              <p class="hm-f__title">上周回顾 · 8.25 – 8.31</p>
+              <div class="hm-f__sample">
+                <div class="hm-weekly-stats">
+                  <span class="hm-stat"><b>5</b><i>天</i><small>本周达标</small></span>
+                  <span class="hm-stat"><b>-0.6</b><i>kg</i><small>体重变化</small></span>
+                  <span class="hm-stat"><b>3</b><i>次</i><small>快走完成</small></span>
+                </div>
+              </div>
+            </div>
+            <p class="hm-f__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，适合有健康状况改善需求的用户。</p>
+          </div>
         </div>
         <button type="button" class="fu-btn hm-confirm" data-hm-confirm>确认启动健康辅助功能</button>
       </div>
@@ -488,13 +493,13 @@
         b.addEventListener('click', function () { showToast('已为您生成线下复查预约意向，请确认预约时间与科室。'); });
       });
       // 04 健康辅助：确认时汇总勾选的功能项
+      var HM_NAMES = { recipe: '定制食谱', daily: '每日健康打卡', weekly: '每周健康回顾' };
       document.querySelectorAll('[data-hm-confirm]').forEach(function (b) {
         b.addEventListener('click', function () {
           var names = [];
           document.querySelectorAll('[data-hm-item]:checked').forEach(function (it) {
-            var card = it.closest('.hm-card');
-            var badge = card ? card.querySelector('.hm-card__badge') : null;
-            if (badge) names.push(badge.textContent.trim());
+            var n = HM_NAMES[it.getAttribute('data-hm-item')];
+            if (n) names.push(n);
           });
           showToast(names.length ? '已为您开启' + names.join('、') + '健康辅助' : '未选择任何健康辅助功能，可随时在后续调整');
         });

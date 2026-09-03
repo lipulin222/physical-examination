@@ -238,8 +238,9 @@
     '</section>';
   }
 
-  // ===== 04 内容：健康辅助功能（三张可选卡片） =====
-  // 定制食谱：全新内容卡；每日健康打卡 / 每周健康回顾：沿用此前 widget 卡片观感（居中 emoji + 状态胶囊）
+  // ===== 04 内容：健康辅助功能（功能名 + 白卡[标题/示例] + 功能说明） =====
+  const HM_NAMES = { recipe: '定制食谱', daily: '每日健康打卡', weekly: '每周健康回顾' };
+
   function renderActionLauncher() {
     // 说明文案
     const intro =
@@ -249,57 +250,63 @@
         '现在点击「确认启动健康辅助功能」，开启你的健康行动吧！' +
       '</p>';
 
-    // —— 卡片1：定制食谱（新设计：暖橙强调，展示"今日菜单"雏形）——
-    const cardRecipe =
-      '<label class="hm-card hm-card--recipe" data-card="recipe">' +
-        '<span class="hm-card__top">' +
-          '<span class="hm-check"><input type="checkbox" checked data-hm-item="recipe" /><span class="hm-check__box"></span></span>' +
-          '<span class="hm-card__badge">定制食谱</span>' +
-        '</span>' +
-        '<span class="hm-recipe__emblem" aria-hidden="true">🍱</span>' +
-        '<span class="hm-card__title">今日健康菜单</span>' +
-        '<span class="hm-recipe__list">' +
-          '<span class="hm-recipe__row"><em>早餐</em>全麦燕麦 + 水煮蛋 + 牛奶</span>' +
-          '<span class="hm-recipe__row"><em>午餐</em>杂粮饭 + 清蒸鱼 + 时蔬</span>' +
-          '<span class="hm-recipe__row"><em>晚餐</em>鸡胸沙拉 + 无糖酸奶</span>' +
-        '</span>' +
-        '<span class="hm-card__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，适合有饮食管理需求的用户。</span>' +
+    const head = (key, name) =>
+      '<label class="hm-f__head">' +
+        '<span class="hm-check"><input type="checkbox" checked data-hm-item="' + key + '" /><span class="hm-check__box"></span></span>' +
+        '<span class="hm-f__name">' + name + '</span>' +
       '</label>';
 
-    // —— 卡片2：每日健康打卡（沿用 widget 卡片观感）——
-    const cardDaily =
-      '<label class="hm-card hm-card--daily" data-card="daily">' +
-        '<span class="hm-card__top">' +
-          '<span class="hm-check"><input type="checkbox" checked data-hm-item="daily" /><span class="hm-check__box"></span></span>' +
-          '<span class="hm-card__badge">每日健康打卡</span>' +
-        '</span>' +
-        '<span class="hm-widget__visual" aria-hidden="true">🏃</span>' +
-        '<span class="hm-widget__eyebrow">今日打卡</span>' +
-        '<span class="hm-widget__value">晚饭后步行 20 分钟</span>' +
-        '<span class="hm-widget__pill"><span class="hm-widget__dot"></span>待完成 · 可设置桌面提醒</span>' +
-        '<span class="hm-card__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，适合有运动/睡眠/戒烟/戒酒管理需求的用户。</span>' +
-      '</label>';
+    // —— 定制食谱（暖橙示例卡）——
+    const recipe =
+      '<div class="hm-f hm-f--recipe">' +
+        head('recipe', '定制食谱') +
+        '<div class="hm-f__card">' +
+          '<p class="hm-f__title">减重食谱 · 35岁 · 男性</p>' +
+          '<div class="hm-f__sample">' +
+            '<p class="hm-recipe-day"><b>第一周</b>（示意）</p>' +
+            '<p class="hm-recipe-line"><em>早餐</em><span>全麦燕麦30g 配 无糖酸奶100g</span></p>' +
+            '<p class="hm-recipe-line"><em>午餐</em><span>杂粮饭100g · 清蒸鱼100g · 时蔬200g</span></p>' +
+            '<p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉 · 少量坚果 · 无糖茶</span></p>' +
+          '</div>' +
+        '</div>' +
+        '<p class="hm-f__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，适合有饮食管理需求的用户。</p>' +
+      '</div>';
 
-    // —— 卡片3：每周健康回顾（沿用 widget 卡片观感）——
-    const cardWeekly =
-      '<label class="hm-card hm-card--weekly" data-card="weekly">' +
-        '<span class="hm-card__top">' +
-          '<span class="hm-check"><input type="checkbox" checked data-hm-item="weekly" /><span class="hm-check__box"></span></span>' +
-          '<span class="hm-card__badge">每周健康回顾</span>' +
-        '</span>' +
-        '<span class="hm-widget__visual" aria-hidden="true">📊</span>' +
-        '<span class="hm-widget__eyebrow">本周健康 REVIEW</span>' +
-        '<span class="hm-widget__stats">' +
-          '<span class="hm-stat"><b>5</b><i>天</i><small>达标</small></span>' +
-          '<span class="hm-stat"><b>-0.6</b><i>kg</i><small>体重变化</small></span>' +
-          '<span class="hm-stat"><b>3</b><i>次</i><small>快走完成</small></span>' +
-        '</span>' +
-        '<span class="hm-card__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，适合有健康状况改善需求的用户。</span>' +
-      '</label>';
+    // —— 每日健康打卡（打卡清单示例）——
+    const daily =
+      '<div class="hm-f">' +
+        head('daily', '每日健康打卡') +
+        '<div class="hm-f__card">' +
+          '<p class="hm-f__title">今日 · 健康打卡</p>' +
+          '<div class="hm-f__sample">' +
+            '<p class="hm-daily-item"><span class="hm-daily-check">✓</span>晚饭后步行 20 分钟</p>' +
+            '<p class="hm-daily-item"><span class="hm-daily-check">✓</span>三餐规律 · 无含糖饮料</p>' +
+            '<p class="hm-daily-item"><span class="hm-daily-check hm-daily-check--off"></span>23:00 前入睡</p>' +
+          '</div>' +
+        '</div>' +
+        '<p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，适合有运动/睡眠/戒烟/戒酒管理需求的用户。</p>' +
+      '</div>';
+
+    // —— 每周健康回顾（周数据示例）——
+    const weekly =
+      '<div class="hm-f">' +
+        head('weekly', '每周健康回顾') +
+        '<div class="hm-f__card">' +
+          '<p class="hm-f__title">上周回顾 · 8.25 – 8.31</p>' +
+          '<div class="hm-f__sample">' +
+            '<div class="hm-weekly-stats">' +
+              '<span class="hm-stat"><b>5</b><i>天</i><small>本周达标</small></span>' +
+              '<span class="hm-stat"><b>-0.6</b><i>kg</i><small>体重变化</small></span>' +
+              '<span class="hm-stat"><b>3</b><i>次</i><small>快走完成</small></span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<p class="hm-f__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，适合有健康状况改善需求的用户。</p>' +
+      '</div>';
 
     return '<div class="hm-panel">' +
       intro +
-      '<div class="hm-cards">' + cardRecipe + cardDaily + cardWeekly + '</div>' +
+      '<div class="hm-fs">' + recipe + daily + weekly + '</div>' +
       '<button type="button" class="fu-btn hm-confirm" data-hm-confirm>确认启动健康辅助功能</button>' +
     '</div>';
   }
@@ -318,14 +325,13 @@
     scope.querySelectorAll('[data-fu-appt]').forEach((b) => {
       b.addEventListener('click', () => showToast('已为您生成线下复查预约意向，请确认预约时间与科室。'));
     });
-    // 04 健康辅助功能选择：确认时汇总勾选的功能卡片
+    // 04 健康辅助功能选择：确认时汇总勾选的功能
     scope.querySelectorAll('[data-hm-confirm]').forEach((b) => {
       b.addEventListener('click', () => {
         const names = [];
         scope.querySelectorAll('[data-hm-item]:checked').forEach((it) => {
-          const card = it.closest('.hm-card');
-          const badge = card ? card.querySelector('.hm-card__badge') : null;
-          if (badge) names.push(badge.textContent.trim());
+          const n = HM_NAMES[it.getAttribute('data-hm-item')];
+          if (n) names.push(n);
         });
         showToast(names.length ? '已为您开启' + names.join('、') + '健康辅助' : '未选择任何健康辅助功能，可随时在后续调整');
       });
