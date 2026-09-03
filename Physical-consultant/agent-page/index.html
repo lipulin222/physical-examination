@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>卓正 AI 体检选购顾问</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page">
+    <!-- 顶部导航 -->
+    <header class="app-header">
+      <button class="app-header__btn" id="backBtn" aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <h1 class="app-header__title">AI 体检选购顾问</h1>
+      <div class="app-header__actions">
+        <button class="app-header__btn" id="moreBtn" aria-label="更多">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="12" r="2" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- 推荐进度：对应提示词状态机阶段（需求确认 → 初步推荐 → 精准优化 → 方案确定） -->
+    <div class="stage" id="stage">
+      <div class="stage__item is-active"><span class="stage__dot">1</span><span class="stage__label">需求确认</span></div>
+      <div class="stage__item"><span class="stage__dot">2</span><span class="stage__label">初步推荐</span></div>
+      <div class="stage__item"><span class="stage__dot">3</span><span class="stage__label">精准优化</span></div>
+      <div class="stage__item"><span class="stage__dot">4</span><span class="stage__label">方案确定</span></div>
+    </div>
+
+    <!-- 聊天主体 -->
+    <main class="chat" id="chat">
+      <div class="chat__list" id="chatList">
+      </div>
+    </main>
+
+    <!-- 底部功能区 -->
+    <div class="footer-actions">
+      <button class="chip" data-action="human">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z" stroke="currentColor" stroke-width="1.8"/><path d="M6 20C6 16.6863 8.68629 14 12 14C15.3137 14 18 16.6863 18 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18 6v6M15 9h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>转真人健康顾问</span>
+      </button>
+      <button class="chip" data-action="packages">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 8h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 8l2.5-4h11L20 8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 13h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>浏览全部套餐</span>
+      </button>
+      <button class="chip" data-action="history">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/></svg>
+        <span>既往体检异常</span>
+      </button>
+      <button class="chip" data-action="booking">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 9H16M8 13H16M8 17H12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span>预约购买</span>
+      </button>
+    </div>
+
+    <!-- 输入栏 -->
+    <div class="input-bar">
+      <div class="input-bar__wrap">
+        <input type="text" class="input-bar__field" id="messageInput" placeholder="说说这次体检想重点看什么~" autocomplete="off" />
+        <button class="input-bar__send" id="sendBtn" aria-label="发送">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3 12L21 4L13 22L11 14L3 12Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 轻提示 -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- 咨询小结弹层 -->
+  <div class="sheet" id="summarySheet" hidden>
+    <div class="sheet__mask" data-close="1"></div>
+    <div class="sheet__panel" role="dialog" aria-modal="true" aria-label="健康咨询小结">
+      <div class="sheet__bar"><span></span></div>
+      <div class="sheet__head">
+        <div class="sheet__title">体检方案推荐小结</div>
+        <button class="sheet__close" id="summaryClose" aria-label="关闭">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="sheet__body" id="summaryBody"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
