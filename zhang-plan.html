@@ -157,24 +157,40 @@
   .hm-f__title { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; color: var(--foreground); line-height: 1.4; }
   .hm-f__sample { margin-top: 1rem; }
   .hm-f__desc { margin-top: .875rem; font-size: .8125rem; line-height: 1.8; color: var(--muted-foreground); }
-  /* 定制食谱：暖橙示例 */
+  /* 标题 /说明（卡片外上方） */
+  .hm-f__title { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; color: var(--foreground); line-height: 1.4; margin-top: .875rem; }
+  .hm-f__desc { margin-top: .5rem; font-size: .8125rem; line-height: 1.8; color: var(--muted-foreground); }
+  .hm-f__desc strong { color: var(--foreground); font-weight: 700; }
+  /* 定制食谱：暖橙示例（描边仍统一青绿，背景保留暖橙视觉区分） */
   .hm-f--recipe .hm-f__card { background: linear-gradient(160deg, #fff7ec 0%, var(--card) 60%); border-color: #eed9bb; }
-  .hm-f--recipe:has(input:checked) .hm-f__card { border-color: #e08a2e; box-shadow: 0 0 0 1px #e08a2e, 0 6px 16px rgba(224,138,46,.1); }
   .hm-recipe-day { font-size: .8125rem; color: var(--muted-foreground); margin-bottom: .5rem; }
   .hm-recipe-day b { color: #b96a1d; font-weight: 700; }
   .hm-recipe-line { display: flex; align-items: baseline; gap: .75rem; font-size: .8125rem; line-height: 2; color: rgba(60,65,69,.9); }
   .hm-recipe-line em { flex-shrink: 0; width: 2.6em; font-style: normal; font-weight: 600; color: #b96a1d; }
   .hm-recipe-line span { flex: 1; }
-  /* 每日打卡：打卡清单 */
-  .hm-daily-item { display: flex; align-items: center; gap: .625rem; font-size: .875rem; line-height: 2.2; color: rgba(60,65,69,.9); }
-  .hm-daily-check { width: 1.25rem; height: 1.25rem; flex-shrink: 0; border-radius: 9999px; background: var(--primary); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; }
-  .hm-daily-check--off { background: #e4e9e8; }
-  /* 每周回顾：数据格 */
-  .hm-weekly-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+  /* 每日打卡 widget 卡片（居中 MEMO 样式） */
+  .hm-f__card--widget { text-align: center; padding: 1.5rem 1.25rem 1.25rem; }
+  .memo-widget__eyebrow { font-size: 1rem; font-weight: 500; letter-spacing: .15em; color: var(--foreground); }
+  .memo-widget__tagline { margin-top: .375rem; font-size: .8125rem; letter-spacing: .05em; color: var(--muted-foreground); }
+  .memo-widget__divider { margin: 1rem auto; width: 2.5rem; border: 0; border-top: 1px solid var(--border); }
+  .memo-widget__task { display: flex; align-items: center; justify-content: center; gap: .625rem; margin-top: .25rem; }
+  .memo-widget__emoji { font-size: 1.75rem; line-height: 1; }
+  .memo-widget__task-title { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.375rem; font-weight: 700; line-height: 1.4; color: var(--foreground); }
+  .memo-widget__benefit { margin-top: .5rem; font-size: .875rem; color: var(--muted-foreground); letter-spacing: .05em; }
+  .memo-widget__done { margin-top: 1.25rem; display: inline-flex; align-items: center; gap: .5rem; border: 1px solid var(--border); border-radius: 9999px; padding: .625rem 1.25rem; font-size: .9375rem; color: var(--foreground); background: var(--card); }
+  .memo-widget__check { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 9999px; background: var(--primary); color: var(--primary-foreground); }
+  /* 每周回顾进度条 + 下周重点 */
+  .memo-weekly__progress { position: relative; height: .75rem; border-radius: 9999px; background: rgba(15,138,127,.1); overflow: hidden; margin-top: 1rem; }
+  .memo-weekly__progress-bar { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, var(--primary) 0%, rgba(15,138,127,.7) 100%); border-radius: 9999px; }
+  .memo-weekly__progress-value { position: absolute; right: .5rem; top: 50%; transform: translateY(-50%); font-size: .6875rem; font-weight: 700; color: var(--primary); }
+  .hm-weekly-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-top: .875rem; }
   .hm-stat { display: flex; flex-direction: column; align-items: center; padding: .625rem .25rem; border-radius: .625rem; background: rgba(15,138,127,.06); }
   .hm-stat b { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.25rem; font-weight: 700; color: var(--primary); line-height: 1.2; }
   .hm-stat i { font-style: normal; font-size: .75rem; font-weight: 500; margin-left: 2px; }
   .hm-stat small { font-size: .6875rem; color: var(--muted-foreground); margin-top: .125rem; }
+  .memo-weekly__hint { margin-top: 1rem; display: flex; align-items: center; gap: .5rem; padding: .625rem .875rem; border-radius: .625rem; background: rgba(15,138,127,.08); text-align: left; }
+  .memo-weekly__hint-tag { flex-shrink: 0; font-size: .6875rem; font-weight: 700; color: var(--primary); letter-spacing: .05em; padding: .125rem .5rem; border-radius: 9999px; background: var(--card); border: 1px solid var(--primary); }
+  .memo-weekly__hint-text { font-size: .8125rem; color: var(--accent-foreground); line-height: 1.6; }
   .hm-confirm { margin-top: 1.75rem; }
 
   .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 1rem; text-align: center; font-size: .75rem; letter-spacing: .1em; color: var(--muted-foreground); }
@@ -363,42 +379,53 @@
         <div class="hm-fs">
           <div class="hm-f hm-f--recipe">
             <label class="hm-f__head"><span class="hm-check"><input type="checkbox" checked data-hm-item="recipe" /><span class="hm-check__box"></span></span><span class="hm-f__name">定制食谱</span></label>
+            <p class="hm-f__title">减重食谱 · 35岁 · 男性</p>
+            <p class="hm-f__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，<strong>适合有饮食管理需求的用户</strong>。</p>
             <div class="hm-f__card">
-              <p class="hm-f__title">减重食谱 · 35岁 · 男性</p>
-              <div class="hm-f__sample">
-                <p class="hm-recipe-day"><b>第一周</b>（示意）</p>
-                <p class="hm-recipe-line"><em>早餐</em><span>全麦燕麦30g 配 无糖酸奶100g</span></p>
-                <p class="hm-recipe-line"><em>午餐</em><span>杂粮饭100g · 清蒸鱼100g · 时蔬200g</span></p>
-                <p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉 · 少量坚果 · 无糖茶</span></p>
-              </div>
+              <p class="hm-recipe-day"><b>第一周</b></p>
+              <p class="hm-recipe-line"><em>早餐</em><span>全麦燕麦30g 配 无糖酸奶100g</span></p>
+              <p class="hm-recipe-line"><em>午餐</em><span>杂粮饭100g · 清蒸鱼100g · 时蔬200g</span></p>
+              <p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉 · 少量坚果 · 无糖茶</span></p>
             </div>
-            <p class="hm-f__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，适合有饮食管理需求的用户。</p>
           </div>
           <div class="hm-f">
             <label class="hm-f__head"><span class="hm-check"><input type="checkbox" checked data-hm-item="daily" /><span class="hm-check__box"></span></span><span class="hm-f__name">每日健康打卡</span></label>
-            <div class="hm-f__card">
-              <p class="hm-f__title">今日 · 健康打卡</p>
-              <div class="hm-f__sample">
-                <p class="hm-daily-item"><span class="hm-daily-check">✓</span>晚饭后步行 20 分钟</p>
-                <p class="hm-daily-item"><span class="hm-daily-check">✓</span>三餐规律 · 无含糖饮料</p>
-                <p class="hm-daily-item"><span class="hm-daily-check hm-daily-check--off"></span>23:00 前入睡</p>
-              </div>
+            <p class="hm-f__title">今日 · 健康打卡</p>
+            <p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，<strong>适合有运动/睡眠/戒烟/戒酒管理需求的用户</strong>。</p>
+            <div class="hm-f__card hm-f__card--widget">
+              <p class="memo-widget__eyebrow">今日健康 MEMO</p>
+              <p class="memo-widget__tagline">每天一件事，见证健康改善</p>
+              <hr class="memo-widget__divider">
+              <p class="memo-widget__task">
+                <span class="memo-widget__emoji" aria-hidden="true">🚶</span>
+                <span class="memo-widget__task-title">晚饭后步行 20 分钟</span>
+              </p>
+              <p class="memo-widget__benefit">改善：餐后血糖 · 体重管理</p>
+              <div class="memo-widget__done"><span class="memo-widget__check" aria-hidden="true">✓</span>今天已完成</div>
             </div>
-            <p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，适合有运动/睡眠/戒烟/戒酒管理需求的用户。</p>
           </div>
           <div class="hm-f">
             <label class="hm-f__head"><span class="hm-check"><input type="checkbox" checked data-hm-item="weekly" /><span class="hm-check__box"></span></span><span class="hm-f__name">每周健康回顾</span></label>
-            <div class="hm-f__card">
-              <p class="hm-f__title">上周回顾 · 8.25 – 8.31</p>
-              <div class="hm-f__sample">
-                <div class="hm-weekly-stats">
-                  <span class="hm-stat"><b>5</b><i>天</i><small>本周达标</small></span>
-                  <span class="hm-stat"><b>-0.6</b><i>kg</i><small>体重变化</small></span>
-                  <span class="hm-stat"><b>3</b><i>次</i><small>快走完成</small></span>
-                </div>
+            <p class="hm-f__title">上周回顾 · 8.25 – 8.31</p>
+            <p class="hm-f__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，<strong>适合有健康状况改善需求的用户</strong>。</p>
+            <div class="hm-f__card hm-f__card--widget">
+              <p class="memo-widget__eyebrow">本周健康 REVIEW</p>
+              <p class="memo-widget__tagline">上周做了 5 / 7 天，本周继续保持</p>
+              <hr class="memo-widget__divider">
+              <div class="memo-weekly__progress" aria-label="本周达标率 71%">
+                <span class="memo-weekly__progress-bar" style="width:71%"></span>
+                <span class="memo-weekly__progress-value">71%</span>
+              </div>
+              <div class="hm-weekly-stats">
+                <span class="hm-stat"><b>5</b><i>天</i><small>本周达标</small></span>
+                <span class="hm-stat"><b>-0.6</b><i>kg</i><small>体重变化</small></span>
+                <span class="hm-stat"><b>3</b><i>次</i><small>快走完成</small></span>
+              </div>
+              <div class="memo-weekly__hint">
+                <span class="memo-weekly__hint-tag">下周重点</span>
+                <span class="memo-weekly__hint-text">晚餐提前到 20 点前</span>
               </div>
             </div>
-            <p class="hm-f__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，适合有健康状况改善需求的用户。</p>
           </div>
         </div>
         <button type="button" class="fu-btn hm-confirm" data-hm-confirm>确认启动健康辅助功能</button>
