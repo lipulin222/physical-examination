@@ -157,10 +157,25 @@
   .hm-f__title { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; color: var(--foreground); line-height: 1.4; }
   .hm-f__sample { margin-top: 1rem; }
   .hm-f__desc { margin-top: .875rem; font-size: .8125rem; line-height: 1.8; color: var(--muted-foreground); }
-  /* 标题 /说明（卡片外上方） */
-  .hm-f__title { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; color: var(--foreground); line-height: 1.4; margin-top: .875rem; }
-  .hm-f__desc { margin-top: .5rem; font-size: .8125rem; line-height: 1.8; color: var(--muted-foreground); }
+  /* 功能名（卡上方居中） */
+  .hm-f__name-center { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; color: var(--foreground); margin: 0; letter-spacing: .05em; }
+  /* 说明（卡上方居中） */
+  .hm-f__desc { margin-top: .625rem; font-size: .8125rem; line-height: 1.85; color: var(--muted-foreground); }
   .hm-f__desc strong { color: var(--foreground); font-weight: 700; }
+  /* 卡片（圆角正方形，统一最小高度） */
+  .hm-f__card { flex: 1; width: 100%; margin-top: 1rem; padding: 1.25rem; border: 1px solid var(--border); border-radius: 1.125rem; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.05); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; min-height: 20rem; transition: border-color .15s ease, box-shadow .15s ease; }
+  .hm-f:has(input:checked) .hm-f__card { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary), 0 6px 16px rgba(15,138,127,.08); }
+  /* 卡内顶部居中标题 */
+  .hm-f__title-center { font-family: "Noto Serif SC","Songti SC",serif; font-size: 1.0625rem; font-weight: 700; color: var(--foreground); margin: 0 0 1rem; }
+  /* 勾选按钮行（卡片下方独立一行） */
+  .hm-f__check-row { margin-top: 1rem; display: inline-flex; align-items: center; gap: .5rem; padding: .375rem 1rem; border-radius: 9999px; border: 1px solid var(--border); background: var(--card); font-size: .8125rem; color: var(--muted-foreground); cursor: pointer; user-select: none; transition: border-color .15s ease; }
+  .hm-f__check-row:hover { border-color: var(--primary); }
+  .hm-f:has(input:checked) .hm-f__check-row { border-color: var(--primary); color: var(--primary); }
+  .hm-check { position: relative; display: inline-flex; flex-shrink: 0; }
+  .hm-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .hm-check__box { width: 1rem; height: 1rem; border-radius: .375rem; border: 1.5px solid var(--primary); background: var(--card); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease, border-color .15s ease; }
+  .hm-check input:checked + .hm-check__box { background: var(--primary); border-color: var(--primary); }
+  .hm-check input:checked + .hm-check__box::after { content: '✓'; color: var(--primary-foreground); font-size: .6875rem; font-weight: 700; line-height: 1; }
   /* 定制食谱：暖橙示例（描边仍统一青绿，背景保留暖橙视觉区分） */
   .hm-f--recipe .hm-f__card { background: linear-gradient(160deg, #fff7ec 0%, var(--card) 60%); border-color: #eed9bb; }
   .hm-recipe-day { font-size: .8125rem; color: var(--muted-foreground); margin-bottom: .5rem; }
@@ -378,19 +393,19 @@
         <p class="launch-text">这套改善计划基于你的体检结果、生活习惯、客观情况量身定制，但"知易行难"，我们深知迈出第一步并不容易。为了更好的帮助你适应生活方式的变化，卓正将提供一系列配套功能，让改善健康的行为真正开始。现在点击「确认启动健康辅助功能」，开启你的健康行动吧！</p>
         <div class="hm-fs">
           <div class="hm-f hm-f--recipe">
-            <label class="hm-f__head"><span class="hm-check"><input type="checkbox" checked data-hm-item="recipe" /><span class="hm-check__box"></span></span><span class="hm-f__name">定制食谱</span></label>
-            <p class="hm-f__title">减重食谱 · 35岁 · 男性</p>
+            <h4 class="hm-f__name-center">定制食谱</h4>
             <p class="hm-f__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，<strong>适合有饮食管理需求的用户</strong>。</p>
             <div class="hm-f__card">
+              <p class="hm-f__title-center">减重食谱 · 35岁 · 男性</p>
               <p class="hm-recipe-day"><b>第一周</b></p>
               <p class="hm-recipe-line"><em>早餐</em><span>全麦燕麦30g 配 无糖酸奶100g</span></p>
               <p class="hm-recipe-line"><em>午餐</em><span>杂粮饭100g · 清蒸鱼100g · 时蔬200g</span></p>
               <p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉 · 少量坚果 · 无糖茶</span></p>
             </div>
+            <label class="hm-f__check-row"><span class="hm-check"><input type="checkbox" checked data-hm-item="recipe" /><span class="hm-check__box"></span></span><span>已勾选，启用该功能</span></label>
           </div>
           <div class="hm-f">
-            <label class="hm-f__head"><span class="hm-check"><input type="checkbox" checked data-hm-item="daily" /><span class="hm-check__box"></span></span><span class="hm-f__name">每日健康打卡</span></label>
-            <p class="hm-f__title">今日 · 健康打卡</p>
+            <h4 class="hm-f__name-center">每日健康打卡</h4>
             <p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，<strong>适合有运动/睡眠/戒烟/戒酒管理需求的用户</strong>。</p>
             <div class="hm-f__card hm-f__card--widget">
               <p class="memo-widget__eyebrow">今日健康 MEMO</p>
@@ -403,10 +418,10 @@
               <p class="memo-widget__benefit">改善：餐后血糖 · 体重管理</p>
               <div class="memo-widget__done"><span class="memo-widget__check" aria-hidden="true">✓</span>今天已完成</div>
             </div>
+            <label class="hm-f__check-row"><span class="hm-check"><input type="checkbox" checked data-hm-item="daily" /><span class="hm-check__box"></span></span><span>已勾选，启用该功能</span></label>
           </div>
           <div class="hm-f">
-            <label class="hm-f__head"><span class="hm-check"><input type="checkbox" checked data-hm-item="weekly" /><span class="hm-check__box"></span></span><span class="hm-f__name">每周健康回顾</span></label>
-            <p class="hm-f__title">上周回顾 · 8.25 – 8.31</p>
+            <h4 class="hm-f__name-center">每周健康回顾</h4>
             <p class="hm-f__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，<strong>适合有健康状况改善需求的用户</strong>。</p>
             <div class="hm-f__card hm-f__card--widget">
               <p class="memo-widget__eyebrow">本周健康 REVIEW</p>
@@ -426,6 +441,7 @@
                 <span class="memo-weekly__hint-text">晚餐提前到 20 点前</span>
               </div>
             </div>
+            <label class="hm-f__check-row"><span class="hm-check"><input type="checkbox" checked data-hm-item="weekly" /><span class="hm-check__box"></span></span><span>已勾选，启用该功能</span></label>
           </div>
         </div>
         <button type="button" class="fu-btn hm-confirm" data-hm-confirm>确认启动健康辅助功能</button>

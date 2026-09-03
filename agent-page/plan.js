@@ -238,89 +238,93 @@
     '</section>';
   }
 
-  // ===== 04 内容：健康辅助功能（功能名 → 标题 → 说明 → 示例卡片） =====
-  const HM_NAMES = { recipe: '定制食谱', daily: '每日健康打卡', weekly: '每周健康回顾' };
+  // ===== 04 内容：健康辅助功能（功能名↑ → 说明 → 圆角正方形示例卡 → 勾选按钮） =====
+    const HM_NAMES = { recipe: '定制食谱', daily: '每日健康打卡', weekly: '每周健康回顾' };
 
-  function renderActionLauncher() {
-    // 说明文案
-    const intro =
-      '<p class="launch-text">' +
-        '这套改善计划基于你的体检结果、生活习惯、客观情况量身定制，但"知易行难"，我们深知迈出第一步并不容易。' +
-        '为了更好的帮助你适应生活方式的变化，卓正将提供一系列配套功能，让改善健康的行为真正开始。' +
-        '现在点击「确认启动健康辅助功能」，开启你的健康行动吧！' +
-      '</p>';
+    function renderActionLauncher() {
+      // 说明文案
+      const intro =
+        '<p class="launch-text">' +
+          '这套改善计划基于你的体检结果、生活习惯、客观情况量身定制，但"知易行难"，我们深知迈出第一步并不容易。' +
+          '为了更好的帮助你适应生活方式的变化，卓正将提供一系列配套功能，让改善健康的行为真正开始。' +
+          '现在点击「确认启动健康辅助功能」，开启你的健康行动吧！' +
+        '</p>';
 
-    const head = (key, name) =>
-      '<label class="hm-f__head">' +
-        '<span class="hm-check"><input type="checkbox" checked data-hm-item="' + key + '" /><span class="hm-check__box"></span></span>' +
-        '<span class="hm-f__name">' + name + '</span>' +
-      '</label>';
+      const nameTop = (key, name) =>
+        '<h4 class="hm-f__name-center">' + name + '</h4>';
 
-    // —— 定制食谱（暖橙示例卡）——
-    const recipe =
-      '<div class="hm-f hm-f--recipe">' +
-        head('recipe', '定制食谱') +
-        '<p class="hm-f__title">减重食谱 · 35岁 · 男性</p>' +
-        '<p class="hm-f__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，<strong>适合有饮食管理需求的用户</strong>。</p>' +
-        '<div class="hm-f__card">' +
-          '<p class="hm-recipe-day"><b>第一周</b></p>' +
-          '<p class="hm-recipe-line"><em>早餐</em><span>全麦燕麦30g 配 无糖酸奶100g</span></p>' +
-          '<p class="hm-recipe-line"><em>午餐</em><span>杂粮饭100g · 清蒸鱼100g · 时蔬200g</span></p>' +
-          '<p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉 · 少量坚果 · 无糖茶</span></p>' +
-        '</div>' +
-      '</div>';
+      const checkRow = (key) =>
+        '<label class="hm-f__check-row">' +
+          '<span class="hm-check"><input type="checkbox" checked data-hm-item="' + key + '" /><span class="hm-check__box"></span></span>' +
+          '<span>已勾选，启用该功能</span>' +
+        '</label>';
 
-    // —— 每日健康打卡（沿用早先 widget 卡片观感）——
-    const daily =
-      '<div class="hm-f">' +
-        head('daily', '每日健康打卡') +
-        '<p class="hm-f__title">今日 · 健康打卡</p>' +
-        '<p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，<strong>适合有运动/睡眠/戒烟/戒酒管理需求的用户</strong>。</p>' +
-        '<div class="hm-f__card hm-f__card--widget">' +
-          '<p class="memo-widget__eyebrow">今日健康 MEMO</p>' +
-          '<p class="memo-widget__tagline">每天一件事，见证健康改善</p>' +
-          '<hr class="memo-widget__divider">' +
-          '<p class="memo-widget__task">' +
-            '<span class="memo-widget__emoji" aria-hidden="true">🚶</span>' +
-            '<span class="memo-widget__task-title">晚饭后步行 20 分钟</span>' +
-          '</p>' +
-          '<p class="memo-widget__benefit">改善：餐后血糖 · 体重管理</p>' +
-          '<div class="memo-widget__done"><span class="memo-widget__check" aria-hidden="true">✓</span>今天已完成</div>' +
-        '</div>' +
-      '</div>';
-
-    // —— 每周健康回顾（充实：标题 + 副标题 + 进度条 + 三格 + 下周重点 pill）——
-    const weekly =
-      '<div class="hm-f">' +
-        head('weekly', '每周健康回顾') +
-        '<p class="hm-f__title">上周回顾 · 8.25 – 8.31</p>' +
-        '<p class="hm-f__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，<strong>适合有健康状况改善需求的用户</strong>。</p>' +
-        '<div class="hm-f__card hm-f__card--widget">' +
-          '<p class="memo-widget__eyebrow">本周健康 REVIEW</p>' +
-          '<p class="memo-widget__tagline">上周做了 5 / 7 天，本周继续保持</p>' +
-          '<hr class="memo-widget__divider">' +
-          '<div class="memo-weekly__progress" aria-label="本周达标率 71%">' +
-            '<span class="memo-weekly__progress-bar" style="width:71%"></span>' +
-            '<span class="memo-weekly__progress-value">71%</span>' +
+      // —— 定制食谱 ——
+      const recipe =
+        '<div class="hm-f hm-f--recipe">' +
+          nameTop('recipe', '定制食谱') +
+          '<p class="hm-f__desc">1分钟问卷，根据健康状况和饮食习惯，生成切实可行的营养食谱，<strong>适合有饮食管理需求的用户</strong>。</p>' +
+          '<div class="hm-f__card">' +
+            '<p class="hm-f__title-center">减重食谱 · 35岁 · 男性</p>' +
+            '<p class="hm-recipe-day"><b>第一周</b></p>' +
+            '<p class="hm-recipe-line"><em>早餐</em><span>全麦燕麦30g 配 无糖酸奶100g</span></p>' +
+            '<p class="hm-recipe-line"><em>午餐</em><span>杂粮饭100g · 清蒸鱼100g · 时蔬200g</span></p>' +
+            '<p class="hm-recipe-line"><em>晚餐</em><span>鸡胸沙拉 · 少量坚果 · 无糖茶</span></p>' +
           '</div>' +
-          '<div class="hm-weekly-stats">' +
-            '<span class="hm-stat"><b>5</b><i>天</i><small>本周达标</small></span>' +
-            '<span class="hm-stat"><b>-0.6</b><i>kg</i><small>体重变化</small></span>' +
-            '<span class="hm-stat"><b>3</b><i>次</i><small>快走完成</small></span>' +
-          '</div>' +
-          '<div class="memo-weekly__hint">' +
-            '<span class="memo-weekly__hint-tag">下周重点</span>' +
-            '<span class="memo-weekly__hint-text">晚餐提前到 20 点前</span>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
+          checkRow('recipe') +
+        '</div>';
 
-    return '<div class="hm-panel">' +
-      intro +
-      '<div class="hm-fs">' + recipe + daily + weekly + '</div>' +
-      '<button type="button" class="fu-btn hm-confirm" data-hm-confirm>确认启动健康辅助功能</button>' +
-    '</div>';
-  }
+      // —— 每日健康打卡（widget 居中卡） ——
+      const daily =
+        '<div class="hm-f">' +
+          nameTop('daily', '每日健康打卡') +
+          '<p class="hm-f__desc">设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，<strong>适合有运动/睡眠/戒烟/戒酒管理需求的用户</strong>。</p>' +
+          '<div class="hm-f__card hm-f__card--widget">' +
+            '<p class="memo-widget__eyebrow">今日健康 MEMO</p>' +
+            '<p class="memo-widget__tagline">每天一件事，见证健康改善</p>' +
+            '<hr class="memo-widget__divider">' +
+            '<p class="memo-widget__task">' +
+              '<span class="memo-widget__emoji" aria-hidden="true">🚶</span>' +
+              '<span class="memo-widget__task-title">晚饭后步行 20 分钟</span>' +
+            '</p>' +
+            '<p class="memo-widget__benefit">改善：餐后血糖 · 体重管理</p>' +
+            '<div class="memo-widget__done"><span class="memo-widget__check" aria-hidden="true">✓</span>今天已完成</div>' +
+          '</div>' +
+          checkRow('daily') +
+        '</div>';
+
+      // —— 每周健康回顾（充实：eyebrow + 副标题 + 进度条 + 三格 + 下周重点） ——
+      const weekly =
+        '<div class="hm-f">' +
+          nameTop('weekly', '每周健康回顾') +
+          '<p class="hm-f__desc">授权手机健康数据，每周回顾您的健康情况，针对性调整方案细节，<strong>适合有健康状况改善需求的用户</strong>。</p>' +
+          '<div class="hm-f__card hm-f__card--widget">' +
+            '<p class="memo-widget__eyebrow">本周健康 REVIEW</p>' +
+            '<p class="memo-widget__tagline">上周做了 5 / 7 天，本周继续保持</p>' +
+            '<hr class="memo-widget__divider">' +
+            '<div class="memo-weekly__progress" aria-label="本周达标率 71%">' +
+              '<span class="memo-weekly__progress-bar" style="width:71%"></span>' +
+              '<span class="memo-weekly__progress-value">71%</span>' +
+            '</div>' +
+            '<div class="hm-weekly-stats">' +
+              '<span class="hm-stat"><b>5</b><i>天</i><small>本周达标</small></span>' +
+              '<span class="hm-stat"><b>-0.6</b><i>kg</i><small>体重变化</small></span>' +
+              '<span class="hm-stat"><b>3</b><i>次</i><small>快走完成</small></span>' +
+            '</div>' +
+            '<div class="memo-weekly__hint">' +
+              '<span class="memo-weekly__hint-tag">下周重点</span>' +
+              '<span class="memo-weekly__hint-text">晚餐提前到 20 点前</span>' +
+            '</div>' +
+          '</div>' +
+          checkRow('weekly') +
+        '</div>';
+
+      return '<div class="hm-panel">' +
+        intro +
+        '<div class="hm-fs">' + recipe + daily + weekly + '</div>' +
+        '<button type="button" class="fu-btn hm-confirm" data-hm-confirm>确认启动健康辅助功能</button>' +
+      '</div>';
+    }
 
   // 绑定 04 章节内的导流组件事件（设备导入 / 提醒 / 预约）
   function bindFollowupActions() {
