@@ -32,7 +32,7 @@ S1｜确认体检对象
 记录 exam_for；若是本人且已有用户信息，直接采用，不再询问。
 
 S2｜基础信息
-只获取年龄段与性别，已有则跳过。
+只获取年龄段与性别，已有则跳过；若体检对象是儿童，跳过年龄段与性别，直接进入 S3。
 年龄选项：18岁以下 / 18～29岁 / 30～39岁 / 40～49岁 / 50～59岁 / 60岁以上
 性别选项：男 / 女
 记录 age_group、gender。
@@ -47,12 +47,13 @@ S4｜快速风险筛查
 选项：以前体检发现异常 / 家人有癌症或重大疾病 / 长期吸烟 / 有慢性疾病 / 都没有 / 不清楚
 记录 risk_tags[]。此阶段禁止继续展开追问，回答后直接进入 S5 推荐。
 
-S5｜初步推荐
-综合年龄、性别、体检目的、风险标签、历史体检数据，输出三类推荐方向，每类写清"套餐名称 + 匹配原因"：
+S5｜初步推荐（需求确认结束后触发，必须严格依据知识库）
+{KNOWLEDGE}
+基于上述知识库，结合年龄、性别、体检目的、风险标签、历史体检数据输出推荐。每类写清"套餐名称 + 会员价 + 匹配原因（对应知识库中的哪些项目）"：
 ### 最推荐
 ### 性价比方案
 ### 更全面方案
-再补三点：◆ 已覆盖哪些重点；◆ 可能缺少什么；◆ 是否建议继续优化。
+再补三点：◆ 已覆盖哪些重点；◆ 知识库中可能缺少什么、哪些需要另行加项；◆ 是否建议继续优化。
 结束语固定为：「目前这个推荐已经可以作为参考。如果希望更精准，我可以再帮你确认几个关键问题。」
 随后另起一行输出题干「接下来想怎么做？」，再逐行给出选项：查看推荐套餐 / 再帮我选准一点 / 浏览其他套餐。
 
@@ -66,7 +67,7 @@ S6｜精准追问
 用户选择"查看推荐套餐"或"浏览其他套餐"时不进入 S6。
 
 S7｜最终推荐
-输出"### 最推荐方案"：为什么适合、覆盖哪些风险、哪些项目需要补充；再输出"### 个性化调整"，支持增加项目、删除非必要项目、更换套餐。
+同样以知识库为准，输出"### 最推荐方案"：为什么适合、覆盖哪些风险、哪些项目需要补充；再输出"### 个性化调整"，支持增加项目、删除非必要项目、更换套餐。知识库未包含的项目，必须标注"需单独加项，以门店为准"。
 
 #套餐调整规则
 · 用户要求降低预算：说明必须保留的项目、可以减少的项目、可节省的金额
@@ -79,6 +80,9 @@ S7｜最终推荐
 · 用户要求直接推荐时，停止提问，基于已有信息直接推荐
 · 不进行疾病诊断
 · 出现明显严重症状时，提醒优先就医，再谈体检安排
+· 推荐只能使用知识库中真实存在的套餐（女性基础/标准/全面、男性基础/标准/全面、儿童体检套餐），套餐名、项目与价格必须与知识库一致
+· 禁止编造知识库中没有的套餐、项目或价格；知识库未覆盖的需求，明确说明需另行加项并以门店实际为准
+· 体检对象为儿童时，只推荐儿童体检套餐，不做分档推荐
 
 {USER_INFO}
 
@@ -116,14 +120,15 @@ S7｜最终推荐
     return SYSTEM_PROMPT_TEMPLATE.replace('{USER_INFO}', knownBlock);
   }
 
-  // ② 小结请求体：返回 messages 数组，交给接口生成小结
+  // ② 小结请求体：返回 messages 数组，交给接口生成小结（同样带上知识库片段，保证套餐名与价格一致）
   function buildSummaryMessages(messages) {
     const transcript = messages
       .filter((m) => m && m.role !== 'system')
       .map((m) => (m.role === 'user' ? '用户' : '顾问') + '：' + (m.content || ''))
       .join('\n');
+    const kb = knowledgeBlock();
     return [
-      { role: 'system', content: SUMMARY_PROMPT },
+      { role: 'system', content: SUMMARY_PROMPT + (kb ? '\n\n【套餐知识库：小结中的套餐名、价格与项目必须严格以此为准】\n' + kb : '') },
       { role: 'user', content: '以下是本次体检选购咨询的完整对话记录，请据此生成《体检方案推荐小结》：\n\n' + transcript }
     ];
   }
@@ -146,6 +151,83 @@ S7｜最终推荐
   // 对话上下文与历史
   let messages = [];
   let currentCtx = null;
+
+  // ===== 体检套餐知识库：加载 → 按人群检索 → 注入 System Prompt =====
+  // 知识库为 Markdown，按「## 」一级章节切分；推荐阶段只注入相关章节，避免整库占用上下文
+  const KB_URL = '../卓正体检知识库.md';
+  const KB_MISSING_TIP = '（知识库本次未加载成功：不要编造具体套餐名与价格，只给方向性建议，并提示以卓正官方渠道为准。）';
+  let kbSections = [];
+
+  function parseKbSections(text) {
+    const parts = String(text || '').split(/^##\s+/m).slice(1);
+    return parts.map((chunk) => {
+      const idx = chunk.indexOf('\n');
+      const title = (idx === -1 ? chunk : chunk.slice(0, idx)).trim();
+      return { title: title, body: (idx === -1 ? '' : chunk.slice(idx + 1)).trim() };
+    });
+  }
+
+  async function loadKnowledgeBase() {
+    try {
+      const res = await fetch(KB_URL, { cache: 'no-cache' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      kbSections = parseKbSections(await res.text());
+    } catch (e) {
+      kbSections = [];
+      console.warn('知识库加载失败：', e);
+    }
+  }
+
+  // 按标题关键字取章节
+  function kbFind(keyword) {
+    return kbSections.find((s) => s.title.indexOf(keyword) !== -1);
+  }
+
+  // 依据对话内容检索：概览 + 选购建议总表常驻，再按体检对象补对应套餐章节
+  function knowledgeBlock() {
+    if (!kbSections.length) return '';
+    const text = messages
+      .filter((m) => m && m.role !== 'system')
+      .map((m) => m.content || '')
+      .join('\n');
+    const isChild = /孩子|儿童|儿子|女儿|小朋友|青少年|宝宝|入园|入学/.test(text);
+    const isFemale = /女性|妈妈|母亲|妻子|老婆|乳腺|妇科|宫颈|HPV|孕/.test(text);
+    const isMale = /男性|爸爸|父亲|老公|丈夫|前列腺|泌尿/.test(text);
+
+    const picked = [];
+    const overview = kbFind('知识库概览');
+    const guide = kbFind('选购建议总表');
+    if (overview) picked.push(overview);
+
+    if (isChild) {
+      const child = kbFind('儿童');
+      if (child) picked.push(child);
+    } else {
+      // 无明确性别信号时两套都带上，保证推荐始终有知识库依据
+      if (isFemale || !isMale) { const female = kbFind('女性'); if (female) picked.push(female); }
+      if (isMale || !isFemale) { const male = kbFind('男性套餐'); if (male) picked.push(male); }
+      if (isFemale && isMale) { const compare = kbFind('横向对比'); if (compare) picked.push(compare); }
+    }
+    if (guide) picked.push(guide);
+    if (!picked.length) return '';
+    return picked.map((s) => '### ' + s.title + '\n' + s.body).join('\n\n');
+  }
+
+  // 组装最终 System Prompt：提示词模板 + 知识库片段
+  function composeSystem() {
+    const base = buildSystemPrompt(currentCtx || {});
+    return base.replace('{KNOWLEDGE}', knowledgeBlock() || KB_MISSING_TIP);
+  }
+
+  // 每轮请求前刷新 system 帧，保证推荐基于最新检索到的知识库
+  function refreshSystemPrompt() {
+    const content = composeSystem();
+    if (messages.length && messages[0] && messages[0].role === 'system') {
+      messages[0].content = content;
+    } else {
+      messages.unshift({ role: 'system', content: content });
+    }
+  }
 
   // ===== 对话历史本地持久化 =====
   const storagePrefix = 'consultAgent_';
@@ -520,6 +602,9 @@ S7｜最终推荐
     if (showUser) appendMessage(content, true);
     messages.push({ role: 'user', content });
 
+    // 每轮刷新 system：按最新对话检索知识库片段后注入，保证推荐有据可依
+    refreshSystemPrompt();
+
     const typing = appendTyping();
 
     try {
@@ -732,12 +817,14 @@ S7｜最终推荐
     };
   }
 
-  // 入口：读取上下文 → 构建 System Prompt → 恢复历史
-  function init() {
+  // 入口：加载知识库 → 读取上下文 → 构建 System Prompt → 恢复历史
+  async function init() {
     const ctx = readEntryCtx();
     currentCtx = ctx;
-    messages = [{ role: 'system', content: buildSystemPrompt(ctx) }];
     ctx.fromHistory = false;
+    // 先加载知识库，再组装含知识库片段的 system（失败时降级为方向性建议）
+    await loadKnowledgeBase();
+    messages = [{ role: 'system', content: composeSystem() }];
 
     // 尝试恢复本地历史对话（同一档案）；有历史则不重新开场
     let history = null;
@@ -833,14 +920,18 @@ S7｜最终推荐
   // 初始滚动
   scrollToBottom();
 
-  // 启动：无历史时展示 S1 开场（确认体检对象），与提示词状态机起点保持一致
-  const ctx = init() || {};
-  renderStage();
-  if (!ctx.fromHistory) {
-    showGreeting(
-      '您好，我是卓正 AI 体检选购顾问。\n\n不用纠结套餐清单，回答几个小问题，我帮您在 30 秒内锁定合适的体检方向。\n\n这次体检是给谁选的？',
-      '你好，我想选一个适合自己的体检方案。',
-      ['我自己', '爸爸', '妈妈', '伴侣', '孩子', '其他家人']
-    );
-  }
+  // 启动：加载知识库完成后，无历史时展示 S1 开场（确认体检对象），与提示词状态机起点保持一致
+  init().then((ctx) => {
+    renderStage();
+    if (!ctx || !ctx.fromHistory) {
+      showGreeting(
+        '您好，我是卓正 AI 体检选购顾问。\n\n不用纠结套餐清单，回答几个小问题，我帮您在 30 秒内锁定合适的体检方向。\n\n这次体检是给谁选的？',
+        '你好，我想选一个适合自己的体检方案。',
+        ['我自己', '爸爸', '妈妈', '伴侣', '孩子', '其他家人']
+      );
+    }
+  }).catch((e) => {
+    console.warn('初始化失败：', e);
+    renderStage();
+  });
 })();
