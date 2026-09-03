@@ -98,6 +98,79 @@ ul {
   height: 22px;
 }
 
+/* 顶栏更多菜单 */
+.app-header__actions {
+  position: relative;
+}
+
+.menu-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 168px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(17, 20, 24, 0.14);
+  padding: 6px;
+  z-index: 40;
+  animation: menuPopIn 0.16s ease;
+}
+@keyframes menuPopIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.menu-pop__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1a1a1a;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+.menu-pop__item:active { background: #f2f5f5; }
+.menu-pop__item svg {
+  width: 17px;
+  height: 17px;
+  color: #0e8f8f;
+}
+
+/* 重启二次确认视图 */
+.menu-pop__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 4px 4px;
+}
+.menu-pop__confirm-text {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #4a5058;
+  padding: 2px 6px;
+}
+.menu-pop__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.menu-pop__btn {
+  border-radius: 14px;
+  padding: 7px 14px;
+  font-size: 13px;
+  background: #f0f2f2;
+  color: #333;
+  transition: background 0.15s ease;
+}
+.menu-pop__btn:active { background: #e2e6e6; }
+.menu-pop__btn--danger {
+  background: #0e8f8f;
+  color: #fff;
+}
+.menu-pop__btn--danger:active { background: #0a7a7a; }
+
 /* 推荐进度条（对应提示词状态机阶段） */
 .stage {
   display: flex;

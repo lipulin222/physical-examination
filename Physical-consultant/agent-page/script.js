@@ -905,16 +905,85 @@ S7｜最终推荐
   messageInput.addEventListener('input', updateSendButton);
   updateSendButton();
 
-  // 顶部按钮：返回 / 更多
+  // ===== S1 开场白：首次进入与"重启对话"共用同一入口 =====
+  function showWelcome() {
+    showGreeting(
+      '您好，我是卓正 AI 体检选购顾问。\n\n不用纠结套餐清单，回答几个小问题，我帮您在 30 秒内锁定合适的体检方向。\n\n这次体检是给谁选的？',
+      '你好，我想选一个适合自己的体检方案。',
+      ['我自己', '爸爸', '妈妈', '伴侣', '孩子', '其他家人']
+    );
+  }
+
+  // ===== 顶部按钮：返回 / 更多菜单（含重启对话）=====
   document.getElementById('backBtn').addEventListener('click', () => {
     if (window.history.length > 1) window.history.back();
     else showToast('已是首页');
   });
-  document.getElementById('moreBtn').addEventListener('click', () => {
-    showToast('更多菜单');
+
+  const moreArea = document.getElementById('moreArea');
+  const moreMenu = document.getElementById('moreMenu');
+
+  function moreMenuHtml(view) {
+    if (view === 'confirm') {
+      return `
+        <div class="menu-pop__confirm">
+          <p class="menu-pop__confirm-text">重启后将清空本次对话记录，且无法恢复。确定要重新开始吗？</p>
+          <div class="menu-pop__actions">
+            <button type="button" class="menu-pop__btn" id="cancelRestart">取消</button>
+            <button type="button" class="menu-pop__btn menu-pop__btn--danger" id="okRestart">确认重启</button>
+          </div>
+        </div>`;
+    }
+    return `
+      <button type="button" class="menu-pop__item" id="restartBtn">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 14-4.9M20 12a8 8 0 0 1-14 4.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 4v4h-4M6 20v-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>重启对话</span>
+      </button>`;
+  }
+
+  function openMoreMenu() {
+    moreMenu.innerHTML = moreMenuHtml('list');
+    moreMenu.hidden = false;
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      // 进入二次确认视图
+      moreMenu.innerHTML = moreMenuHtml('confirm');
+      document.getElementById('cancelRestart').addEventListener('click', closeMoreMenu);
+      document.getElementById('okRestart').addEventListener('click', restartConversation);
+    });
+  }
+
+  function closeMoreMenu() {
+    moreMenu.hidden = true;
+  }
+
+  // 重启对话：清空本地历史与页面会话，回到 S1 开场
+  function restartConversation() {
+    try {
+      localStorage.removeItem(storageKey(currentCtx ? currentCtx.version : 'guest'));
+    } catch (e) { /* 忽略 */ }
+    closeMoreMenu();
+    messages = [{ role: 'system', content: composeSystem() }];
+    chatList.innerHTML = '';
+    currentStage = 1;
+    renderStage();
+    showWelcome();
+    showToast('对话已重新开始');
+  }
+
+  moreArea.querySelector('#moreBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (moreMenu.hidden) openMoreMenu();
+    else closeMoreMenu();
+  });
+  // 点击菜单外关闭
+  document.addEventListener('click', (e) => {
+    if (!moreMenu.hidden && !moreArea.contains(e.target)) closeMoreMenu();
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeSummarySheet();
+    if (e.key === 'Escape') {
+      closeSummarySheet();
+      closeMoreMenu();
+    }
   });
 
   // 初始滚动
@@ -923,13 +992,7 @@ S7｜最终推荐
   // 启动：加载知识库完成后，无历史时展示 S1 开场（确认体检对象），与提示词状态机起点保持一致
   init().then((ctx) => {
     renderStage();
-    if (!ctx || !ctx.fromHistory) {
-      showGreeting(
-        '您好，我是卓正 AI 体检选购顾问。\n\n不用纠结套餐清单，回答几个小问题，我帮您在 30 秒内锁定合适的体检方向。\n\n这次体检是给谁选的？',
-        '你好，我想选一个适合自己的体检方案。',
-        ['我自己', '爸爸', '妈妈', '伴侣', '孩子', '其他家人']
-      );
-    }
+    if (!ctx || !ctx.fromHistory) showWelcome();
   }).catch((e) => {
     console.warn('初始化失败：', e);
     renderStage();

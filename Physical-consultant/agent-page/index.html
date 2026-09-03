@@ -16,10 +16,17 @@
         <svg viewBox="0 0 24 24" fill="none"><path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
       <h1 class="app-header__title">AI 体检选购顾问</h1>
-      <div class="app-header__actions">
+      <div class="app-header__actions" id="moreArea">
         <button class="app-header__btn" id="moreBtn" aria-label="更多">
           <svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="12" r="2" fill="currentColor"/></svg>
         </button>
+        <!-- 更多菜单 -->
+        <div class="menu-pop" id="moreMenu" hidden>
+          <button type="button" class="menu-pop__item" id="restartBtn">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 14-4.9M20 12a8 8 0 0 1-14 4.9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18 4v4h-4M6 20v-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>重启对话</span>
+          </button>
+        </div>
       </div>
     </header>
 
