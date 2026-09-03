@@ -238,35 +238,19 @@
     '</section>';
   }
 
-  // ===== 04 内容：健康辅助功能选择 =====
-  // 每个模块：模块总选项 + 子功能（子功能默认选中，全部选中时模块总选项为勾选态）
-  const HEALTH_MODULES = [
+  // ===== 04 内容：健康辅助功能选择（简化版：三个可选功能项） =====
+  const HEALTH_FEATURES = [
     {
-      title: '开启饮食管理辅助功能',
-      subs: [
-        { name: '定制食谱', desc: '1分钟问卷，根据健康状况和饮食习惯，设计切实可行的食谱菜单' },
-        { name: '每餐评估', desc: '拍张照片，帮你评估这餐吃的对不对，好不好' },
-        { name: '补剂评估', desc: '根据饮食习惯，评估是否需要补充补剂' }
-      ]
+      name: '定制食谱',
+      desc: '1分钟问卷，根据健康状况和饮食习惯，设计切实可行的营养食谱菜单，适合有饮食管理需求的用户'
     },
     {
-      title: '开启运动管理辅助功能',
-      subs: [
-        { name: '每日健康打卡', desc: '快速记录每日健康行为，促进好习惯快速养成' },
-        { name: '运动提醒助手', desc: '快速制定运动计划，并添加到日历和待办中，避免遗忘' }
-      ]
+      name: '每日健康打卡',
+      desc: '设置桌面widget，提醒并记录每日健康行为，促进好习惯快速养成，适合有运动/睡眠/戒烟/戒酒管理需求的用户'
     },
     {
-      title: '开启睡眠管理辅助功能',
-      subs: [
-        { name: '入睡助手', desc: '设置入睡时间，到点提醒' }
-      ]
-    },
-    {
-      title: '开启戒烟/戒酒管理辅助功能',
-      subs: [
-        { name: '每日健康打卡', desc: '快速记录每日健康行为，促进好习惯快速养成' }
-      ]
+      name: '每周健康回顾',
+      desc: '授权手机健康数据，每周回顾您的健康情况，针对性的调整健康方案细节，适合有健康状况改善需求的用户'
     }
   ];
 
@@ -276,32 +260,24 @@
       '<p class="launch-text">' +
         '这套改善计划基于你的体检结果、生活习惯、客观情况量身定制，但"知易行难"，我们深知迈出第一步并不容易。' +
         '为了更好的帮助你适应生活方式的变化，卓正将提供一系列配套功能，让改善健康的行为真正开始。' +
+        '现在点击「确认启动健康辅助功能」，开启你的健康行动吧！' +
       '</p>';
 
-    // 每个功能模块：总选项 + 子功能列表
-    const modulesHtml = HEALTH_MODULES.map((mod, mi) => {
-      const subsHtml = mod.subs.map((s, si) =>
-        '<label class="hm-sub">' +
-          '<span class="hm-cb"><input type="checkbox" checked data-hm-sub="' + mi + '" /><span class="hm-cb__box"></span></span>' +
-          '<span class="hm-sub__body">' +
-            '<span class="hm-sub__name">' + escapeHtml(s.name) + '</span>' +
-            '<span class="hm-sub__desc">' + escapeHtml(s.desc) + '</span>' +
-          '</span>' +
-        '</label>'
-      ).join('');
-      return '<div class="hm-module" data-hm="' + mi + '">' +
-        '<label class="hm-toggle">' +
-          '<span class="hm-cb"><input type="checkbox" checked data-hm-toggle="' + mi + '" /><span class="hm-cb__box"></span></span>' +
-          '<span class="hm-toggle__title">' + escapeHtml(mod.title) + '</span>' +
-        '</label>' +
-        (mod.subs.length > 1 ? '<div class="hm-subs">' + subsHtml + '</div>' : subsHtml) +
-      '</div>';
-    }).join('');
+    // 三个功能项（默认勾选，可单独取消）
+    const itemsHtml = HEALTH_FEATURES.map((f, fi) =>
+      '<label class="hm-item">' +
+        '<span class="hm-cb"><input type="checkbox" checked data-hm-item="' + fi + '" /><span class="hm-cb__box"></span></span>' +
+        '<span class="hm-item__body">' +
+          '<span class="hm-item__name">' + escapeHtml(f.name) + '</span>' +
+          '<span class="hm-item__desc">' + escapeHtml(f.desc) + '</span>' +
+        '</span>' +
+      '</label>'
+    ).join('');
 
     return '<div class="hm-panel">' +
       intro +
-      '<div class="hm-modules">' + modulesHtml + '</div>' +
-      '<button type="button" class="fu-btn hm-confirm" data-hm-confirm>确认启动健康辅助</button>' +
+      '<div class="hm-items">' + itemsHtml + '</div>' +
+      '<button type="button" class="fu-btn hm-confirm" data-hm-confirm>确认启动健康辅助功能</button>' +
     '</div>';
   }
 
@@ -319,37 +295,14 @@
     scope.querySelectorAll('[data-fu-appt]').forEach((b) => {
       b.addEventListener('click', () => showToast('已为您生成线下复查预约意向，请确认预约时间与科室。'));
     });
-    // 04 健康辅助功能选择：子功能联动模块总选项（子功能全部选中 → 模块总选项勾选；反之取消）
-    scope.querySelectorAll('[data-hm-toggle]').forEach((toggle) => {
-      toggle.addEventListener('change', () => {
-        const mod = toggle.closest('.hm-module');
-        if (mod) {
-          const subs = mod.querySelectorAll('[data-hm-sub]');
-          const checked = toggle.checked;
-          subs.forEach((s) => { s.checked = checked; });
-        }
-      });
-    });
-    scope.querySelectorAll('[data-hm-sub]').forEach((sub) => {
-      sub.addEventListener('change', () => {
-        const mod = sub.closest('.hm-module');
-        if (mod) {
-          const toggle = mod.querySelector('[data-hm-toggle]');
-          const subs = Array.prototype.slice.call(mod.querySelectorAll('[data-hm-sub]'));
-          toggle.checked = subs.length > 0 && subs.every((s) => s.checked);
-        }
-      });
-    });
+    // 04 健康辅助功能选择：确认时汇总勾选的功能项
     scope.querySelectorAll('[data-hm-confirm]').forEach((b) => {
       b.addEventListener('click', () => {
-        // 汇总已勾选的模块标题
         const names = [];
-        scope.querySelectorAll('.hm-module').forEach((mod) => {
-          const toggle = mod.querySelector('[data-hm-toggle]');
-          if (toggle && toggle.checked) {
-            const titleEl = mod.querySelector('.hm-toggle__title');
-            if (titleEl) names.push(titleEl.textContent.replace(/^开启/, '').replace(/管理辅助功能$/, ''));
-          }
+        scope.querySelectorAll('[data-hm-item]:checked').forEach((it) => {
+          const body = it.closest('.hm-item');
+          const nameEl = body ? body.querySelector('.hm-item__name') : null;
+          if (nameEl) names.push(nameEl.textContent.trim());
         });
         showToast(names.length ? '已为您开启' + names.join('、') + '健康辅助' : '未选择任何健康辅助功能，可随时在后续调整');
       });

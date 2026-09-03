@@ -300,16 +300,12 @@
     .section--launch { background: linear-gradient(180deg, #eef2f1 0%, rgba(238,241,240,0) 100%); scroll-margin-top: 5rem; }
     .launch-text { line-height: 2; color: rgba(60,65,69,.85); margin-bottom: 1.5rem; }
     .hm-panel { margin-top: 2rem; }
-    .hm-modules { display: flex; flex-direction: column; gap: 1rem; }
-    .hm-module { border: 1px solid var(--border); border-radius: 1rem; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.05); overflow: hidden; }
-    .hm-toggle { display: flex; align-items: center; gap: .75rem; padding: 1rem 1.25rem; cursor: pointer; user-select: none; border-bottom: 1px solid var(--border); }
-    .hm-toggle__title { flex: 1; font-size: 1rem; font-weight: 600; color: var(--foreground); }
-    .hm-subs { padding: .25rem 0; }
-    .hm-sub { display: flex; align-items: flex-start; gap: .75rem; padding: .875rem 1.25rem; cursor: pointer; user-select: none; }
-    .hm-sub + .hm-sub { border-top: 1px dashed var(--border); }
-    .hm-sub__body { display: flex; flex-direction: column; gap: .25rem; flex: 1; }
-    .hm-sub__name { font-size: .9375rem; font-weight: 600; color: var(--foreground); line-height: 1.5; }
-    .hm-sub__desc { font-size: .8125rem; color: var(--muted-foreground); line-height: 1.7; }
+    .hm-items { display: flex; flex-direction: column; gap: .875rem; }
+    .hm-item { display: flex; align-items: flex-start; gap: .875rem; padding: 1.125rem 1.25rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.05); cursor: pointer; user-select: none; transition: border-color .15s ease; }
+    .hm-item:hover { border-color: rgba(15,138,127,.4); }
+    .hm-item__body { display: flex; flex-direction: column; gap: .375rem; flex: 1; }
+    .hm-item__name { font-size: 1.0625rem; font-weight: 700; color: var(--foreground); line-height: 1.5; font-family: "Noto Serif SC","Songti SC",serif; }
+    .hm-item__desc { font-size: .875rem; color: var(--muted-foreground); line-height: 1.85; }
     /* 自定义方框勾选 */
     .hm-cb { position: relative; display: inline-flex; flex-shrink: 0; margin-top: .125rem; }
     .hm-cb input { position: absolute; opacity: 0; width: 0; height: 0; }
