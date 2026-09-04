@@ -256,8 +256,6 @@ S7｜最终方案推荐
   const toast = document.getElementById('toast');
   const summarySheet = document.getElementById('summarySheet');
   const summaryBody = document.getElementById('summaryBody');
-  const pkgSheet = document.getElementById('pkgSheet');
-  const pkgSheetBody = document.getElementById('pkgSheetBody');
 
   // 对话上下文与历史
   let messages = [];
@@ -268,7 +266,9 @@ S7｜最终方案推荐
   // 中文文件名需显式编码，否则部分环境/静态服务器会 404
   const KB_URL = encodeURI('../卓正体检知识库.md（含加项定价）.md');
   const KB_MISSING_TIP = '（知识库本次未加载成功：不要编造具体套餐名与价格，只给方向性建议，并提示以卓正官方渠道为准。）';
+  const KB_TIMEOUT_MS = 6000;
   let kbSections = [];
+  let kbPromise = null;
 
   function parseKbSections(text) {
     const parts = String(text || '').split(/^##\s+/m).slice(1);
@@ -279,15 +279,26 @@ S7｜最终方案推荐
     });
   }
 
+  // 带超时加载：弱网或静态服务器异常时不要一直挂着，超时即降级为方向性建议
   async function loadKnowledgeBase() {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), KB_TIMEOUT_MS);
     try {
-      const res = await fetch(KB_URL, { cache: 'no-cache' });
+      const res = await fetch(KB_URL, { cache: 'no-cache', signal: controller.signal });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       kbSections = parseKbSections(await res.text());
     } catch (e) {
       kbSections = [];
       console.warn('知识库加载失败：', e);
+    } finally {
+      clearTimeout(timer);
     }
+  }
+
+  // 幂等的"知识库就绪"入口：init 里立刻启动、不阻塞开场白；首轮提问前再确保完成
+  function ensureKnowledgeBase() {
+    if (!kbPromise) kbPromise = loadKnowledgeBase();
+    return kbPromise;
   }
 
   // 按标题关键字取章节
@@ -1180,19 +1191,41 @@ S7｜最终方案推荐
     updateSendButton();
   }
 
+  // 请求期间锁住对话里所有可点击入口（选项 / 确认 / 跳过 / 自由输入 / 继续提问 / 重新出题），
+  // 避免用户在旧题目上继续点造成对话乱序；请求失败时按传入的节点列表恢复
+  const OPTION_LOCK_SELECTOR = '.option-list__item, .option-list__confirm, .option-list__skip, ' +
+    '.option-list__other, .option-list__freeok, .rec-guide__btn, .opt-fallback__btn';
+  // locked=true 时返回"本次被我们禁用、且原本可用"的节点；恢复时只还原这些，
+  // 避免把用户已经作答过的旧选项组重新点亮
+  function setOptionsLocked(locked, nodes) {
+    if (!locked) {
+      Array.prototype.forEach.call(nodes || [], (b) => { if (b) b.disabled = false; });
+      return nodes || [];
+    }
+    const enabled = [];
+    Array.prototype.forEach.call(chatList.querySelectorAll(OPTION_LOCK_SELECTOR), (b) => {
+      if (b && typeof b.disabled === 'boolean' && !b.disabled) { b.disabled = true; enabled.push(b); }
+    });
+    return enabled;
+  }
+
   // 发送一条消息到接口；showUser=false 时不展示用户气泡（用于 AI 自动开场后的隐式上下文）
   async function sendPrompt(content, showUser = true) {
-    if (!content || isSending) return;
+    if (!content) return;
+    if (isSending) { showToast('顾问还在回复中，请稍候…'); return; }
     if (showUser) appendMessage(content, true);
     messages.push({ role: 'user', content });
 
-    // 每轮刷新 system：按最新对话检索知识库片段后注入，保证推荐有据可依
-    refreshSystemPrompt();
-
     const typing = appendTyping();
     setInputLocked(true);
+    const lockedNodes = setOptionsLocked(true);
 
     try {
+      // 首轮提问前确保知识库已就绪（最多等 KB_TIMEOUT_MS，超时自动降级）
+      await ensureKnowledgeBase();
+      // 每轮刷新 system：按最新对话检索知识库片段后注入，保证推荐有据可依
+      refreshSystemPrompt();
+
       const rawReply = await callAI(messages);
 
       // 剥离阶段标记与小结标记（都不显示给用户）；阶段先推进，再渲染，保证渲染时拿到的是本轮阶段
@@ -1213,6 +1246,8 @@ S7｜最终方案推荐
       typing.textContent = isNetErr
         ? '回复失败：网络或跨域(CORS)请求被拦截。请确认通过线上地址访问；本地直接打开文件会因接口跨域白名单限制而失败。'
         : '回复失败：' + err.message + '。请稍后重试。';
+      // 失败时对话没有推进，恢复选项让用户重试
+      setOptionsLocked(false, lockedNodes);
       scrollToBottom();
     } finally {
       setInputLocked(false);
@@ -1257,14 +1292,21 @@ S7｜最终方案推荐
   }
 
   let summaryLoading = false;
+  let summaryCache = ''; // 同一段对话的小结只生成一次，重复打开直接复用，避免反复消耗 token
   async function openSummarySheet() {
     if (summaryLoading) return;
+    if (summaryCache) {
+      summarySheet.hidden = false;
+      summaryBody.innerHTML = summaryCache;
+      return;
+    }
     summaryLoading = true;
     summarySheet.hidden = false;
     renderSheetLoading();
     try {
       const text = await callAI(buildSummaryMessages(messages));
-      summaryBody.innerHTML = mdToHtml(text);
+      summaryCache = mdToHtml(text);
+      summaryBody.innerHTML = summaryCache;
     } catch (e) {
       summaryBody.innerHTML = '<p>小结生成失败：' + escapeHtml(e && e.message ? e.message : '未知错误') + '。请稍后重试。</p>';
     } finally {
@@ -1280,48 +1322,6 @@ S7｜最终方案推荐
     if (e.target.dataset && e.target.dataset.close) closeSummarySheet();
   });
   document.getElementById('summaryClose').addEventListener('click', closeSummarySheet);
-
-  // ===== 套餐详情弹层（点击推荐卡打开）=====
-  function openPkgSheet(card) {
-    const mod = TIER_MOD[card.tier] || 'value';
-    const price = fmtMoney(card.price);
-    const orig = fmtMoney(card.orig);
-    const isAddon = card.tier === '加项';
-    let priceHtml;
-    if (isAddon) {
-      priceHtml = (parseFloat(card.price) > 0 ? '<b>¥' + escapeHtml(fmtMoney(card.price)) + '</b><em>单点价</em>' : '<b>' + escapeHtml(card.price || '另付') + '</b>');
-    } else {
-      priceHtml = (parseFloat(card.price) > 0 ? '<b>¥' + escapeHtml(price) + '</b>' + (orig ? '<em>原价 ¥' + escapeHtml(orig) + '</em>' : '') : '<b>' + escapeHtml(card.price || '') + '</b>');
-    }
-    let html = '<div class="pkg-detail">' +
-      '<div class="pkg-detail__tag pkg--' + mod + '-tag">' + escapeHtml(card.tier || '推荐') + '</div>' +
-      '<div class="pkg-detail__name">' + escapeHtml(card.name || '套餐') + '</div>' +
-      (card.city ? '<div class="pkg-detail__city">' + escapeHtml(card.city) + '</div>' : '') +
-      '<div class="pkg-detail__price">' + priceHtml + '</div>';
-    if (card.diff) {
-      html += '<div class="pkg-detail__sec">差异说明</div><p class="pkg-detail__note">' + escapeHtml(card.diff) + '</p>';
-    }
-    if (card.coverage && card.coverage.length) {
-      html += '<div class="pkg-detail__sec">覆盖重点</div><div class="pkg-detail__chips">' +
-        card.coverage.map((c) => '<span class="pkg__check">' + escapeHtml(c) + '</span>').join('') + '</div>';
-    }
-    if (card.note) {
-      html += '<div class="pkg-detail__sec">需要注意</div><p class="pkg-detail__note">' + escapeHtml(card.note) + '</p>';
-    }
-    html += '<p class="pkg-detail__tip">套餐与价格为卓正门店实时为准，本卡信息来自体检知识库；具体预约与加项请以官方渠道确认为准。</p>' +
-      '</div>';
-    pkgSheetBody.innerHTML = html;
-    pkgSheet.hidden = false;
-  }
-
-  function closePkgSheet() {
-    pkgSheet.hidden = true;
-  }
-
-  pkgSheet.addEventListener('click', (e) => {
-    if (e.target.dataset && e.target.dataset.close) closePkgSheet();
-  });
-  document.getElementById('pkgSheetClose').addEventListener('click', closePkgSheet);
 
   // ===== 开场白（框架：直接渲染，不走接口，同时写入 messages 保持对话结构完整）=====
   // options 中的项点击即发送
@@ -1401,13 +1401,13 @@ S7｜最终方案推荐
     };
   }
 
-  // 入口：加载知识库 → 读取上下文 → 构建 System Prompt → 恢复历史
+  // 入口：读取上下文 → 构建 System Prompt → 恢复历史（知识库后台加载，不阻塞开场）
   async function init() {
     const ctx = readEntryCtx();
     currentCtx = ctx;
     ctx.fromHistory = false;
-    // 先加载知识库，再组装含知识库片段的 system（失败时降级为方向性建议）
-    await loadKnowledgeBase();
+    // 知识库改为后台加载：弱网下先让开场白出来，首轮提问前再由 ensureKnowledgeBase 兜底等待
+    kbPromise = loadKnowledgeBase();
     messages = [{ role: 'system', content: composeSystem() }];
 
     // 尝试恢复本地历史对话（同一档案）；有历史则不重新开场
@@ -1580,6 +1580,7 @@ S7｜最终方案推荐
       localStorage.removeItem(storageKey(currentCtx ? currentCtx.version : 'guest'));
     } catch (e) { /* 忽略 */ }
     closeMoreMenu();
+    summaryCache = ''; // 上一轮的小结不再适用
     // 先清空再重建 system：避免 composeSystem 用重启前的旧对话检索知识库
     messages = [];
     currentPhase = 'S1';
@@ -1603,7 +1604,6 @@ S7｜最终方案推荐
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeSummarySheet();
-      closePkgSheet();
       closeMoreMenu();
     }
   });
@@ -1611,7 +1611,7 @@ S7｜最终方案推荐
   // 初始滚动
   scrollToBottom();
 
-  // 启动：加载知识库完成后，无历史时展示 S1 开场（确认体检对象），与提示词状态机起点保持一致
+  // 启动：无历史时展示 S1 开场（确认体检对象），与提示词状态机起点保持一致
   init().then((ctx) => {
     renderStage();
     if (!ctx || !ctx.fromHistory) showWelcome();

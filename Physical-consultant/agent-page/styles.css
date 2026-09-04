@@ -888,50 +888,6 @@ ul {
 .rec-guide__btn:active::after { color: #0e8f8f; transform: translateX(2px); }
 .rec-guide__btn:disabled { opacity: .6; }
 
-/* 套餐详情弹层内容 */
-.pkg-detail { padding: 2px 2px 6px; }
-.pkg-detail__tag {
-  display: inline-block;
-  font-size: 11px; font-weight: 700; padding: 3px 11px; border-radius: 999px; letter-spacing: .5px;
-}
-.pkg--best-tag { background: linear-gradient(135deg,#14a3a3,#0e8f8f); color: #fff; }
-.pkg--value-tag { background: #fff; color: #0d8a8a; border: 1px solid #14a3a3; }
-.pkg--full-tag { background: #fff8ec; color: #b96a1d; border: 1px solid #e7c58f; }
-.pkg--final-tag { background: linear-gradient(135deg,#14a3a3,#0e8f8f); color: #fff; }
-.pkg-detail__name { margin-top: 10px; font-size: 20px; font-weight: 800; color: #111418; line-height: 1.35; }
-.pkg-detail__city { margin-top: 2px; font-size: 12px; color: #9aa0a6; }
-.pkg-detail__price {
-  display: flex; align-items: baseline; gap: 10px;
-  margin-top: 12px; padding-bottom: 12px;
-  border-bottom: 1px solid #eef0f3;
-}
-.pkg-detail__price b { font-size: 26px; font-weight: 800; color: #0a6f6f; }
-.pkg-detail__price em { font-style: normal; font-size: 12px; color: #b0b5bb; text-decoration: line-through; }
-.pkg-detail__sec {
-  margin: 14px 0 8px;
-  font-size: 12px; font-weight: 700; color: #0d8a8a; letter-spacing: .05em;
-  padding-left: 8px; border-left: 3px solid #0e8f8f;
-}
-.pkg-detail__chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.pkg-detail__chips .pkg__check { font-size: 12px; padding: 4px 11px; }
-.pkg-detail__note {
-  background: #fdf6ec;
-  border: 1px solid #f0ddc0;
-  border-radius: 10px;
-  color: #8a5a17;
-  padding: 9px 12px;
-  font-size: 13px;
-  line-height: 1.7;
-}
-.pkg-detail__tip {
-  margin-top: 14px;
-  font-size: 11px;
-  color: #a4aab0;
-  line-height: 1.7;
-  border-top: 1px dashed #eef0f3;
-  padding-top: 10px;
-}
-
 /* ===== 对话中的"咨询小结卡片"（咨询信息收集完成后推送，点击查看小结） ===== */
 .summary-card {
   position: relative;
@@ -1101,28 +1057,6 @@ ul {
   word-break: break-word;
 }
 .sheet__body::-webkit-scrollbar { width: 0; }
-
-/* 套餐详情专用：固定底部操作栏（不随内容滚动消失） */
-.sheet__actions {
-  flex-shrink: 0;
-  display: flex;
-  gap: 10px;
-  padding: 10px 18px calc(12px + env(safe-area-inset-bottom));
-  border-top: 1px solid #eef0f3;
-  background: #fff;
-}
-.sheet__btn {
-  flex: 1;
-  padding: 11px 0;
-  border-radius: 22px;
-  font-size: 14px;
-  font-weight: 700;
-  border: none;
-}
-.sheet__btn--primary { background: linear-gradient(135deg,#14a3a3,#0e8f8f); color: #fff; box-shadow: 0 4px 12px rgba(13,138,138,.18); }
-.sheet__btn--primary:active { transform: scale(.98); }
-.sheet__btn--ghost { background: #fff; color: #0d8a8a; border: 1px solid rgba(14,143,143,.25); }
-.sheet__btn--ghost:active { background: #f4f9f7; }
 
 /* 小结正文排版（复用 Markdown 渲染结果） */
 .sheet__body h1 {

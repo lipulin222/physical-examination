@@ -5,12 +5,22 @@
   const tierIdx = Math.min(2, Math.max(0, parseInt(params.get('t') || '0', 10) || 0));
   const gyn = params.get('gyn') !== '0';
 
-  const DATA = window.PKG_DATA[gender];
-  const priceRows = DATA.gyn[gyn ? 'true' : 'false'] || DATA.gyn.false;
+  const body = document.getElementById('detailBody');
+  // 数据/档位缺失时给出可读提示，避免整页白屏
+  const DATA = (window.PKG_DATA || {})[gender];
+  if (!DATA || !DATA.gyn) {
+    body.innerHTML = '<p class="pkg-tip">套餐数据未加载成功，请返回后重试。</p>';
+    return;
+  }
+  const priceRows = DATA.gyn[gyn ? 'true' : 'false'] || DATA.gyn.false || [];
   const curPrice = priceRows[tierIdx];
-  const info = DATA.tierInfo[tierIdx];
+  if (!curPrice) {
+    body.innerHTML = '<p class="pkg-tip">未找到对应的套餐档位，请返回后重试。</p>';
+    return;
+  }
+  const info = (DATA.tierInfo || [])[tierIdx] || {};
   const tierNames = ['基础', '标准', '全面'];
-  const showName = gender === 'female' && gyn ? curPrice.name : curPrice.name; // priceRows 名称已含档位
+  const showName = curPrice.name; // priceRows 名称已含档位
 
   const fmt = (n) => (Math.round(n * 10) / 10).toString();
   const coverEmoji = gender === 'female' ? '👩‍⚕️' : '👨‍⚕️';
@@ -61,18 +71,20 @@
 
   // 各章节分组（含全量项目对照）
   html += '<div class="sec"><div class="sec__title">套餐包含项 <span class="note">当前档整列高亮</span></div>';
-  const groups = DATA.groups
-    .filter((g) => !(gender === 'female' && !gyn && g.name === '女性加购（含妇科档专属）'));
+  const groups = DATA.groups || [];
   groups.forEach((g) => {
-    html += '<div class="grp"><div class="grp__title">' + esc(g.name) + '</div><table>' +
+    // 不含妇科档时，"含妇科档专属"的三项属于需加购专项：保留分组并整列标为加购，而不是整组消失
+    const isFemaleAddon = g.name === '女性加购（含妇科档专属）';
+    const title = isFemaleAddon && gender === 'female' && !gyn ? '女性专项（需加购）' : g.name;
+    html += '<div class="grp"><div class="grp__title">' + esc(title) + '</div><table>' +
       '<thead><tr><th>项目</th>' + ['基础', '标准', '全面'].map((name, i) =>
         '<th class="' + (i === tierIdx ? 'col-hl' : '') + '">' + name + '</th>').join('') + '</tr></thead><tbody>';
     g.rows.forEach((row) => {
-      // 不含妇科档：隐藏妇科咨询及查体，女性加购三项视为加购
+      // 不含妇科档：不展示妇科查体，女性专项三项视为加购
       let vals = [row[1], row[2], row[3]];
       if (gender === 'female' && !gyn) {
         if (row[0] === '妇科咨询及查体') return;
-        if (g.name === '女性加购（含妇科档专属）') vals = vals.map(() => 'a');
+        if (isFemaleAddon) vals = vals.map(() => 'a');
       }
       html += '<tr><td>' + esc(row[0]) + '</td>' +
         vals.map((v, i) => '<td class="' + (i === tierIdx ? 'col-hl' : '') + '">' + cell(v) + '</td>').join('') +
@@ -94,7 +106,7 @@
   html += '</tbody></table></div>' +
     '<p class="pkg-tip">' + esc(DATA.priceNote) + '<br>以上项目与价格以卓正门店实时为准，具体预约与加项请以官方渠道确认为准。</p></div>';
 
-  document.getElementById('detailBody').innerHTML = html;
+  body.innerHTML = html;
 
   // ===== 交互 =====
   const toast = document.getElementById('toast');
