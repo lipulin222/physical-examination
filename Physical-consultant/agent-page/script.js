@@ -55,7 +55,7 @@ S5｜初步推荐（需求确认结束后触发，必须严格依据知识库）
 ### 更全面方案
 再补三点：◆ 已覆盖哪些重点；◆ 知识库中可能缺少什么、哪些需要另行加项；◆ 是否建议继续优化。
 结束语固定为：「目前这个推荐已经可以作为参考。如果希望更精准，我可以再帮你确认几个关键问题。」
-随后另起一行输出题干「接下来想怎么做？」，再逐行给出选项：查看推荐套餐 / 再帮我选准一点 / 浏览其他套餐。
+随后另起一行输出题干「接下来想怎么做？」，再单独一行「选项：」，然后逐行列出：查看推荐套餐 / 再帮我选准一点 / 浏览其他套餐。
 
 S6｜精准追问
 只问会改变套餐推荐的问题，按下述分支选择，最多 3 个：
@@ -87,12 +87,16 @@ S7｜最终推荐
 {USER_INFO}
 
 #输出格式要求（前端会按此渲染，必须严格遵守）
-· 每次只问一个问题，选项逐行输出，格式严格为「数字. 选项内容」，例如：
+· 凡需要用户从选项中作答的轮次，回复必须按以下"三段式"组织，严禁遗漏任何一段：
+  第1段：题干问句一行（以 ? 或 ？ 结尾；可多选题的题干开头标注【多选题】，单选题不加任何标注）
+  第2段：单独一行「选项：」（含全角冒号，前后不与其他文字同行）
+  第3段：每个选项独占一行，格式严格为「数字. 选项内容」，选项前不要加"·/-"等符号，例如：
+选项：
 1. 我自己
 2. 爸爸
 3. 妈妈
-· 题干必须是问句（以 ? 或 ？ 结尾）；可多选题的题干开头必须标注【多选题】，单选题不加任何标注
-· 选项块之后不要输出"请选择""等你回答"等多余文字或空行
+· 严禁"只提问不列选项"或"把选项写进段落里"；每次提问都必须带出「选项：」及至少 2 个选项
+· 题干与「选项：」之间、选项与选项之间不要空行；选项块之后不要再输出"请选择""等你回答"等多余文字
 · 除选项外，推荐、说明、总结中禁止使用「1. 2. 3.」阿拉伯数字编号列表，改用 ### 小标题、短句或「◆ ● ▪」表达
 · 用户认可方案、表示"就按这个""可以了""去预约"时，单独输出一行【生成小结】结束（前后不要其他内容），前端会据此生成《体检方案推荐小结》
 · 语言亲和、简洁：普通提问每次不超过 200 字，推荐输出不超过 350 字`;
@@ -340,27 +344,68 @@ S7｜最终推荐
 
   // ===== 选择题识别（框架能力，供任意提示词产出的回复复用）=====
 
-  // 从 AI 回复中解析选择题选项（多种格式兜底，选项块可位于回复任意位置）
-  function parseOptions(text) {
-    const lines = text.split('\n');
-    // 数字/字母 + 间隔 + 分隔符（半角/全角）+ 内容；支持半角「.」与全角「．」两种句点
-    const lineRe = /^\s*(?:(\d{1,2})|([A-Ha-h]))\s*[.．、)）:：]\s*(\S.*)$/;
+  // ===== 选择题解析 =====
+  // 契约：模型出题时须在题干后另起一行输出「选项：」，再逐行列选项，前端最优先解析该标记块。
+  // 解析顺序：显式标记块 → 连续编号行块（题干问号兜底）→ 行内编号 → "或者/还是"。
+  // 行匹配做了归一化，容忍：行首 bullet/引用符、**加粗**包裹、全角数字与全角句点、中文圈号①。
 
-    // 1) 列表式：扫描全文，收集"连续选项行"块，取最长的一块（≥2 行）。
-    //    严格条件：选项块之前 5 行内必须出现问号 ? 或 ？，否则视为陈述中混入的编号列表，不识别为选项。
+  // 数字/字母/圈号 + 分隔符（半角/全角）+ 内容
+  const OPT_PREFIX_RE = /^\s*(?:(\d{1,2})|([A-Ha-h])|([①-⑩])|([１-９]))\s*[.．、)）:：]\s*(\S.*)$/;
+
+  // 从归一化后的行中提取选项内容（去除加粗/反引号包裹）
+  function optText(line) {
+    const m = line.match(OPT_PREFIX_RE);
+    if (!m) return null;
+    return m[5].replace(/\*\*|\*|`/g, '').trim();
+  }
+
+  // 归一化选项行：去掉行首列表符与整行 markdown 强调
+  function normOptLine(s) {
+    return s
+      .replace(/^\s*[-*•·◦▪◆◇]+\s*/, '')
+      .replace(/^\s*\*\*+/, '')
+      .replace(/\*\*+\s*$/, '')
+      .trim();
+  }
+
+  // 从 AI 回复中解析选择题选项
+  function parseOptions(text) {
+    const rawLines = text.split('\n');
+    const lines = rawLines.map(normOptLine);
+
+    // A) 显式「选项：」标记块：标记行之后连续的编号行即为选项（最可靠，不依赖问号就近）
+    const markerIdx = lines.findIndex((l) => /^选项[：:]\s*$/.test(l));
+    if (markerIdx !== -1) {
+      const options = [];
+      for (let i = markerIdx + 1; i < lines.length; i++) {
+        if (lines[i] === '') continue; // 容忍标记与选项之间的空行
+        const t = optText(lines[i]);
+        if (t === null) break; // 遇到非选项行即结束
+        options.push(t);
+      }
+      if (options.length >= 2) {
+        const body = rawLines.slice(0, markerIdx + 1)
+          .join('\n')
+          .replace(/^\s*选项[：:]\s*$/gm, '')
+          .trim();
+        return { body, options };
+      }
+    }
+
+    // B) 列表式：连续编号行块（≥2 行）取最长；选项块前 8 行内须出现问号，
+    //    否则视为陈述中混入的编号列表，不识别为选项
     let best = { start: -1, end: -1, count: 0, hasQuestion: false };
     let curStart = -1;
     let count = 0;
     for (let idx = 0; idx <= lines.length; idx++) {
-      const m = idx < lines.length ? lines[idx].match(lineRe) : null;
-      if (m && m[3]) {
+      const t = idx < lines.length ? optText(lines[idx]) : null;
+      if (t !== null) {
         if (curStart === -1) curStart = idx;
         count++;
       } else {
         if (count >= 2 && count > best.count) {
-          const lookback = lines.slice(Math.max(0, curStart - 5), curStart).join('\n');
-          const hasQ = /[?？]/.test(lookback);
-          best = { start: curStart, end: idx - 1, count, hasQuestion: hasQ };
+          const lookback = lines.slice(Math.max(0, curStart - 8), curStart).join('\n');
+          best = { start: curStart, end: idx - 1, count, hasQuestion: /[?？]/.test(lookback) };
         }
         curStart = -1;
         count = 0;
@@ -369,14 +414,15 @@ S7｜最终推荐
     if (best.count >= 2 && best.hasQuestion) {
       const options = [];
       for (let idx = best.start; idx <= best.end; idx++) {
-        options.push(lines[idx].match(lineRe)[3].trim());
+        const t = optText(lines[idx]);
+        if (t !== null) options.push(t);
       }
       // 题干取选项块之前的内容；选项块之后的提示文字舍弃
-      const body = lines.slice(0, best.start).join('\n').trim();
+      const body = rawLines.slice(0, best.start).join('\n').trim();
       return { body, options };
     }
 
-    // 2) 行内列表标记："1.xxx 2.xxx" / "A:xxx B:xxx"。同样要求题干含问号。
+    // C) 行内列表："1.xxx 2.xxx" / "A:xxx B:xxx"。同样要求题干含问号。
     {
       const parts = text.split(/(?:[1-9]\d{0,1}|[A-Ha-h])[.．、)）:：]/);
       if (parts.length >= 3 && /[?？]/.test(parts[0])) {
@@ -387,7 +433,7 @@ S7｜最终推荐
       }
     }
 
-    // 3) 中文"或者""还是"分隔的并列结构（识别为选项）
+    // D) 中文"或者""还是"分隔的并列结构（兜底）
     if (/或者|还是/.test(text)) {
       const m = text.match(/^([^，？。\?:：]+?)[，：:]?\s*([^，？。\?:：]+?)\s*或者\s*([^？。\?:：]+?)(?:\s*或者\s*([^？。\?:：]+?))?(?:\s*或者\s*([^？。\?:：]+?))?\??$/);
       if (m) {
@@ -412,12 +458,13 @@ S7｜最终推荐
     );
   }
 
-  // 从题干中剥离多选标注（【多选题】/（可多选）等），避免展示给用户
+  // 从题干中剥离多选标注与「选项：」标记行，避免展示给用户
   function stripMultiTag(text) {
     if (!text) return text;
     return text
       .replace(/【\s*可?多?选(?:项|题)?\s*】/g, '')
       .replace(/[（(]\s*可?多?选(?:项|题)?\s*[)）]/g, '')
+      .replace(/^\s*选项[：:]\s*$/gm, '')
       .replace(/^\s*[·:：]\s*/, '')
       .trim();
   }
@@ -462,6 +509,10 @@ S7｜最终推荐
   function renderBotReply(typingEl, reply) {
     const { body, options } = parseOptions(reply);
     const multi = isMultiSelect(reply);
+    // 排查辅助：看似问句却未解析出选项时，控制台打印原始回复便于定位模型输出格式
+    if (options.length === 0 && body && /[?？]/.test(body)) {
+      console.debug('[选项解析] 未识别到选项，原始回复：', reply);
+    }
     const bubble = typingEl.closest('.chat__bubble');
     bubble.innerHTML = '';
 
