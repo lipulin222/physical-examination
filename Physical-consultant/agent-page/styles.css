@@ -747,15 +747,31 @@ ul {
 .chat__bubble .pkg { max-width: 100%; }
 .chat__bubble .pkg + .pkg { margin-top: 10px; }
 
-/* 推荐理由（浅色独立卡片，区别于套餐卡） */
+/* 推荐理由（独立浅色卡片，位于所有套餐卡/加项卡下方） */
 .pkg__reason {
+  display: flex;
+  gap: 10px;
   margin-top: 12px;
-  background: #f4f9f7;
-  border: 1px solid rgba(14,143,143,.15);
+  background: linear-gradient(160deg,#f2faf8 0%, #f7fbfb 100%);
+  border: 1px solid rgba(14,143,143,.16);
   border-radius: 14px;
   padding: 12px 13px 13px;
+  box-shadow: 0 2px 10px rgba(13,138,138,.06);
 }
-.pkg__reason__title { font-size: 12.5px; font-weight: 700; color: #0a6f6f; margin-bottom: 5px; }
+.pkg__reason__icon {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  background: linear-gradient(135deg,#14a3a3,#0e8f8f);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pkg__reason__icon svg { width: 15px; height: 15px; }
+.pkg__reason__main { flex: 1; min-width: 0; }
+.pkg__reason__title { font-size: 12.5px; font-weight: 700; color: #0a6f6f; margin-bottom: 4px; }
 .pkg__reason__text { font-size: 12px; line-height: 1.8; color: #4a5058; }
 
 /* S5 底部固定引导：普通文字排版 + 轻量「继续提问」按钮 */

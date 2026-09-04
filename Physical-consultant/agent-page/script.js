@@ -732,12 +732,21 @@ S7｜最终方案推荐
     return el;
   }
 
-  // 推荐理由块：渲染为浅色独立卡片（区别于套餐卡）
+  // 推荐理由块：渲染为独立的浅色卡片，位于所有套餐卡/加项卡下方
   function buildReasonEl(reason, title) {
     const el = document.createElement('div');
     el.className = 'pkg__reason';
-    el.innerHTML = '<p class="pkg__reason__title">' + escapeHtml(title || '为什么这样推荐') + '</p>' +
-      '<p class="pkg__reason__text"></p>';
+    el.innerHTML =
+      '<span class="pkg__reason__icon" aria-hidden="true">' +
+        '<svg viewBox="0 0 24 24" fill="none">' +
+          '<path d="M9 18h6M10 21h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+          '<path d="M12 3a6 6 0 0 0-3.5 10.9V15h7v-1.1A6 6 0 0 0 12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>' +
+        '</svg>' +
+      '</span>' +
+      '<div class="pkg__reason__main">' +
+        '<p class="pkg__reason__title">' + escapeHtml(title || '为什么这样推荐') + '</p>' +
+        '<p class="pkg__reason__text"></p>' +
+      '</div>';
     el.querySelector('.pkg__reason__text').textContent = reason;
     return el;
   }
@@ -771,9 +780,10 @@ S7｜最终方案推荐
     const reasonText = parseReason(reply) || '';
     // S5：有套餐卡且无选项（S5 不列选项）；S7：套餐/加项卡 + 选项
     const isS5Recommend = cards.length > 0 && options.length === 0;
-    let reasonShown = false;
 
-    // 按原顺序渲染：文字段（markdown）与卡片/理由块交替
+    // 先按原顺序渲染文字段与套餐/加项卡；理由块先收集，等所有卡片渲染完再统一追加到卡片下方，
+    // 保证【推荐理由】始终是一张独立的卡片、且位于所有套餐卡与加项卡下面（不依赖 AI 的输出顺序）
+    let reasonHtml = '';
     splitCardSegments(body || '').forEach((seg) => {
       if (seg.type === 'text') {
         const div = document.createElement('div');
@@ -783,13 +793,13 @@ S7｜最终方案推荐
       } else if (seg.type === 'card') {
         bubble.appendChild(buildCardEl(seg.card));
       } else if (seg.type === 'reason') {
-        bubble.appendChild(buildReasonEl(seg.text, '为什么这样推荐'));
-        reasonShown = true;
+        if (!reasonHtml) reasonHtml = seg.text;
       }
     });
-    // 兜底：理由标记可能已被按文字渲染（旧逻辑）而 segment 缺失时，仍补一次
-    if (!reasonShown && reasonText) {
-      bubble.appendChild(buildReasonEl(reasonText, '为什么这样推荐'));
+    // 兜底：segment 未解析出理由时，用正则提取的结果补上
+    if (!reasonHtml && reasonText) reasonHtml = reasonText;
+    if (reasonHtml) {
+      bubble.appendChild(buildReasonEl(reasonHtml, '为什么这样推荐'));
     }
 
     if (options.length > 0) {
@@ -903,7 +913,8 @@ S7｜最终方案推荐
       `;
       const bubble = item.querySelector('.chat__bubble');
 
-      // 正文与推荐卡片/理由块按原顺序渲染
+      // 先渲染文字段与套餐/加项卡；理由统一追加到所有卡片下方，保持与实时渲染一致
+      let reasonHtml = '';
       splitCardSegments(body || content || '').forEach((seg) => {
         if (seg.type === 'text') {
           const div = document.createElement('div');
@@ -913,9 +924,13 @@ S7｜最终方案推荐
         } else if (seg.type === 'card') {
           bubble.appendChild(buildCardEl(seg.card));
         } else if (seg.type === 'reason') {
-          bubble.appendChild(buildReasonEl(seg.text, '为什么这样推荐'));
+          if (!reasonHtml) reasonHtml = seg.text;
         }
       });
+      if (!reasonHtml) reasonHtml = parseReason(content) || '';
+      if (reasonHtml) {
+        bubble.appendChild(buildReasonEl(reasonHtml, '为什么这样推荐'));
+      }
 
       // 历史选项：保留文本，仅作展示，不可再点击
       if (options.length > 0) {
