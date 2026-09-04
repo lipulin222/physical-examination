@@ -804,12 +804,12 @@ ul {
 }
 .pkg__reason__icon svg { width: 15px; height: 15px; }
 .pkg__reason__main { flex: 1; min-width: 0; }
-.pkg__reason__title { font-size: 12.5px; font-weight: 700; color: #0a6f6f; margin-bottom: 4px; }
-.pkg__reason__text { font-size: 12px; line-height: 1.8; color: #4a5058; }
+.pkg__reason__title { font-size: 13.5px; font-weight: 700; color: #0a6f6f; margin-bottom: 5px; }
+.pkg__reason__text { font-size: 13.5px; line-height: 1.75; color: #4a5058; }
 
 /* S5 底部固定引导：普通文字排版 + 轻量「继续提问」按钮 */
 .rec-guide { margin-top: 12px; }
-.rec-guide__text { font-size: 12px; line-height: 1.8; color: #6b737c; padding: 0 2px; }
+.rec-guide__text { font-size: 13.5px; line-height: 1.75; color: #5c646d; padding: 0 2px; }
 .rec-guide__btn {
   margin-top: 9px;
   width: 100%;
