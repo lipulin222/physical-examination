@@ -63,9 +63,19 @@ S6｜精准追问
 用户选择"查看推荐套餐"或"浏览其他套餐"时不进入 S6。
 
 S7｜最终方案推荐
-综合精准回答与预算，为用户确定一个**整体方案**：由 1 张"主套餐"【套餐卡】（档位=最推荐/主套餐）+ 按需的若干"加项"【套餐卡】（档位=加项）组合；若无需加项则不输出加项卡。每张卡都带「价格」（加项用"另付，以门店报价为准"）与客观说明。
-主套餐卡与加项卡之后，输出【推荐理由】…【理由完】，讲清"为何这样组合"（如吸烟→加低剂量CT、家族史→套餐已含/再加胃肠镜），可含预算紧张时的降档替代建议。
+综合精准回答与预算，为用户确定一个**整体方案**：由 1 张"主套餐"【套餐卡】（档位=最推荐/主套餐）+ 按需的若干"加项"【套餐卡】（档位=加项）组合。加项遵循下方「#加项推荐原则」。若无需加项，则不输出加项卡。
+主套餐卡与加项卡之后，输出【推荐理由】…【理由完】，讲清"为何选这个主套餐、为何加这些项（对应哪些风险），以及哪些项是重复/可省"，可含预算紧张时的降档或"直接升档更划算"替代建议。
 随后另起一行输出题干「这个方案可以吗？」，再单独一行「选项：」，逐行列出：就按这个方案帮我预约 / 想再调整一下方案。
+
+#加项推荐原则（S7 决定加项时必须遵守）
+· 风险触发：有明确健康风险或用户明确需求才推荐加项；无明确依据一律不推。
+· 查漏不重复：目标套餐里已包含的检查（见知识库第 2/3 章矩阵与第 7 章 7.3"含于套餐"列）绝不再加；只补套餐真正缺失且对用户有价值的部分。
+· 价值优先：加项必须能带来明确新增健康价值（如对应吸烟→低剂量胸部CT、胃肠家族史→无痛胃肠镜、女性高危→HPV分型等）。
+· 分级推荐：必要项（强风险相关）标注"建议加"；一般风险项标注"可选"；无明确价值的不列出。
+· 控制数量：一次推荐加项尽量不超过 3 项，宁缺毋滥，不堆项目。
+· 尊重需求：用户主动关注、但价值一般或不必要的项目，可"若您需要"形式轻提一句即可，不强推、不列进加项卡。
+· 价格来源：加项价格用知识库第 7 章 7.3 的单点价（T1 价）；某加项 7.3 未标价或无明确单价时，价格填"另付"，以门店报价为准。
+· 升档提醒：若所需增量较多，提示"直接升档（如基础→标准）往往比逐个单点加项更划算"，并把划算的升档方案作为替代说明写进【推荐理由】。
 
 #结构化推荐卡输出（S5 两张、S7 一张或多张；前端据此渲染成卡片）
 每张卡必须以【套餐卡】开头、以【卡完】结束；每个字段独占一行，格式严格为「字段：值」，字段之间不要空行。字段仅限：档位、名称、价格、原价、对比、覆盖。示例：
@@ -82,7 +92,8 @@ S7｜最终方案推荐
 · 档位取值：最推荐 / 性价比方案 / 更全面方案 / 加项；主套餐卡如需可写"主套餐"
 · S5 每张卡必须带「对比」，内容需以"较 XX版"开头客观写明与另一档的差异（多的/少的检查及会员价差额），只讲客观事实，禁止"选它更好"等主观话
 · S7 加项卡用「对比」写该加项针对的用户情况（如需给谁加、回应哪个风险）
-· 价格/原价只填数字（人民币，如 2250），前端自动加「¥」并显示原价划线；加项卡把「价格」填为"另付"、注明以门店报价为准
+· 主套餐卡：价格/原价只填数字（人民币，如 2250），前端自动加「¥」并显示原价划线
+· 加项卡：价格填 7.3 单点价数字（前端显示「¥xxx · 单点价」）；7.3 未标价或无明确单价时填"另付"（前端会显示"另付"，以门店为准）
 · 覆盖、对比必须来自知识库，禁止编造；覆盖用「；」分隔，至少 4 项、最多 8 项（详情抽屉展示用）
 · 价格与覆盖存在时前端会自动补详情抽屉，不需要卡内放数字编号列表
 
@@ -192,7 +203,7 @@ S7｜最终方案推荐
 
   // ===== 体检套餐知识库：加载 → 按人群检索 → 注入 System Prompt =====
   // 知识库为 Markdown，按「## 」一级章节切分；推荐阶段只注入相关章节，避免整库占用上下文
-  const KB_URL = '../卓正体检知识库.md';
+  const KB_URL = '../卓正体检知识库.md（含加项定价）.md';
   const KB_MISSING_TIP = '（知识库本次未加载成功：不要编造具体套餐名与价格，只给方向性建议，并提示以卓正官方渠道为准。）';
   let kbSections = [];
 
@@ -245,6 +256,9 @@ S7｜最终方案推荐
       if (isFemale || !isMale) { const female = kbFind('女性'); if (female) picked.push(female); }
       if (isMale || !isFemale) { const male = kbFind('男性套餐'); if (male) picked.push(male); }
       if (isFemale && isMale) { const compare = kbFind('横向对比'); if (compare) picked.push(compare); }
+      // 加项定价/升档测算（7.x）：供 S7 加项推荐与"升档更划算"判断用
+      const pricing = kbFind('加项定价');
+      if (pricing) picked.push(pricing);
     }
     if (guide) picked.push(guide);
     if (!picked.length) return '';
@@ -642,9 +656,13 @@ S7｜最终方案推荐
       '<span class="pkg__name">' + escapeHtml(card.name || '套餐') + '</span>' +
       '</span>';
     html += '<span class="pkg__price">' +
-      (isAddon || !(numericPrice > 0)
-        ? '<b>' + escapeHtml(card.price || '另付') + '</b>' + (card.orig ? '<em>' + escapeHtml(card.orig) + '</em>' : '')
-        : '<b>¥' + escapeHtml(price) + '</b>' + (orig ? '<em>原价 ¥' + escapeHtml(orig) + '</em>' : '')) +
+      (isAddon
+        ? (numericPrice > 0
+            ? '<b>¥' + escapeHtml(price) + '</b><em>单点价</em>'
+            : '<b>' + escapeHtml(card.price || '另付') + '</b>')
+        : (numericPrice > 0
+            ? '<b>¥' + escapeHtml(price) + '</b>' + (orig ? '<em>原价 ¥' + escapeHtml(orig) + '</em>' : '')
+            : '<b>' + escapeHtml(card.price || '') + '</b>')) +
       '</span>';
     // 差异/对比行（客观，放在卡内显眼位置；AI 在对比值里写明"较哪个档"）
     if (card.diff) {
@@ -1000,13 +1018,17 @@ S7｜最终方案推荐
     const price = fmtMoney(card.price);
     const orig = fmtMoney(card.orig);
     const isAddon = card.tier === '加项';
+    let priceHtml;
+    if (isAddon) {
+      priceHtml = (parseFloat(card.price) > 0 ? '<b>¥' + escapeHtml(fmtMoney(card.price)) + '</b><em>单点价</em>' : '<b>' + escapeHtml(card.price || '另付') + '</b>');
+    } else {
+      priceHtml = (parseFloat(card.price) > 0 ? '<b>¥' + escapeHtml(price) + '</b>' + (orig ? '<em>原价 ¥' + escapeHtml(orig) + '</em>' : '') : '<b>' + escapeHtml(card.price || '') + '</b>');
+    }
     let html = '<div class="pkg-detail">' +
       '<div class="pkg-detail__tag pkg--' + mod + '-tag">' + escapeHtml(card.tier || '推荐') + '</div>' +
       '<div class="pkg-detail__name">' + escapeHtml(card.name || '套餐') + '</div>' +
       (card.city ? '<div class="pkg-detail__city">' + escapeHtml(card.city) + '</div>' : '') +
-      '<div class="pkg-detail__price"><b>' + (isAddon ? escapeHtml(card.price || '另付') : '¥' + escapeHtml(price)) + '</b>' +
-        (orig ? (isAddon ? '<em>' + escapeHtml(orig) + '</em>' : '<em>原价 ¥' + escapeHtml(orig) + '</em>') : '') +
-      '</div>';
+      '<div class="pkg-detail__price">' + priceHtml + '</div>';
     if (card.diff) {
       html += '<div class="pkg-detail__sec">差异说明</div><p class="pkg-detail__note">' + escapeHtml(card.diff) + '</p>';
     }
