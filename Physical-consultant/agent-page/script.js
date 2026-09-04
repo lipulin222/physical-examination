@@ -41,7 +41,7 @@ S2｜基础信息
 记录 age_group、gender。
 
 S3｜体检目的
-问：「【多选题】这次体检，你最希望重点看看什么？（最多选择2项）」
+问：「【多选题】这次体检，你最希望重点看看什么？（最多选择4项）」
 选项：常规全面检查 / 心血管（三高、血压、血脂）/ 体重和代谢 / 肿瘤风险 / 肺部健康 / 女性健康 / 男性健康 / 以前体检异常 / 不知道，帮我判断
 记录 exam_goals[]。
 
@@ -170,6 +170,7 @@ S7｜最终方案推荐
   - S6 精准追问（只出选择题，禁止输出【套餐卡】）
   - S7 最终方案推荐（主套餐卡 + 加项卡 +【推荐理由】+「这个方案可以吗？」选项）
   - 阶段只能前进不得回退；S6 追问结束后必须直接进入 S7，禁止退回 S5 的双卡对比
+· **多选题数量上限**：需要限制数量的多选题，题干里统一写明「（最多选择N项）」。N 取 3 或 4，除选项总数本身不足 3 个外不要写 2；前端会按 N 真正限制用户可勾选的数量，所以写了就必须与你的真实意图一致。不需要限制的多选题不要写上限。
 · 凡需要用户从选项中作答的轮次，回复必须按以下"三段式"组织，严禁遗漏任何一段：
   第1段：题干问句一行（以 ? 或 ？ 结尾；可多选题的题干开头标注【多选题】，单选题不加任何标注）
   第2段：单独一行「选项：」（含全角冒号，前后不与其他文字同行）
@@ -712,6 +713,11 @@ S7｜最终方案推荐
       const text = input.value.trim();
       if (!text) { input.focus(); return; }
       if (multi) {
+        const max = parseInt(list.dataset.max || '0', 10);
+        if (max && list.querySelectorAll('.option-list__item.is-selected').length >= max) {
+          showToast('本题最多可选 ' + max + ' 项');
+          return;
+        }
         const chip = document.createElement('button');
         chip.type = 'button';
         chip.className = 'option-list__item is-selected';
@@ -936,13 +942,16 @@ S7｜最终方案推荐
       if (host) host.querySelectorAll('.option-list__skip').forEach((b) => { b.disabled = true; });
     };
 
-    // 多选提示条：题干写明上限时优先展示，否则只提示可多选
+    // 多选上限：题干写明"最多选择N项"时按 N 真正限制勾选数量（题干没写则不限制）
+    let maxSelect = 0;
     if (multi && !readonly) {
       const maxMatch = (body || '').match(/最多(?:可以)?(?:可选|选择|选|择)?\s*(\d+)\s*项/);
+      maxSelect = maxMatch ? Math.max(1, Math.min(8, parseInt(maxMatch[1], 10) || 0)) : 0;
+      if (maxSelect) list.dataset.max = String(maxSelect);
       const hint = document.createElement('div');
       hint.className = 'option-list__hint';
       hint.innerHTML = '<span class="option-list__hint-mark">多选</span>' +
-        (maxMatch ? '本题最多可选 ' + maxMatch[1] + ' 项' : '本题可多选，请选择所有符合的选项');
+        (maxSelect ? '本题最多可选 ' + maxSelect + ' 项' : '本题可多选，请选择所有符合的选项');
       list.appendChild(hint);
     }
 
@@ -971,6 +980,11 @@ S7｜最终方案推荐
                         : '<span class="option-list__arrow">›</span>');
       btn.addEventListener('click', () => {
         if (multi) {
+          const picked = list.querySelectorAll('.option-list__item.is-selected').length;
+          if (!btn.classList.contains('is-selected') && maxSelect && picked >= maxSelect) {
+            showToast('本题最多可选 ' + maxSelect + ' 项');
+            return;
+          }
           if (btn.dataset.fallback) {
             // 选中兜底项：清空其他选中
             list.querySelectorAll('.option-list__item.is-selected').forEach((b) => b.classList.remove('is-selected'));
