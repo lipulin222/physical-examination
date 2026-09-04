@@ -379,6 +379,18 @@ S7｜最终方案推荐
       return raw ? JSON.parse(raw) : null;
     } catch (e) { return null; }
   }
+  // 小结是否已生成过的标记：跨页面往返（如从套餐详情页返回）后仍能恢复小结卡片入口
+  function summaryFlagKey(profile) { return storageKey(profile) + '_summary'; }
+  function setSummaryFlag(profile) {
+    try { localStorage.setItem(summaryFlagKey(profile), '1'); } catch (e) { /* 存储不可用时忽略 */ }
+  }
+  function readSummaryFlag(profile) {
+    try { return localStorage.getItem(summaryFlagKey(profile)) === '1'; } catch (e) { return false; }
+  }
+  function clearSummaryFlag(profile) {
+    try { localStorage.removeItem(summaryFlagKey(profile)); } catch (e) { /* 存储不可用时忽略 */ }
+  }
+
   function saveHistory(messages, profile) {
     try {
       // 限制条数，避免无限增长；保留 system + 最近 40 条，且从 assistant 边界截齐，保证 user/assistant 成对
@@ -1125,6 +1137,7 @@ S7｜最终方案推荐
       appendMessage(content, true);
     } else if (msg.role === 'assistant') {
       const { body, options } = parseOptions(content);
+      const multi = isMultiSelect(content);
       const item = document.createElement('div');
       item.className = 'chat__item chat__item--bot';
       item.innerHTML = `
@@ -1137,6 +1150,7 @@ S7｜最终方案推荐
 
       // 先渲染文字段与套餐/加项卡；理由统一追加到所有卡片下方，保持与实时渲染一致
       let reasonHtml = '';
+      let cardCount = 0;
       splitCardSegments(body || content || '').forEach((seg) => {
         if (seg.type === 'text') {
           const div = document.createElement('div');
@@ -1144,6 +1158,7 @@ S7｜最终方案推荐
           div.innerHTML = mdToHtml(stripMultiTag(seg.text));
           bubble.appendChild(div);
         } else if (seg.type === 'card') {
+          cardCount++;
           bubble.appendChild(buildCardEl(seg.card));
         } else if (seg.type === 'reason') {
           if (!reasonHtml) reasonHtml = seg.text;
@@ -1157,6 +1172,12 @@ S7｜最终方案推荐
       // 历史选项：已答过的题目保留文本、不可点击；最后一条回复保留可点击，刷新后仍可继续对话
       if (options.length > 0) {
         renderOptions(bubble, body, options, multi, !interactive);
+      }
+
+      // 初步推荐轮（有套餐卡、不列选项）且用户还没往下走：补回「继续提问」引导。
+      // 否则从套餐详情页返回、走历史回放渲染时这条入口就消失了，流程卡在这里无法继续
+      if (interactive && cardCount > 0 && options.length === 0) {
+        bubble.appendChild(buildContinuePanel());
       }
 
       chatList.appendChild(item);
@@ -1253,6 +1274,7 @@ S7｜最终方案推荐
       if (currentCtx) saveHistory(messages, currentCtx.version);
       // 检测到小结标记 → 在对话中推送咨询小结卡片
       if (SUMMARY_GENERATE_RE.test(rawReply)) {
+        setSummaryFlag(currentCtx ? currentCtx.version : 'guest');
         setTimeout(appendSummaryCard, 700);
       }
     } catch (err) {
@@ -1437,14 +1459,16 @@ S7｜最终方案推荐
       // 只有"对话以 assistant 结尾"（即这道题还没答）时选项才可点击，刷新后能接着选；已答过的保持只读
       const lastIdx = restored.length - 1;
       restored.forEach((m, i) => {
-        const interactive = i === lastIdx && m && m.role === 'assistant';
-        try { renderHistoryMessage(m, interactive); } catch (e) { /* 忽略单条渲染失败 */ }
-        // 依据历史内容重放阶段推进，避免刷新后进度条退回第 1 格
+        // 先推进阶段再渲染：保证渲染时拿到的是本条消息所处阶段（继续提问面板等依赖阶段判断）
         if (m && m.role === 'assistant') updateStage(m.content || '');
+        const interactive = i === lastIdx && m && m.role === 'assistant';
+        try { renderHistoryMessage(m, interactive); } catch (e) { console.warn('历史消息渲染失败：', e); }
       });
       // 直接定位到最新对话（立即 + 渲染稳定后二次定位）
       jumpToBottom();
       requestAnimationFrame(() => { jumpToBottom(); });
+      // 之前已生成过小结：恢复入口，避免跨页面往返后小结卡片消失
+      if (readSummaryFlag(ctx.version)) appendSummaryCard();
       ctx.fromHistory = true;
       currentCtx = ctx;
     }
@@ -1593,6 +1617,7 @@ S7｜最终方案推荐
     try {
       localStorage.removeItem(storageKey(currentCtx ? currentCtx.version : 'guest'));
     } catch (e) { /* 忽略 */ }
+    clearSummaryFlag(currentCtx ? currentCtx.version : 'guest');
     closeMoreMenu();
     summaryCache = ''; // 上一轮的小结不再适用
     // 先清空再重建 system：避免 composeSystem 用重启前的旧对话检索知识库
