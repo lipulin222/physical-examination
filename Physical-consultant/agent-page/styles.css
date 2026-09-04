@@ -440,6 +440,39 @@ ul {
   cursor: default;
 }
 
+/* 选项解析失败兜底：原 bot 回复里没识别到选项时，提示用户一键让顾问重出 */
+.opt-fallback {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff7e6;
+  border: 1px solid #ffe0a8;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 100%;
+}
+.opt-fallback__hint {
+  font-size: 13px;
+  color: #8a6a2e;
+  line-height: 1.5;
+}
+.opt-fallback__btn {
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: 16px;
+  background: #1a9c9c;
+  color: #fff;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+}
+.opt-fallback__btn:active { opacity: 0.85; }
+.opt-fallback__btn:disabled {
+  background: #c8c8c8;
+  cursor: default;
+}
+
 /* 历史选项（只读）：保留文本，弱化视觉，表示不可再点击 */
 .option-list--readonly .option-list__item {
   background: rgba(0, 0, 0, 0.03);

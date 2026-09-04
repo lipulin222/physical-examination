@@ -173,7 +173,7 @@ S7｜最终方案推荐
 · 用户认可方案、表示"就按这个""可以了""去预约"时，单独输出一行【生成小结】结束（前后不要其他内容），前端会据此生成《体检方案推荐小结》
 · 语言亲和、简洁：普通提问每次不超过 200 字，推荐输出不超过 350 字
 
-#最高优先级·用户交互约束
+#最高优先级·用户交互约束（覆盖上面所有版式规则）
 本对话界面里，用户只能通过点击你给出的选项按钮作答，无法自由输入文字。
 因此：任何需要用户提供信息的提问，都必须随问题附上可点击的选项；一旦只提问不列选项，用户将无法继续对话，这是最严重的错误。
 输出必须严格采用下面的唯一格式（题干一行 → 单独一行「选项：」→ 编号选项逐行；禁止用斜杠/顿号把选项挤在一行，禁止省略「选项：」标记）：
@@ -185,6 +185,8 @@ S7｜最终方案推荐
 4. 40～49岁
 5. 50～59岁
 6. 60岁以上
+**反例（绝对禁止）**：① 只输出题干就结束；② 把选项写进段落里（如"年龄段有：18岁以下、18～29岁……"）；③ 用「/」或「、」把选项拼成一行；④ 题干后忘了写「选项：」标记。
+**强制性自检**：每次要提问之前，先在脑里过一遍——"我接下来要问的这个问题，用户能点哪些按钮？"如果想不出能点的按钮，就把它们列出来；列不出就改成陈述句或直接给出推荐，不要硬出题。
 注：上面各流程状态中写的「选项：A / B / C」只是内容清单说明，正式输出时一律转换成这种编号分行的格式；无法继续追问时也请把"结束语+下一步去向"做成选项让用户点选。
 例外：S5 初步推荐轮不要列选项——输出【套餐卡】后前端会自动展示固定引导文案与「继续提问」按钮；S7 最终推荐轮除外，须按 S7 规则列选项。`;
 
@@ -534,7 +536,41 @@ S7｜最终方案推荐
       }
     }
 
-    // D) 中文"或者""还是"分隔的并列结构（兜底）
+    // E) 启发式扫描：问号之后的行重新尝试匹配（容忍模型没写「选项：」、但问完之后逐行给了选项）
+    if (/[?？]/.test(text)) {
+      const qIdx = Math.max(text.lastIndexOf('?'), text.lastIndexOf('？'));
+      const tail = text.slice(qIdx + 1).trim();
+      const tailLines = tail.split('\n').map(normOptLine).filter(Boolean);
+      const tailOpts = [];
+      for (const ln of tailLines) {
+        const t = optText(ln);
+        if (t === null) {
+          if (tailOpts.length >= 2) break;
+          tailOpts.length = 0;
+          continue;
+        }
+        tailOpts.push(t);
+      }
+      if (tailOpts.length >= 2) {
+        const body = text.slice(0, qIdx + 1).trim();
+        return { body, options: tailOpts };
+      }
+    }
+
+    // F) 单行并列（"男 / 女 / 其他" / "A、B、C"）— 整段极短且只一行并列短语
+    {
+      const flat = text.replace(/\s+/g, ' ').trim();
+      const m = flat.match(/^([^。？\?]+[？\?])[，：:]?\s*(.+)$/);
+      if (m) {
+        const tail = m[2].replace(/[？\?]+$/g, '').trim();
+        const parts = tail.split(/\s*[\/／、,，]\s*/).filter(Boolean);
+        if (parts.length >= 2 && parts.length <= 8 && parts.every((s) => s.length <= 16)) {
+          return { body: m[1], options: parts };
+        }
+      }
+    }
+
+    // G) 中文"或者""还是"分隔的并列结构（兜底）
     if (/或者|还是/.test(text)) {
       const m = text.match(/^([^，？。\?:：]+?)[，：:]?\s*([^，？。\?:：]+?)\s*或者\s*([^？。\?:：]+?)(?:\s*或者\s*([^？。\?:：]+?))?(?:\s*或者\s*([^？。\?:：]+?))?\??$/);
       if (m) {
@@ -900,6 +936,30 @@ S7｜最终方案推荐
         sendPrompt('跳过', true);
       });
       bubble.appendChild(skip);
+    }
+
+    // 兜底：上一条路径（renderBotReply 内已经发现 0 选项且含问号）— 给一个明显的"重新提问"按钮，
+    // 让用户不必靠手动输入也能继续对话；同时把原文贴一份方便排查。
+    if (options.length === 0 && body && /[?？]/.test(body)) {
+      const fallback = document.createElement('div');
+      fallback.className = 'opt-fallback';
+
+      const hint = document.createElement('div');
+      hint.className = 'opt-fallback__hint';
+      hint.textContent = '未识别到选项，可点击下方按钮让顾问重新出题。';
+      fallback.appendChild(hint);
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'opt-fallback__btn';
+      btn.textContent = '让顾问重新出题';
+      btn.addEventListener('click', () => {
+        btn.disabled = true;
+        sendPrompt('上一轮没收到选项，请把刚才的问题重新整理一次：先单独一行写题干（以 ？结尾），再单独一行写「选项：」，下面逐行列出 2-6 个可点击的选项。', true);
+      });
+      fallback.appendChild(btn);
+
+      bubble.appendChild(fallback);
     }
 
     // S5 初步推荐引导：有卡片且无选项时展示普通引导文字 + 轻量「继续提问」
