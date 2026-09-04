@@ -164,6 +164,12 @@ S7｜最终方案推荐
 {USER_INFO}
 
 #输出格式要求（前端会按此渲染，必须严格遵守）
+· **阶段标记（每轮必带）**：每轮回复的第一行必须单独输出一个阶段标记，格式严格为 [STAGE:S1]～[STAGE:S7]，代表"本轮回复所处的流程阶段"。前端会自动剥离这一行，用户看不到。
+  - S1 确认体检对象 / S2 基础信息 / S3 体检目的 / S4 风险筛查（均为需求确认，只出选择题）
+  - S5 初步推荐（两张【套餐卡】+【推荐理由】，不列选项）
+  - S6 精准追问（只出选择题，禁止输出【套餐卡】）
+  - S7 最终方案推荐（主套餐卡 + 加项卡 +【推荐理由】+「这个方案可以吗？」选项）
+  - 阶段只能前进不得回退；S6 追问结束后必须直接进入 S7，禁止退回 S5 的双卡对比
 · 凡需要用户从选项中作答的轮次，回复必须按以下"三段式"组织，严禁遗漏任何一段：
   第1段：题干问句一行（以 ? 或 ？ 结尾；可多选题的题干开头标注【多选题】，单选题不加任何标注）
   第2段：单独一行「选项：」（含全角冒号，前后不与其他文字同行）
@@ -179,8 +185,9 @@ S7｜最终方案推荐
 · 语言亲和、简洁：普通提问每次不超过 200 字，推荐输出不超过 350 字
 
 #最高优先级·用户交互约束（覆盖上面所有版式规则）
-本对话界面里，用户只能通过点击你给出的选项按钮作答，无法自由输入文字。
-因此：任何需要用户提供信息的提问，都必须随问题附上可点击的选项；一旦只提问不列选项，用户将无法继续对话，这是最严重的错误。
+本对话界面里，用户主要通过点击你给出的选项按钮作答，也可以通过底部输入框自由输入文字。
+因此：任何需要用户提供信息的提问，都必须随问题附上可点击的选项——只提问不列选项会让用户无从下手，这是最严重的错误。
+用户自由输入文字时：先把它当作对上一题的回答或补充信息来理解并继续流程，不要因为用户没有点选项就重复出同一道题；确实还需要追问时，仍按三段式给出选项。
 输出必须严格采用下面的唯一格式（题干一行 → 单独一行「选项：」→ 编号选项逐行；禁止用斜杠/顿号把选项挤在一行，禁止省略「选项：」标记）：
 请问您的年龄段是？
 选项：
@@ -222,7 +229,11 @@ S7｜最终方案推荐
   function buildSummaryMessages(messages) {
     const transcript = messages
       .filter((m) => m && m.role !== 'system')
-      .map((m) => (m.role === 'user' ? '用户' : '顾问') + '：' + (m.content || ''))
+      .map((m) => {
+        // 顾问侧剥离阶段标记，避免 [STAGE:Sx] 混进小结语料
+        const text = m.role === 'assistant' ? stripStageTag(m.content || '') : (m.content || '');
+        return (m.role === 'user' ? '用户' : '顾问') + '：' + text;
+      })
       .join('\n');
     const kb = knowledgeBlock();
     return [
@@ -254,7 +265,8 @@ S7｜最终方案推荐
 
   // ===== 体检套餐知识库：加载 → 按人群检索 → 注入 System Prompt =====
   // 知识库为 Markdown，按「## 」一级章节切分；推荐阶段只注入相关章节，避免整库占用上下文
-  const KB_URL = '../卓正体检知识库.md（含加项定价）.md';
+  // 中文文件名需显式编码，否则部分环境/静态服务器会 404
+  const KB_URL = encodeURI('../卓正体检知识库.md（含加项定价）.md');
   const KB_MISSING_TIP = '（知识库本次未加载成功：不要编造具体套餐名与价格，只给方向性建议，并提示以卓正官方渠道为准。）';
   let kbSections = [];
 
@@ -317,10 +329,11 @@ S7｜最终方案推荐
   }
 
   // 组装最终 System Prompt：提示词模板 + 知识库片段 + 对话阶段信号
-  function stageLabel(stage) {
-    if (stage >= 4) return 'S7｜最终方案推荐（输出 1 张主套餐卡 + 加项卡 + 推荐理由 + 「这个方案可以吗？」选项）';
-    if (stage === 3) return 'S6｜精准追问中（仅出选择题，禁止输出【套餐卡】与推荐理由）';
-    if (stage === 2) return 'S5｜初步推荐已出（输出两张【套餐卡】+推荐理由，不再列选项，等用户点"继续提问"或继续提问）';
+  // 当前阶段 → 注入 System Prompt 的阶段信号（与模型输出的 [STAGE:Sx] 同口径）
+  function stageLabel() {
+    if (currentPhase === 'S7') return 'S7｜最终方案推荐（输出 1 张主套餐卡 + 加项卡 + 推荐理由 + 「这个方案可以吗？」选项）';
+    if (currentPhase === 'S6') return 'S6｜精准追问中（仅出选择题，禁止输出【套餐卡】与推荐理由）';
+    if (currentPhase === 'S5') return 'S5｜初步推荐已出（输出两张【套餐卡】+推荐理由，不再列选项，等用户点"继续提问"或继续提问）';
     return 'S1-S4｜需求确认阶段（只输出"题干+选项：+编号选项"三段式，禁止输出套餐卡或推荐）';
   }
 
@@ -328,7 +341,7 @@ S7｜最终方案推荐
     const base = buildSystemPrompt(currentCtx || {});
     return base
       .replace('{KNOWLEDGE}', knowledgeBlock() || KB_MISSING_TIP)
-      .replace('{STAGE}', stageLabel(currentStage));
+      .replace('{STAGE}', stageLabel());
   }
 
   // 每轮请求前刷新 system 帧，保证推荐基于最新检索到的知识库
@@ -369,12 +382,15 @@ S7｜最终方案推荐
     } catch (e) { /* 存储满时静默失败 */ }
   }
 
-  // 通用轻提示
+  // 通用轻提示（保存 timer，避免连续调用时上一条定时器提前隐藏新提示）
+  let toastTimer = null;
   function showToast(message, duration = 1800) {
     toast.textContent = message;
     toast.classList.add('is-visible');
-    setTimeout(() => {
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
       toast.classList.remove('is-visible');
+      toastTimer = null;
     }, duration);
   }
 
@@ -649,7 +665,7 @@ S7｜最终方案推荐
 
   // 通用：给选项列表追加「其他，手动输入」入口与内嵌输入框。
   // 单选：提交即发送；多选：输入内容作为一个已选项追加，仍走确认按钮统一提交。
-  function attachFreeInput(list, multi) {
+  function attachFreeInput(list, multi, lock) {
     const bar = document.createElement('div');
     bar.className = 'option-list__freebar';
 
@@ -698,7 +714,7 @@ S7｜最终方案推荐
         box.hidden = true;
         updateConfirmBtn(list);
       } else {
-        list.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+        if (lock) lock();
         box.hidden = true;
         sendPrompt(text, true);
       }
@@ -707,6 +723,13 @@ S7｜最终方案推荐
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); submit(); }
     });
+  }
+
+  // 把选项拼成模型约定的「选项：+ 编号列表」块：本地直出的开场白落库后仍能被 parseOptions 解析回来
+  function withOptionsBlock(text, options) {
+    const body = '[STAGE:S1]\n' + text;
+    if (!options || !options.length) return body;
+    return body + '\n选项：\n' + options.map((o, i) => (i + 1) + '. ' + o).join('\n');
   }
 
   // 渲染 AI 回复：正文 markdown 渲染 + 选项按钮（支持单选/多选）
@@ -797,17 +820,23 @@ S7｜最终方案推荐
   const TIER_MOD = { '最推荐': 'best', '性价比方案': 'value', '更全面方案': 'full', '加项': 'best', '主套餐': 'best' };
   const TIER_SHORT = { '最推荐': '最推荐', '性价比方案': '性价比', '更全面方案': '更全面', '最终推荐': '最终推荐' };
 
-  // 跳转独立套餐详情页（按套餐名称解析性别/档位/是否含妇科）
-  function goPkgDetail(name) {
+  // 套餐名称 → 详情页地址；儿童套餐是独立体系、没有男/女分档详情页，返回 null 由调用方提示
+  function pkgDetailUrl(name) {
     const n = String(name || '');
-    if (/男/.test(n)) {
-      const t = /基础版/.test(n) ? 0 : (/全面版/.test(n) ? 2 : 1);
-      window.location.href = 'pkg-detail.html?g=male&t=' + t + '&gyn=0';
-    } else {
-      const t = /基础版/.test(n) ? 0 : (/全面版/.test(n) ? 2 : 1);
-      const gyn = /含妇科/.test(n) ? 1 : 0;
-      window.location.href = 'pkg-detail.html?g=female&t=' + t + '&gyn=' + gyn;
+    if (/儿童|孩子|宝宝|小朋友|青少|入园|入学/.test(n)) return null;
+    const t = /基础版/.test(n) ? 0 : (/全面版/.test(n) ? 2 : 1);
+    if (/男/.test(n)) return 'pkg-detail.html?g=male&t=' + t + '&gyn=0';
+    return 'pkg-detail.html?g=female&t=' + t + '&gyn=' + (/含妇科/.test(n) ? 1 : 0);
+  }
+
+  // 跳转独立套餐详情页（儿童套餐无对应详情页，改由轻提示引导）
+  function goPkgDetail(name) {
+    const url = pkgDetailUrl(name);
+    if (!url) {
+      showToast('儿童套餐为独立方案，详情请咨询健康顾问');
+      return;
     }
+    window.location.href = url;
   }
 
   // 渲染单张推荐卡（白底 + 左侧绿色竖条；点击 → 套餐详情抽屉）
@@ -841,7 +870,8 @@ S7｜最终方案推荐
     // 覆盖/价格信息存在且非加项时，卡片可点击跳转独立套餐详情页
     const hasDetail = !isAddon && card.name;
     if (hasDetail) {
-      html += '<span class="pkg__foot">点击查看套餐详情 ›</span>';
+      const isChild = !pkgDetailUrl(card.name);
+      html += '<span class="pkg__foot">' + (isChild ? '儿童独立方案 · 详情请咨询顾问' : '点击查看套餐详情 ›') + '</span>';
     }
     el.innerHTML = html;
     if (hasDetail) el.addEventListener('click', () => goPkgDetail(card.name));
@@ -882,6 +912,115 @@ S7｜最终方案推荐
     return el;
   }
 
+  // 通用选项渲染：实时回复与历史回放共用同一套实现，避免两侧行为分叉（历史丢选项的根因）
+  // readonly=true：仅展示、不可点击（历史中已答过的题目）；readonly=false：可点击，并带自由输入与跳过入口
+  function renderOptions(bubble, body, options, multi, readonly) {
+    const list = document.createElement('div');
+    list.className = 'option-list' + (multi ? ' option-list--multi' : '') + (readonly ? ' option-list--readonly' : '');
+
+    // 提交后锁定：选项、确认、自由输入、跳过一起禁用，避免重复提交
+    const lockList = () => {
+      list.querySelectorAll('button, input').forEach((b) => { b.disabled = true; });
+      const host = list.parentElement || bubble;
+      if (host) host.querySelectorAll('.option-list__skip').forEach((b) => { b.disabled = true; });
+    };
+
+    // 多选提示条：题干写明上限时优先展示，否则只提示可多选
+    if (multi && !readonly) {
+      const maxMatch = (body || '').match(/最多(?:可以)?(?:可选|选择|选|择)?\s*(\d+)\s*项/);
+      const hint = document.createElement('div');
+      hint.className = 'option-list__hint';
+      hint.innerHTML = '<span class="option-list__hint-mark">多选</span>' +
+        (maxMatch ? '本题最多可选 ' + maxMatch[1] + ' 项' : '本题可多选，请选择所有符合的选项');
+      list.appendChild(hint);
+    }
+
+    options.forEach((opt, i) => {
+      if (readonly) {
+        const row = document.createElement('div');
+        row.className = 'option-list__item';
+        row.innerHTML = '<span class="option-list__index">' + (i + 1) + '</span>' +
+                        '<span class="option-list__text">' + escapeHtml(opt) + '</span>';
+        list.appendChild(row);
+        return;
+      }
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'option-list__item';
+      btn.dataset.optIndex = i + 1;
+      btn.setAttribute('aria-label', '选项 ' + (i + 1) + '：' + opt);
+      // 兜底项（以上都不是/不确定等）与具体选项互斥
+      if (/以上都不是|以上都不太像|都不太像|不太像|不确定|没有特别明显/.test(opt)) {
+        btn.dataset.fallback = '1';
+      }
+      btn.innerHTML = '<span class="option-list__index">' + (i + 1) + '</span>' +
+                      '<span class="option-list__text">' + escapeHtml(opt) + '</span>' +
+                      (multi
+                        ? '<span class="option-list__check" aria-hidden="true"></span>'
+                        : '<span class="option-list__arrow">›</span>');
+      btn.addEventListener('click', () => {
+        if (multi) {
+          if (btn.dataset.fallback) {
+            // 选中兜底项：清空其他选中
+            list.querySelectorAll('.option-list__item.is-selected').forEach((b) => b.classList.remove('is-selected'));
+            btn.classList.add('is-selected');
+          } else {
+            // 选中具体项：取消兜底项
+            const fallback = list.querySelector('.option-list__item[data-fallback]');
+            if (fallback) fallback.classList.remove('is-selected');
+            btn.classList.toggle('is-selected');
+          }
+          updateConfirmBtn(list);
+        } else {
+          lockList();
+          sendPrompt(opt, true);
+        }
+      });
+      list.appendChild(btn);
+    });
+
+    if (multi && !readonly) {
+      const foot = document.createElement('div');
+      foot.className = 'option-list__foot';
+      const count = document.createElement('span');
+      count.className = 'option-list__count';
+      count.textContent = '已选 0 项';
+      const confirm = document.createElement('button');
+      confirm.type = 'button';
+      confirm.className = 'option-list__confirm';
+      confirm.textContent = '确认选择';
+      confirm.disabled = true;
+      confirm.addEventListener('click', () => {
+        const selected = Array.from(list.querySelectorAll('.option-list__item.is-selected'))
+          .map((b) => b.dataset.optIndex + '、' + b.querySelector('.option-list__text').textContent);
+        if (!selected.length) return;
+        lockList();
+        sendPrompt(selected.join('；'), true);
+      });
+      foot.appendChild(count);
+      foot.appendChild(confirm);
+      list.appendChild(foot);
+    }
+
+    // 自由输入入口：选项没有覆盖到的情况，用户可以手动补充（单选提交即发送，多选并入已选）
+    if (!readonly) attachFreeInput(list, multi, lockList);
+
+    bubble.appendChild(list);
+
+    if (!readonly) {
+      // 跳过入口：用户可随时跳过当前问题（提示词约定记录为未知并进入下一步）
+      const skip = document.createElement('button');
+      skip.type = 'button';
+      skip.className = 'option-list__skip';
+      skip.textContent = '跳过这个问题';
+      skip.addEventListener('click', () => {
+        lockList();
+        sendPrompt('跳过', true);
+      });
+      bubble.appendChild(skip);
+    }
+  }
+
   function renderBotReply(typingEl, reply) {
     const { body, options } = parseOptions(reply);
     const multi = isMultiSelect(reply);
@@ -894,8 +1033,8 @@ S7｜最终方案推荐
 
     const cards = parseCardBlocks(reply);
     const reasonText = parseReason(reply) || '';
-    // S5：有套餐卡且无选项（S5 不列选项）；S7：套餐/加项卡 + 选项
-    const isS5Recommend = cards.length > 0 && options.length === 0;
+    // 是否"初步推荐"轮：以模型声明的阶段为准，避免 S7 漏列选项时被误判成 S5、渲染出「继续提问」
+    const isS5Recommend = currentPhase === 'S5' && cards.length > 0;
 
     // 先按原顺序渲染文字段与套餐/加项卡；理由块先收集，等所有卡片渲染完再统一追加到卡片下方，
     // 保证【推荐理由】始终是一张独立的卡片、且位于所有套餐卡与加项卡下面（不依赖 AI 的输出顺序）
@@ -919,93 +1058,7 @@ S7｜最终方案推荐
     }
 
     if (options.length > 0) {
-      const list = document.createElement('div');
-      list.className = 'option-list' + (multi ? ' option-list--multi' : '');
-
-      // 多选提示条：题干写明"最多选 N 项"时优先展示上限，否则提示可多选
-      if (multi) {
-        const maxMatch = body.match(/最多[可选]?[择]?\s*(\d+)\s*项/);
-        const hint = document.createElement('div');
-        hint.className = 'option-list__hint';
-        hint.innerHTML = '<span class="option-list__hint-mark">多选</span>' +
-          (maxMatch ? '本题最多可选 ' + maxMatch[1] + ' 项' : '本题可多选，请选择所有符合的选项');
-        list.appendChild(hint);
-      }
-
-      options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'option-list__item';
-        btn.dataset.optIndex = i + 1;
-        // 兜底项（以上都不是/不确定等）与具体选项互斥
-        if (/以上都不是|以上都不太像|都不太像|不太像|不确定|没有特别明显/.test(opt)) {
-          btn.dataset.fallback = '1';
-        }
-        btn.innerHTML = '<span class="option-list__index">' + (i + 1) + '</span>' +
-                        '<span class="option-list__text">' + escapeHtml(opt) + '</span>' +
-                        (multi
-                          ? '<span class="option-list__check" aria-hidden="true"></span>'
-                          : '<span class="option-list__arrow">›</span>');
-        btn.addEventListener('click', () => {
-          if (multi) {
-            if (btn.dataset.fallback) {
-              // 选中兜底项：清空其他选中
-              list.querySelectorAll('.option-list__item.is-selected').forEach((b) => b.classList.remove('is-selected'));
-              btn.classList.add('is-selected');
-            } else {
-              // 选中具体项：取消兜底项
-              const fallback = list.querySelector('.option-list__item[data-fallback]');
-              if (fallback) fallback.classList.remove('is-selected');
-              btn.classList.toggle('is-selected');
-            }
-            updateConfirmBtn(list);
-          } else {
-            list.querySelectorAll('.option-list__item').forEach((b) => { b.disabled = true; });
-            sendPrompt(opt, true);
-          }
-        });
-        list.appendChild(btn);
-      });
-
-      if (multi) {
-        const foot = document.createElement('div');
-        foot.className = 'option-list__foot';
-        const count = document.createElement('span');
-        count.className = 'option-list__count';
-        count.textContent = '已选 0 项';
-        const confirm = document.createElement('button');
-        confirm.type = 'button';
-        confirm.className = 'option-list__confirm';
-        confirm.textContent = '确认选择';
-        confirm.disabled = true;
-        confirm.addEventListener('click', () => {
-          const selected = Array.from(list.querySelectorAll('.option-list__item.is-selected'))
-            .map((b) => b.dataset.optIndex + '、' + b.querySelector('.option-list__text').textContent);
-          if (!selected.length) return;
-          list.querySelectorAll('.option-list__item, .option-list__confirm').forEach((b) => { b.disabled = true; });
-          sendPrompt(selected.join('；'), true);
-        });
-        foot.appendChild(count);
-        foot.appendChild(confirm);
-        list.appendChild(foot);
-      }
-
-      // 自由输入入口：选项没有覆盖到的情况，用户可以手动补充（不影响主路径：单选提交即发送，多选并入已选）
-      attachFreeInput(list, multi);
-
-      bubble.appendChild(list);
-
-      // 跳过入口：用户可随时跳过当前问题（提示词约定记录为未知并进入下一步）
-      const skip = document.createElement('button');
-      skip.type = 'button';
-      skip.className = 'option-list__skip';
-      skip.textContent = '跳过这个问题';
-      skip.addEventListener('click', () => {
-        bubble.querySelectorAll('.option-list__item, .option-list__confirm, .option-list__skip')
-          .forEach((b) => { b.disabled = true; });
-        sendPrompt('跳过', true);
-      });
-      bubble.appendChild(skip);
+      renderOptions(bubble, body, options, multi, false);
     }
 
     // 兜底：上一条路径（renderBotReply 内已经发现 0 选项且含问号）— 给一个明显的"重新提问"按钮，
@@ -1038,10 +1091,11 @@ S7｜最终方案推荐
     }
   }
 
-  // 渲染一条历史消息（保留选项文本为只读列表；AI 消息保留 markdown 格式）
-  function renderHistoryMessage(msg) {
+  // 渲染一条历史消息（AI 消息保留 markdown 格式；interactive=true 时选项可点击，用于恢复后继续对话）
+  function renderHistoryMessage(msg, interactive) {
     if (!msg || msg.role === 'system') return;
-    const content = typeof msg.content === 'string' ? msg.content : '';
+    // 历史消息可能带阶段标记（模型输出 / 开场白落库），渲染前先剥离
+    const content = typeof msg.content === 'string' ? stripStageTag(msg.content) : '';
     if (msg.role === 'user') {
       appendMessage(content, true);
     } else if (msg.role === 'assistant') {
@@ -1075,35 +1129,20 @@ S7｜最终方案推荐
         bubble.appendChild(buildReasonEl(reasonHtml, '为什么这样推荐'));
       }
 
-      // 历史选项：保留文本，仅作展示，不可再点击
+      // 历史选项：已答过的题目保留文本、不可点击；最后一条回复保留可点击，刷新后仍可继续对话
       if (options.length > 0) {
-        const list = document.createElement('div');
-        list.className = 'option-list option-list--readonly';
-        options.forEach((opt, i) => {
-          const row = document.createElement('div');
-          row.className = 'option-list__item';
-          row.innerHTML = '<span class="option-list__index">' + (i + 1) + '</span>' +
-                          '<span class="option-list__text">' + escapeHtml(opt) + '</span>';
-          list.appendChild(row);
-        });
-        bubble.appendChild(list);
+        renderOptions(bubble, body, options, multi, !interactive);
       }
 
       chatList.appendChild(item);
     }
   }
 
-  // 发送一条消息到接口；showUser=false 时不展示用户气泡（用于 AI 自动开场后的隐式上下文）
-  async function sendPrompt(content, showUser = true) {
-    if (!content) return;
-    if (showUser) appendMessage(content, true);
-    messages.push({ role: 'user', content });
-
-    // 每轮刷新 system：按最新对话检索知识库片段后注入，保证推荐有据可依
-    refreshSystemPrompt();
-
-    const typing = appendTyping();
-
+  // 统一 AI 请求入口：收敛鉴权、超时与错误分类，避免各处重复 fetch 逻辑
+  const REQ_TIMEOUT_MS = 60000;
+  async function callAI(payloadMessages, timeoutMs = REQ_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const res = await fetch(API_URL, {
         method: 'POST',
@@ -1111,30 +1150,57 @@ S7｜最终方案推荐
           'Content-Type': 'application/json',
           'Authorization': API_KEY
         },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: messages
-        })
+        body: JSON.stringify({ model: MODEL, messages: payloadMessages }),
+        signal: controller.signal
       });
-
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          throw new Error('认证失败，请检查接口密钥（Authorization）。');
-        }
-        throw new Error('服务返回异常（HTTP ' + res.status + '）。');
+      if (res.status === 401 || res.status === 403) {
+        throw new Error('认证失败，请检查接口密钥（Authorization）。');
       }
-
+      if (!res.ok) throw new Error('服务返回异常（HTTP ' + res.status + '）。');
       const data = await res.json();
-      const rawReply = data.choices && data.choices[0] && data.choices[0].message
+      const content = data.choices && data.choices[0] && data.choices[0].message
         ? data.choices[0].message.content
-        : '抱歉，暂时没有收到有效回复，请稍后再试。';
+        : '';
+      if (!content) throw new Error('服务未返回有效内容。');
+      return content;
+    } catch (err) {
+      if (err && err.name === 'AbortError') throw new Error('请求超时');
+      throw err;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
 
-      // 移除小结生成标记（不显示给用户），标记存在时稍后推送小结卡片
-      const reply = rawReply.replace(SUMMARY_GENERATE_RE, '').trim() || '抱歉，暂时没有收到有效回复，请稍后再试。';
+  // 请求进行中锁定输入与快捷入口，避免并发发送导致 messages 交叉错乱
+  let isSending = false;
+  function setInputLocked(locked) {
+    isSending = locked;
+    messageInput.disabled = locked;
+    document.querySelectorAll('.footer-actions .chip').forEach((b) => { b.disabled = locked; });
+    updateSendButton();
+  }
 
+  // 发送一条消息到接口；showUser=false 时不展示用户气泡（用于 AI 自动开场后的隐式上下文）
+  async function sendPrompt(content, showUser = true) {
+    if (!content || isSending) return;
+    if (showUser) appendMessage(content, true);
+    messages.push({ role: 'user', content });
+
+    // 每轮刷新 system：按最新对话检索知识库片段后注入，保证推荐有据可依
+    refreshSystemPrompt();
+
+    const typing = appendTyping();
+    setInputLocked(true);
+
+    try {
+      const rawReply = await callAI(messages);
+
+      // 剥离阶段标记与小结标记（都不显示给用户）；阶段先推进，再渲染，保证渲染时拿到的是本轮阶段
+      const reply = stripStageTag(rawReply).replace(SUMMARY_GENERATE_RE, '').trim() || '抱歉，暂时没有收到有效回复，请稍后再试。';
+
+      updateStage(rawReply);
       messages.push({ role: 'assistant', content: reply });
       renderBotReply(typing, reply);
-      updateStage(reply);
       scrollToBottom();
       // 成功后持久化对话历史
       if (currentCtx) saveHistory(messages, currentCtx.version);
@@ -1146,8 +1212,10 @@ S7｜最终方案推荐
       const isNetErr = err && (err instanceof TypeError || /failed to fetch|networkerror/i.test(String(err.message)));
       typing.textContent = isNetErr
         ? '回复失败：网络或跨域(CORS)请求被拦截。请确认通过线上地址访问；本地直接打开文件会因接口跨域白名单限制而失败。'
-        : '回复失败：' + err.message + ' 请稍后重试。';
+        : '回复失败：' + err.message + '。请稍后重试。';
       scrollToBottom();
+    } finally {
+      setInputLocked(false);
     }
   }
 
@@ -1188,29 +1256,19 @@ S7｜最终方案推荐
       </div>`;
   }
 
+  let summaryLoading = false;
   async function openSummarySheet() {
+    if (summaryLoading) return;
+    summaryLoading = true;
     summarySheet.hidden = false;
     renderSheetLoading();
     try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': API_KEY
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: buildSummaryMessages(messages)
-        })
-      });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      const text = data.choices && data.choices[0] && data.choices[0].message
-        ? data.choices[0].message.content
-        : '';
-      summaryBody.innerHTML = text ? mdToHtml(text) : '<p>暂时没有生成小结内容，请稍后重试。</p>';
+      const text = await callAI(buildSummaryMessages(messages));
+      summaryBody.innerHTML = mdToHtml(text);
     } catch (e) {
-      summaryBody.innerHTML = '<p>小结生成失败，请检查网络后重试。</p>';
+      summaryBody.innerHTML = '<p>小结生成失败：' + escapeHtml(e && e.message ? e.message : '未知错误') + '。请稍后重试。</p>';
+    } finally {
+      summaryLoading = false;
     }
   }
 
@@ -1247,10 +1305,6 @@ S7｜最终方案推荐
       html += '<div class="pkg-detail__sec">覆盖重点</div><div class="pkg-detail__chips">' +
         card.coverage.map((c) => '<span class="pkg__check">' + escapeHtml(c) + '</span>').join('') + '</div>';
     }
-    if (card.coverage && card.coverage.length) {
-      html += '<div class="pkg-detail__sec">覆盖重点</div><div class="pkg-detail__chips">' +
-        card.coverage.map((c) => '<span class="pkg__check">' + escapeHtml(c) + '</span>').join('') + '</div>';
-    }
     if (card.note) {
       html += '<div class="pkg-detail__sec">需要注意</div><p class="pkg-detail__note">' + escapeHtml(card.note) + '</p>';
     }
@@ -1282,31 +1336,15 @@ S7｜最终方案推荐
     `;
     chatList.appendChild(item);
     messages.push({ role: 'user', content: introUser });
-    messages.push({ role: 'assistant', content: text });
+    // 选项一并写入会话内容：刷新/恢复历史时仍能被解析出来，避免开场题只剩题干、没有可点的选项
+    messages.push({ role: 'assistant', content: withOptionsBlock(text, options) });
     scrollToBottom();
     if (currentCtx) { try { saveHistory(messages, currentCtx.version); } catch (e) { /* 忽略 */ } }
 
     if (options && options.length) {
       // 选项与普通 AI 回复一致：渲染进同一条气泡内部
       const bubble = item.querySelector('.chat__bubble');
-      const wrap = document.createElement('div');
-      wrap.className = 'option-list';
-      options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'option-list__item';
-        btn.innerHTML =
-          '<span class="option-list__index">' + (i + 1) + '</span>' +
-          '<span class="option-list__text">' + escapeHtml(opt) + '</span>' +
-          '<span class="option-list__arrow">›</span>';
-        btn.addEventListener('click', () => {
-          wrap.querySelectorAll('.option-list__item').forEach((b) => { b.disabled = true; });
-          sendPrompt(opt, true);
-        });
-        wrap.appendChild(btn);
-      });
-      attachFreeInput(wrap, false);
-      bubble.appendChild(wrap);
+      renderOptions(bubble, text, options, false, false);
       scrollToBottom();
     }
   }
@@ -1382,8 +1420,13 @@ S7｜最终方案推荐
       // 校验首条是 system，且用最新 systemPrompt（信息可能变化）
       const restored = history.filter((m) => m && m.role !== 'system');
       messages = [messages[0]].concat(restored);
-      restored.forEach((m) => {
-        try { renderHistoryMessage(m); } catch (e) { /* 忽略单条渲染失败 */ }
+      // 只有"对话以 assistant 结尾"（即这道题还没答）时选项才可点击，刷新后能接着选；已答过的保持只读
+      const lastIdx = restored.length - 1;
+      restored.forEach((m, i) => {
+        const interactive = i === lastIdx && m && m.role === 'assistant';
+        try { renderHistoryMessage(m, interactive); } catch (e) { /* 忽略单条渲染失败 */ }
+        // 依据历史内容重放阶段推进，避免刷新后进度条退回第 1 格
+        if (m && m.role === 'assistant') updateStage(m.content || '');
       });
       // 直接定位到最新对话（立即 + 渲染稳定后二次定位）
       jumpToBottom();
@@ -1395,10 +1438,21 @@ S7｜最终方案推荐
   }
 
   // ===== 推荐进度（对应状态机阶段）：需求确认 → 初步推荐 → 精准优化 → 方案确定 =====
-  const STAGE_LABELS = ['需求确认', '初步推荐', '精准优化', '方案确定'];
-  const STAGE_FINAL_RE = /个性化调整|最推荐方案/;
+  // 阶段以模型每轮回复开头的显式标记 [STAGE:Sx] 为准，不再靠正文正则猜——
+  // 否则 S7（主卡档位常写"主套餐"、且没有"性价比方案"字样）推不动，导致 stageLabel 给模型的指令与实际阶段错位
+  const STAGE_TAG_RE = /\[\s*STAGE\s*[:：]\s*S([1-7])\s*\]/i;
+  // 流程阶段 → 顶部进度条 4 格
+  const PHASE_STEP = { S1: 1, S2: 1, S3: 1, S4: 1, S5: 2, S6: 3, S7: 4 };
+  // 兜底：模型漏带标记（或回放旧会话）时，仍按正文特征粗判
+  const STAGE_FINAL_RE = /个性化调整|最推荐方案|就按这个方案/;
   const STAGE_RECOMMEND_RE = /性价比方案|更全面方案|###\s*最推荐/;
+  let currentPhase = 'S1';
   let currentStage = 1;
+
+  // 剥离回复开头的阶段标记（不显示给用户）
+  function stripStageTag(reply) {
+    return String(reply || '').replace(/^\s*\[\s*STAGE\s*[:：]\s*S[1-7]\s*\]\s*/i, '');
+  }
 
   function renderStage() {
     const items = document.querySelectorAll('#stage .stage__item');
@@ -1409,14 +1463,24 @@ S7｜最终方案推荐
     });
   }
 
-  // 依据回复内容推进阶段：最终推荐 → 4；初步推荐 → 2；初步推荐后的追问 → 3
+  // 依据回复推进阶段：优先取 [STAGE:Sx] 标记；缺失时退回正文特征粗判；阶段只前进不回退
   function updateStage(reply) {
-    let next = currentStage;
-    if (STAGE_FINAL_RE.test(reply)) next = 4;
-    else if (STAGE_RECOMMEND_RE.test(reply)) next = 2;
-    else if (currentStage === 2 && /[?？]/.test(reply)) next = 3;
-    if (next !== currentStage) {
-      currentStage = next;
+    const tag = STAGE_TAG_RE.exec(String(reply || ''));
+    let next = tag ? 'S' + tag[1] : null;
+    if (!next) {
+      const step = PHASE_STEP[currentPhase];
+      if (STAGE_FINAL_RE.test(reply)) next = 'S7';
+      else if (STAGE_RECOMMEND_RE.test(reply)) next = 'S5';
+      else if (step === 2 && /[?？]/.test(reply)) next = 'S6';
+      else if (step === 3) next = 'S6';
+      else next = currentPhase;
+    }
+    if ((PHASE_STEP[next] || 1) < PHASE_STEP[currentPhase]) return;
+
+    const nextStep = PHASE_STEP[next] || 1;
+    if (next !== currentPhase) currentPhase = next;
+    if (nextStep !== currentStage) {
+      currentStage = nextStep;
       renderStage();
     }
   }
@@ -1516,9 +1580,12 @@ S7｜最终方案推荐
       localStorage.removeItem(storageKey(currentCtx ? currentCtx.version : 'guest'));
     } catch (e) { /* 忽略 */ }
     closeMoreMenu();
-    messages = [{ role: 'system', content: composeSystem() }];
-    chatList.innerHTML = '';
+    // 先清空再重建 system：避免 composeSystem 用重启前的旧对话检索知识库
+    messages = [];
+    currentPhase = 'S1';
     currentStage = 1;
+    refreshSystemPrompt();
+    chatList.innerHTML = '';
     renderStage();
     showWelcome();
     showToast('对话已重新开始');
