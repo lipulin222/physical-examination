@@ -124,7 +124,7 @@ S7｜最终方案推荐
 · 升档提醒：若所需增量较多，提示"直接升档（如基础→标准）往往比逐个单点加项更划算"，并把划算的升档方案作为替代说明写进【推荐理由】。
 
 #结构化推荐卡输出（S5 两张、S7 一张或多张；前端据此渲染成卡片）
-每张卡必须以【套餐卡】开头、以【卡完】结束；每个字段独占一行，格式严格为「字段：值」，字段之间不要空行。字段仅限：档位、名称、价格、原价、对比、覆盖。示例：
+每张卡必须以【套餐卡】开头、以【卡完】结束；每个字段独占一行，格式严格为「字段：值」，字段之间不要空行。字段仅限：档位、名称、价格、原价、对比、覆盖、注意。示例：
 【套餐卡】
 档位：最推荐
 名称：女性标准版（含妇科）
@@ -141,6 +141,7 @@ S7｜最终方案推荐
 · 主套餐卡：价格/原价只填数字（人民币，如 2250），前端自动加「¥」并显示原价划线
 · 加项卡：价格填 7.3 单点价的**纯数字**（前端显示「¥xxx · 单点价」）；只有 7.3 明确未标价时才填"另付"——**不要因为不确定就写"另付"**
 · 覆盖、对比必须来自知识库，禁止编造；覆盖用「；」分隔，至少 4 项、最多 8 项（详情抽屉展示用）
+· 「注意」为可选字段：仅当该套餐/加项有需要提醒的事项时才写（如"需空腹""经期不做""需提前预约"），没有就不写这一行
 · 价格与覆盖存在时前端会自动补详情抽屉，不需要卡内放数字编号列表
 
 #套餐调整规则
@@ -311,6 +312,18 @@ S7｜最终方案推荐
     return kbSections.find((s) => s.title.indexOf(keyword) !== -1);
   }
 
+  // 体检对象：优先取 S1 的答案（开场后第一条用户消息），确定后只注入对应章节，
+  // 避免每轮都对全文做正则猜测（既不准，又会把两套套餐章节都塞进上下文）
+  function detectExamTarget() {
+    const userTexts = messages.filter((m) => m && m.role === 'user').map((m) => m.content || '');
+    if (!userTexts.length) return null;
+    const first = userTexts[0];
+    if (/孩子|儿童|儿子|女儿|小朋友|青少年|宝宝|入园|入学/.test(first)) return 'child';
+    if (/爸爸|父亲|老公|丈夫/.test(first)) return 'male';
+    if (/妈妈|母亲|老婆|妻子/.test(first)) return 'female';
+    return null;
+  }
+
   // 依据对话内容检索：概览 + 选购建议总表常驻，再按体检对象补对应套餐章节
   function knowledgeBlock() {
     if (!kbSections.length) return '';
@@ -318,9 +331,12 @@ S7｜最终方案推荐
       .filter((m) => m && m.role !== 'system')
       .map((m) => m.content || '')
       .join('\n');
-    const isChild = /孩子|儿童|儿子|女儿|小朋友|青少年|宝宝|入园|入学/.test(text);
-    const isFemale = /女性|妈妈|母亲|妻子|老婆|乳腺|妇科|宫颈|HPV|孕/.test(text);
-    const isMale = /男性|爸爸|父亲|老公|丈夫|前列腺|泌尿/.test(text);
+
+    const target = detectExamTarget();
+    // S1 未明确时（如用户答"我自己"）退回全文正则；两者结合，不做硬切换
+    const isChild = target ? target === 'child' : /孩子|儿童|儿子|女儿|小朋友|青少年|宝宝|入园|入学/.test(text);
+    const isFemale = target ? target === 'female' : /女性|妈妈|母亲|妻子|老婆|乳腺|妇科|宫颈|HPV|孕/.test(text);
+    const isMale = target ? target === 'male' : /男性|爸爸|父亲|老公|丈夫|前列腺|泌尿/.test(text);
 
     const picked = [];
     const overview = kbFind('知识库概览');
@@ -331,9 +347,17 @@ S7｜最终方案推荐
       const child = kbFind('儿童');
       if (child) picked.push(child);
     } else {
-      // 无明确性别信号时两套都带上，保证推荐始终有知识库依据
-      if (isFemale || !isMale) { const female = kbFind('女性'); if (female) picked.push(female); }
-      if (isMale || !isFemale) { const male = kbFind('男性套餐'); if (male) picked.push(male); }
+      if (target === 'female') {
+        const female = kbFind('女性');
+        if (female) picked.push(female);
+      } else if (target === 'male') {
+        const male = kbFind('男性套餐');
+        if (male) picked.push(male);
+      } else {
+        // 无明确性别信号时两套都带上，保证推荐始终有知识库依据
+        if (isFemale || !isMale) { const female = kbFind('女性'); if (female) picked.push(female); }
+        if (isMale || !isFemale) { const male = kbFind('男性套餐'); if (male) picked.push(male); }
+      }
       if (isFemale && isMale) { const compare = kbFind('横向对比'); if (compare) picked.push(compare); }
       // 加项定价/升档测算（7.x）：供 S7 加项推荐与"升档更划算"判断用
       const pricing = kbFind('加项定价');
@@ -397,14 +421,17 @@ S7｜最终方案推荐
 
   function saveHistory(messages, profile) {
     try {
-      // 限制条数，避免无限增长；保留 system + 最近 40 条，且从 assistant 边界截齐，保证 user/assistant 成对
+      // 只存对话正文：system 帧每轮都会用最新提示词 + 知识库重建，存下来既占空间（单帧可达 20KB+）
+      // 又会用到过期版本。恢复时由 init() 重新拼上最新的 system 帧。
+      const dialog = messages.filter((m) => m && m.role !== 'system');
+      // 限制条数，避免无限增长；从 user 边界截齐，保证 user/assistant 成对
       const MAX_TAIL = 40;
-      let toSave = messages;
-      if (messages.length > MAX_TAIL + 1) {
-        let tail = messages.slice(-MAX_TAIL);
-        // 若尾部第一帧是 user（说明半对被截断），丢弃它，保证从 assistant 开始
-        if (tail.length && tail[0].role === 'user') tail = tail.slice(1);
-        toSave = [messages[0]].concat(tail);
+      let toSave = dialog;
+      if (dialog.length > MAX_TAIL) {
+        let tail = dialog.slice(-MAX_TAIL);
+        // 若尾部第一帧是 assistant（说明半对被截断），丢弃它，保证从 user 开始
+        if (tail.length && tail[0].role === 'assistant') tail = tail.slice(1);
+        toSave = tail;
       }
       localStorage.setItem(storageKey(profile), JSON.stringify(toSave));
     } catch (e) { /* 存储满时静默失败 */ }
@@ -844,7 +871,7 @@ S7｜最终方案推荐
   // 渲染 AI 回复：正文 markdown 渲染 + 选项按钮（支持单选/多选）
   // ===== 结构化推荐卡：AI 以「【套餐卡】…【卡完】」与「【推荐理由】…【理由完】」输出 =====
   function parseCardField(line) {
-    const m = line.match(/^\s*(档位|名称|城市|价格|原价|对比|覆盖|注意)[：:]\s*(.+)$/);
+    const m = line.match(/^\s*(档位|名称|价格|原价|对比|覆盖|注意)[：:]\s*(.+)$/);
     return m ? [m[1], m[2].trim()] : null;
   }
 
@@ -853,7 +880,7 @@ S7｜最终方案推荐
     const re = /【\s*套餐卡\s*】([\s\S]*?)【\s*卡完\s*】/g;
     let mm;
     while ((mm = re.exec(reply || '')) !== null) {
-      const card = { tier: '', name: '', city: '', price: '', orig: '', diff: '', coverage: [], note: '' };
+      const card = { tier: '', name: '', price: '', orig: '', diff: '', coverage: [], note: '' };
       mm[1].split('\n').forEach((ln) => {
         const kv = parseCardField(ln);
         if (!kv) return;
@@ -861,7 +888,6 @@ S7｜最终方案推荐
         else if (kv[0] === '对比') card.diff = kv[1];
         else if (kv[0] === '档位') card.tier = kv[1];
         else if (kv[0] === '名称') card.name = kv[1];
-        else if (kv[0] === '城市') card.city = kv[1];
         else if (kv[0] === '价格') card.price = kv[1];
         else if (kv[0] === '原价') card.orig = kv[1];
         else if (kv[0] === '注意') card.note = kv[1];
@@ -935,7 +961,6 @@ S7｜最终方案推荐
   }
 
   const TIER_MOD = { '最推荐': 'best', '性价比方案': 'value', '更全面方案': 'full', '加项': 'best', '主套餐': 'best' };
-  const TIER_SHORT = { '最推荐': '最推荐', '性价比方案': '性价比', '更全面方案': '更全面', '最终推荐': '最终推荐' };
 
   // 套餐名称 → 详情页地址；儿童套餐是独立体系、没有男/女分档详情页，返回 null 由调用方提示
   function pkgDetailUrl(name) {
@@ -984,6 +1009,10 @@ S7｜最终方案推荐
       const label = isAddon ? '为何加' : '对比';
       html += '<span class="pkg__row pkg__row--diff"><span class="pkg__k">' + escapeHtml(label) + '</span><span class="pkg__v">' + escapeHtml(card.diff) + '</span></span>';
     }
+    // 注意事项（如空腹、经期不做）：可选的补充说明，卡内以浅黄标签呈现
+    if (card.note) {
+      html += '<span class="pkg__row pkg__row--note"><span class="pkg__k">注意</span><span class="pkg__v">' + escapeHtml(card.note) + '</span></span>';
+    }
     // 覆盖/价格信息存在且非加项时，卡片可点击跳转独立套餐详情页
     const hasDetail = !isAddon && card.name;
     if (hasDetail) {
@@ -991,6 +1020,8 @@ S7｜最终方案推荐
       html += '<span class="pkg__foot">' + (isChild ? '儿童独立方案 · 详情请咨询顾问' : '点击查看套餐详情 ›') + '</span>';
     }
     el.innerHTML = html;
+    // 不可点击的卡片（加项）用显式 class 标记，避免 CSS 用 :not([onclick]) 这种永不匹配的选择器
+    if (!hasDetail) el.className += ' pkg--static';
     if (hasDetail) el.addEventListener('click', () => goPkgDetail(card.name));
     return el;
   }
@@ -1335,6 +1366,23 @@ S7｜最终方案推荐
     return enabled;
   }
 
+  // 发给模型的上下文窗口：system 帧 + 最近 tail 条对话。
+  // 内存中的 messages 始终保留完整（渲染与历史持久化需要），只裁剪请求体，
+  // 避免长对话把 token 成本与延迟线性推高。
+  const API_CONTEXT_TAIL = 20;
+  // 小结是一次性请求、需要尽量完整的上下文，窗口给大一些
+  const SUMMARY_CONTEXT_TAIL = 40;
+  function buildApiMessages(tail = API_CONTEXT_TAIL) {
+    const systemFrames = messages.filter((m) => m && m.role === 'system').slice(0, 1);
+    const rest = messages.filter((m) => m && m.role !== 'system');
+    if (rest.length <= tail) return systemFrames.concat(rest);
+    let slice = rest.slice(-tail);
+    // 从 user 帧开始截取：保证 user/assistant 成对，且首帧是用户发言
+    const firstUserIdx = slice.findIndex((m) => m.role === 'user');
+    if (firstUserIdx > 0) slice = slice.slice(firstUserIdx);
+    return systemFrames.concat(slice);
+  }
+
   // 发送一条消息到接口；showUser=false 时不展示用户气泡（用于 AI 自动开场后的隐式上下文）
   async function sendPrompt(content, showUser = true) {
     if (!content) return;
@@ -1352,7 +1400,7 @@ S7｜最终方案推荐
       // 每轮刷新 system：按最新对话检索知识库片段后注入，保证推荐有据可依
       refreshSystemPrompt();
 
-      const rawReply = await callAI(messages);
+      const rawReply = await callAI(buildApiMessages());
 
       // 剥离阶段标记与小结标记（都不显示给用户）；阶段先推进，再渲染，保证渲染时拿到的是本轮阶段
       const reply = stripStageTag(rawReply).replace(SUMMARY_GENERATE_RE, '').trim() || '抱歉，暂时没有收到有效回复，请稍后再试。';
@@ -1373,6 +1421,8 @@ S7｜最终方案推荐
       typing.textContent = isNetErr
         ? '回复失败：网络或跨域(CORS)请求被拦截。请确认通过线上地址访问；本地直接打开文件会因接口跨域白名单限制而失败。'
         : '回复失败：' + err.message + '。请稍后重试。';
+      // 回滚本轮 user 帧：对话没有推进，留着它会在重试后形成两条连续 user，导致模型答非所问
+      if (messages.length && messages[messages.length - 1].role === 'user') messages.pop();
       // 失败时对话没有推进，恢复选项让用户重试
       setOptionsLocked(false, lockedNodes);
       scrollToBottom();
@@ -1431,7 +1481,7 @@ S7｜最终方案推荐
     summarySheet.hidden = false;
     renderSheetLoading();
     try {
-      const text = await callAI(buildSummaryMessages(messages));
+      const text = await callAI(buildSummaryMessages(buildApiMessages(SUMMARY_CONTEXT_TAIL)));
       summaryCache = mdToHtml(text);
       summaryBody.innerHTML = summaryCache;
     } catch (e) {

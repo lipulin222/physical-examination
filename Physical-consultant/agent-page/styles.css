@@ -58,8 +58,7 @@ ul {
   justify-content: space-between;
   padding: 4px 8px 10px;
   background: #f5f6f8;
-  position: sticky;
-  top: 0;
+  /* 顶栏靠 flex 布局常驻（滚动容器是 .chat），不需要 sticky */
   z-index: 20;
 }
 
@@ -846,8 +845,9 @@ ul {
 }
 .pkg:first-child { margin-top: 0; }
 .pkg:active { transform: scale(0.985); box-shadow: 0 2px 8px rgba(13,138,138,.16); }
-.pkg:not([onclick]) { cursor: default; }
-.pkg:not([onclick]):active { transform: none; box-shadow: 0 4px 14px rgba(13,138,138,.08); }
+/* 不可点击的卡片（如加项卡）：用显式 class 而不是 :not([onclick])，后者永远匹配不到 */
+.pkg--static { cursor: default; }
+.pkg--static:active { transform: none; box-shadow: 0 4px 14px rgba(13,138,138,.08); }
 
 .pkg--best::before { background: linear-gradient(180deg,#14a3a3,#0e8f8f); }
 .pkg--best .pkg__tag { background: linear-gradient(135deg,#14a3a3,#0e8f8f); color: #fff; }

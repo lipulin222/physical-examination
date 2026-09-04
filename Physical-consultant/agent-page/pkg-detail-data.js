@@ -4,7 +4,6 @@
 window.PKG_DATA = {
   female: {
     title: '女性套餐（上海）',
-    gynNote: true,
     priceNote: '以上为上海宣传图会员价口径，实际以门店/官方最新报价为准。',
     gyn: {
       false: [
@@ -117,7 +116,6 @@ window.PKG_DATA = {
 
   male: {
     title: '男性套餐（深圳）',
-    gynNote: false,
     priceNote: '以上为深圳宣传图会员价口径，实际以门店/官方最新报价为准。',
     gyn: {
       false: [
