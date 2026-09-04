@@ -343,7 +343,8 @@ S7｜最终推荐
   // 从 AI 回复中解析选择题选项（多种格式兜底，选项块可位于回复任意位置）
   function parseOptions(text) {
     const lines = text.split('\n');
-    const lineRe = /^\s*(?:(\d{1,2})|([A-Ha-h]))\s*[.、)）:：]\s*(\S.*)$/;
+    // 数字/字母 + 间隔 + 分隔符（半角/全角）+ 内容；支持半角「.」与全角「．」两种句点
+    const lineRe = /^\s*(?:(\d{1,2})|([A-Ha-h]))\s*[.．、)）:：]\s*(\S.*)$/;
 
     // 1) 列表式：扫描全文，收集"连续选项行"块，取最长的一块（≥2 行）。
     //    严格条件：选项块之前 5 行内必须出现问号 ? 或 ？，否则视为陈述中混入的编号列表，不识别为选项。
@@ -377,7 +378,7 @@ S7｜最终推荐
 
     // 2) 行内列表标记："1.xxx 2.xxx" / "A:xxx B:xxx"。同样要求题干含问号。
     {
-      const parts = text.split(/(?:[1-9]\d{0,1}|[A-Ha-h])[.、)）:：]/);
+      const parts = text.split(/(?:[1-9]\d{0,1}|[A-Ha-h])[.．、)）:：]/);
       if (parts.length >= 3 && /[?？]/.test(parts[0])) {
         const opts = parts.slice(1).map((s) => s.trim()).filter(Boolean);
         if (opts.length >= 2) {
