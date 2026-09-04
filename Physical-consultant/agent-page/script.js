@@ -944,11 +944,19 @@ S7｜最终推荐
   function openMoreMenu() {
     moreMenu.innerHTML = moreMenuHtml('list');
     moreMenu.hidden = false;
-    document.getElementById('restartBtn').addEventListener('click', () => {
-      // 进入二次确认视图
+    document.getElementById('restartBtn').addEventListener('click', (e) => {
+      // 阻止冒泡：视图切换会移除被点击的按钮，若不拦截，
+      // 该次点击继续冒泡会命中 document 的"点外关闭"，导致菜单被立刻收起
+      e.stopPropagation();
       moreMenu.innerHTML = moreMenuHtml('confirm');
-      document.getElementById('cancelRestart').addEventListener('click', closeMoreMenu);
-      document.getElementById('okRestart').addEventListener('click', restartConversation);
+      document.getElementById('cancelRestart').addEventListener('click', (e2) => {
+        e2.stopPropagation();
+        closeMoreMenu();
+      });
+      document.getElementById('okRestart').addEventListener('click', (e2) => {
+        e2.stopPropagation();
+        restartConversation();
+      });
     });
   }
 
