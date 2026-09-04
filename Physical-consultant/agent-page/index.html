@@ -46,9 +46,9 @@
 
     <!-- 底部功能区 -->
     <div class="footer-actions">
-      <button class="chip" data-action="human">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z" stroke="currentColor" stroke-width="1.8"/><path d="M6 20C6 16.6863 8.68629 14 12 14C15.3137 14 18 16.6863 18 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18 6v6M15 9h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <span>转真人健康顾问</span>
+      <button class="chip" data-action="report">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7l-4-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v4h4" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 17.5V11M9.5 13.5L12 11l2.5 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>上传外院体检报告</span>
       </button>
       <button class="chip" data-action="packages">
         <svg viewBox="0 0 24 24" fill="none"><path d="M4 8h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 8l2.5-4h11L20 8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 13h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -63,6 +63,9 @@
         <span>预约购买</span>
       </button>
     </div>
+
+    <!-- 外院体检报告上传：隐藏入口，由底部「上传外院体检报告」触发 -->
+    <input type="file" id="reportInput" accept="image/*,.pdf" multiple hidden />
 
     <!-- 输入栏 -->
     <div class="input-bar">

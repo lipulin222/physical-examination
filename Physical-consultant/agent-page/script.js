@@ -160,6 +160,7 @@ S7｜最终方案推荐
 · 体检对象为儿童时，只推荐儿童体检套餐，不做分档推荐
 · 体检对象为女性时，套餐一律默认用「含妇科」档；只有当用户明确不需要妇科（如"只要基础/不要妇科"）才改不含妇科档并说明原因
 · S3 只要命中「女性健康」（含妇科、HPV与宫颈、乳腺等任一女性向关注），必须确保主套餐为含妇科档，不允许出现"女性却推荐不含妇科套餐"的情况
+· **外院报告上传**：用户通过底部入口上传外院体检报告时，你只能看到文件名，**看不到报告内容**——禁止假装读过报告、禁止编造具体数值或结论。正确做法：先确认已收到 → 用一道【多选题】请用户勾选报告里的异常或关注项（如 血压异常 / 血脂异常 / 血糖异常 / 脂肪肝 / 甲状腺结节 / 乳腺结节 / 都没有异常）→ 把勾选结果纳入档位与加项判断；并提醒最终以医生解读为准
 
 {USER_INFO}
 
@@ -257,6 +258,7 @@ S7｜最终方案推荐
   const toast = document.getElementById('toast');
   const summarySheet = document.getElementById('summarySheet');
   const summaryBody = document.getElementById('summaryBody');
+  const reportInput = document.getElementById('reportInput');
 
   // 对话上下文与历史
   let messages = [];
@@ -1523,18 +1525,23 @@ S7｜最终方案推荐
     }
   }
 
-  // 快捷入口：转真人顾问 / 浏览全部套餐 / 既往体检异常 / 预约购买
+  // 快捷入口：上传外院体检报告 / 浏览全部套餐 / 既往体检异常 / 预约购买
   const CHIP_PROMPTS = {
     packages: '我想先看看你们有哪些体检套餐。',
     history: '我以前体检发现过异常项，帮我把这个考虑进去。'
   };
   const CHIP_NOTICES = {
-    human: '正在为您转接真人健康顾问，请稍候…',
     booking: '正在为您打开预约与购买页…'
   };
   document.querySelectorAll('[data-action]').forEach(btn => {
     btn.addEventListener('click', () => {
       const action = btn.dataset.action;
+      // 上传型入口：拉起系统文件选择
+      if (action === 'report') {
+        reportInput.value = ''; // 允许连续选择同一份文件
+        reportInput.click();
+        return;
+      }
       // 提问型入口：直接以用户身份发起
       if (CHIP_PROMPTS[action]) {
         sendPrompt(CHIP_PROMPTS[action], true);
@@ -1543,6 +1550,15 @@ S7｜最终方案推荐
       // 演示型入口：直出提示气泡
       if (CHIP_NOTICES[action]) appendMessage(CHIP_NOTICES[action], false);
     });
+  });
+
+  // 选中报告后以用户身份进入对话，由顾问结合报告给复查/加项建议
+  reportInput.addEventListener('change', () => {
+    const files = Array.from(reportInput.files || []).map((f) => f.name);
+    if (!files.length) return;
+    showToast('已收到 ' + files.length + ' 份报告，正在请顾问查看');
+    sendPrompt('我上传了外院体检报告：' + files.join('、') +
+      '。请结合这份报告，帮我看看这次体检需要重点复查或补充加项的地方。', true);
   });
 
   // 发送消息
