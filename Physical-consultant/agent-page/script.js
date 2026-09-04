@@ -47,15 +47,10 @@ S4｜快速风险筛查
 选项：以前体检发现异常 / 家人有癌症或重大疾病 / 长期吸烟 / 有慢性疾病 / 都没有 / 不清楚
 记录 risk_tags[]。此阶段禁止继续展开追问，回答后直接进入 S5 推荐。
 
-S5｜初步推荐（需求确认结束后触发，必须严格依据知识库）
+S5｜初步推荐（需求确认结束后触发，必须严格依据知识库，用结构化卡片输出）
 {KNOWLEDGE}
-基于上述知识库，结合年龄、性别、体检目的、风险标签、历史体检数据输出推荐。每类写清"套餐名称 + 会员价 + 匹配原因（对应知识库中的哪些项目）"：
-### 最推荐
-### 性价比方案
-### 更全面方案
-再补三点：◆ 已覆盖哪些重点；◆ 知识库中可能缺少什么、哪些需要另行加项；◆ 是否建议继续优化。
-结束语固定为：「目前这个推荐已经可以作为参考。如果希望更精准，我可以再帮你确认几个关键问题。」
-随后另起一行输出题干「接下来想怎么做？」，再单独一行「选项：」，然后逐行列出：查看推荐套餐 / 再帮我选准一点 / 浏览其他套餐。
+基于上述知识库，结合年龄、性别、体检目的、风险标签、历史体检数据，输出 3 张【套餐卡】（档位依次为：最推荐 / 性价比方案 / 更全面方案），字段格式见下方「#结构化推荐卡输出」。
+开头用 1-2 句话简述推荐依据；卡块之间空一行；卡块结束后不要再列选项，前端会自动在卡下展示固定提示与「继续提问」按钮；若用户需要预约、浏览其他套餐，ta 会主动提出，你按对话规则响应即可。
 
 S6｜精准追问
 只问会改变套餐推荐的问题，按下述分支选择，最多 3 个：
@@ -67,7 +62,27 @@ S6｜精准追问
 用户选择"查看推荐套餐"或"浏览其他套餐"时不进入 S6。
 
 S7｜最终推荐
-同样以知识库为准，输出"### 最推荐方案"：为什么适合、覆盖哪些风险、哪些项目需要补充；再输出"### 个性化调整"，支持增加项目、删除非必要项目、更换套餐。知识库未包含的项目，必须标注"需单独加项，以门店为准"。
+同样以知识库为准，输出 1 张【套餐卡】（档位：最终推荐），再输出"### 个性化调整"要点（支持增加/删除项目、更换套餐；可用①②或◆，禁止数字编号列表）。
+随后另起一行输出题干「这个最终方案可以吗？」，再单独一行「选项：」，逐行列出：就按这个方案帮我预约 / 想再调整一下方案。知识库未包含的项目，必须标注"需单独加项，以门店为准"。
+
+#结构化推荐卡输出（S5 用 3 张、S7 用 1 张；前端据此渲染成卡片）
+每张卡必须以【套餐卡】开头、以【卡完】结束；每个字段独占一行，格式严格为「字段：值」，字段之间不要空行。字段仅限：档位、名称、城市、价格、原价、覆盖、注意。示例：
+【套餐卡】
+档位：最推荐
+名称：女性标准版（含妇科）
+城市：上海
+价格：2250
+原价：2812.5
+覆盖：血脂四项；颈动脉彩超；便潜血；EB病毒DNA；贫血三项；肝功十项；心脑血管风险计算
+注意：无心脏彩超、无脊柱DR；无痛胃肠镜需单独加项
+【卡完】
+字段约束：
+· 价格与覆盖、注意必须来自知识库，禁止编造
+· 价格/原价只填数字（人民币），前端自动加「¥」并计算省额
+· 档位取值：最推荐 / 性价比方案 / 更全面方案 / 最终推荐
+· 覆盖：用「；」分隔，至少 4 项、最多 8 项
+· 注意：写知识库中该档的短板与需加项；确实没有时写"无明显短板"
+· 卡片是纯展示信息，点击由用户触发「查看详情」，不需要在卡内或卡后放数字编号与"以上推荐…"等列表
 
 #套餐调整规则
 · 用户要求降低预算：说明必须保留的项目、可以减少的项目、可节省的金额
@@ -113,7 +128,8 @@ S7｜最终推荐
 4. 40～49岁
 5. 50～59岁
 6. 60岁以上
-注：上面各流程状态中写的「选项：A / B / C」只是内容清单说明，正式输出时一律转换成这种编号分行的格式；无法继续追问时也请把"结束语+下一步去向"做成选项让用户点选。`;
+注：上面各流程状态中写的「选项：A / B / C」只是内容清单说明，正式输出时一律转换成这种编号分行的格式；无法继续追问时也请把"结束语+下一步去向"做成选项让用户点选。
+例外：S5 初步推荐轮不要列选项——输出【套餐卡】后前端会自动展示固定引导文案与「继续提问」按钮；S7 最终推荐轮除外，须按 S7 规则列选项。`;
 
   // ② 小结提示词：生成《体检方案推荐小结》
   const SUMMARY_PROMPT = `你是卓正 AI 体检选购顾问。请根据对话记录，输出一份《体检方案推荐小结》，供用户预约购买前快速回顾。要求：
@@ -165,6 +181,8 @@ S7｜最终推荐
   const toast = document.getElementById('toast');
   const summarySheet = document.getElementById('summarySheet');
   const summaryBody = document.getElementById('summaryBody');
+  const pkgSheet = document.getElementById('pkgSheet');
+  const pkgSheetBody = document.getElementById('pkgSheetBody');
 
   // 对话上下文与历史
   let messages = [];
@@ -520,6 +538,118 @@ S7｜最终推荐
   }
 
   // 渲染 AI 回复：正文 markdown 渲染 + 选项按钮（支持单选/多选）
+  // ===== 结构化推荐卡：AI 以「【套餐卡】…【卡完】」输出，前端解析为卡片 =====
+  function parseCardField(line) {
+    const m = line.match(/^\s*(档位|名称|城市|价格|原价|覆盖|注意)[：:]\s*(.+)$/);
+    return m ? [m[1], m[2].trim()] : null;
+  }
+
+  function parseCardBlocks(reply) {
+    const cards = [];
+    const re = /【\s*套餐卡\s*】([\s\S]*?)【\s*卡完\s*】/g;
+    let mm;
+    while ((mm = re.exec(reply || '')) !== null) {
+      const card = { tier: '', name: '', city: '', price: '', orig: '', coverage: [], note: '' };
+      mm[1].split('\n').forEach((ln) => {
+        const kv = parseCardField(ln);
+        if (!kv) return;
+        if (kv[0] === '覆盖') card.coverage = kv[1].split(/[；;、]/).map((s) => s.trim()).filter(Boolean);
+        else if (kv[0] === '档位') card.tier = kv[1];
+        else if (kv[0] === '名称') card.name = kv[1];
+        else if (kv[0] === '城市') card.city = kv[1];
+        else if (kv[0] === '价格') card.price = kv[1];
+        else if (kv[0] === '原价') card.orig = kv[1];
+        else if (kv[0] === '注意') card.note = kv[1];
+      });
+      if (card.name) cards.push(card);
+    }
+    return cards;
+  }
+
+  // 把正文按卡块切成有序片段（文字段 / 卡段），保证"正文→卡→正文"的原顺序渲染
+  function splitCardSegments(text) {
+    if (!text) return [];
+    const segs = [];
+    const re = /【\s*套餐卡\s*】/g;
+    let m;
+    let cursor = 0;
+    while ((m = re.exec(text)) !== null) {
+      const head = text.slice(cursor, m.index).trim();
+      if (head) segs.push({ type: 'text', text: head });
+      const endTag = '【卡完】';
+      const end = text.indexOf(endTag, m.index);
+      if (end === -1) {
+        const rest = text.slice(m.index).trim();
+        if (rest) segs.push({ type: 'text', text: rest });
+        cursor = text.length;
+        break;
+      }
+      const parsed = parseCardBlocks(text.slice(m.index, end + endTag.length));
+      if (parsed.length) segs.push({ type: 'card', card: parsed[0] });
+      cursor = end + endTag.length;
+    }
+    const tail = text.slice(cursor).trim();
+    if (tail) segs.push({ type: 'text', text: tail });
+    return segs;
+  }
+
+  // 金额：整数不带小数，非整数最多保留 1 位（如 2250 / 3187.5）
+  function fmtMoney(v) {
+    const n = parseFloat(v);
+    if (isNaN(n)) return String(v == null ? '' : v);
+    return (Math.round(n * 10) / 10).toString();
+  }
+
+  const TIER_MOD = { '最推荐': 'best', '性价比方案': 'value', '更全面方案': 'full', '最终推荐': 'final' };
+  const TIER_SHORT = { '最推荐': '最推荐', '性价比方案': '性价比', '更全面方案': '更全面', '最终推荐': '最终推荐' };
+
+  // 渲染单张推荐卡（可点击 → 查看套餐详情）
+  function buildCardEl(card) {
+    const mod = TIER_MOD[card.tier] || 'value';
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'pkg pkg--' + mod;
+    const price = fmtMoney(card.price);
+    const orig = fmtMoney(card.orig);
+    const save = (parseFloat(card.price) && parseFloat(card.orig) && parseFloat(card.orig) > parseFloat(card.price))
+      ? fmtMoney(parseFloat(card.orig) - parseFloat(card.price)) : '';
+    let html = '<span class="pkg__head">' +
+      '<span class="pkg__tag">' + escapeHtml(card.tier || '推荐') + '</span>' +
+      '<span class="pkg__name">' + escapeHtml(card.name || '套餐') + '</span>' +
+      (card.city ? '<span class="pkg__loc">' + escapeHtml(card.city) + ' · 会员价</span>' : '') +
+      '</span>';
+    html += '<span class="pkg__price">' +
+      '<b>¥' + escapeHtml(price) + '</b>' +
+      (orig ? '<em>原价 ¥' + escapeHtml(orig) + '</em>' : '') +
+      (save ? '<span class="pkg__save">立省 ¥' + escapeHtml(save) + '</span>' : '') +
+      '</span>';
+    if (card.coverage && card.coverage.length) {
+      html += '<span class="pkg__checks">' + card.coverage.slice(0, 8).map((c) => '<span class="pkg__check">' + escapeHtml(c) + '</span>').join('') + '</span>';
+    }
+    if (card.note) {
+      html += '<span class="pkg__row pkg__row--note"><span class="pkg__k">注意</span><span class="pkg__v">' + escapeHtml(card.note) + '</span></span>';
+    }
+    html += '<span class="pkg__foot">点击查看套餐详情 ›</span>';
+    el.innerHTML = html;
+    el.addEventListener('click', () => openPkgSheet(card));
+    return el;
+  }
+
+  // 底部固定引导（S5 初步推荐用）：不列选项，提供「继续提问」单一按钮
+  function buildContinuePanel() {
+    const el = document.createElement('div');
+    el.className = 'rec-guide';
+    el.innerHTML =
+      '<p class="rec-guide__text">目前这个推荐可以作为选购参考，点击卡片可以查看套餐详情。如果希望更细致、准确的推荐，我会再问您一些问题，以便更加了解您的诉求。</p>' +
+      '<button type="button" class="rec-guide__btn">继续提问</button>';
+    el.querySelector('.rec-guide__btn').addEventListener('click', () => {
+      const btn = el.querySelector('.rec-guide__btn');
+      btn.disabled = true;
+      sendPrompt('请继续提问，帮我进一步细化推荐方案。', true);
+    });
+    return el;
+  }
+
   function renderBotReply(typingEl, reply) {
     const { body, options } = parseOptions(reply);
     const multi = isMultiSelect(reply);
@@ -530,12 +660,20 @@ S7｜最终推荐
     const bubble = typingEl.closest('.chat__bubble');
     bubble.innerHTML = '';
 
-    if (body) {
-      const div = document.createElement('div');
-      div.className = 'chat__bubble-text';
-      div.innerHTML = mdToHtml(stripMultiTag(body));
-      bubble.appendChild(div);
-    }
+    const cards = parseCardBlocks(reply);
+    const isFinalCards = cards.length > 0 && cards.some((c) => c.tier === '最终推荐');
+
+    // 按原顺序渲染：文字段（markdown）与卡片交替
+    splitCardSegments(body || '').forEach((seg) => {
+      if (seg.type === 'text') {
+        const div = document.createElement('div');
+        div.className = 'chat__bubble-text';
+        div.innerHTML = mdToHtml(stripMultiTag(seg.text));
+        bubble.appendChild(div);
+      } else if (seg.type === 'card') {
+        bubble.appendChild(buildCardEl(seg.card));
+      }
+    });
 
     if (options.length > 0) {
       const list = document.createElement('div');
@@ -623,6 +761,11 @@ S7｜最终推荐
       });
       bubble.appendChild(skip);
     }
+
+    // S5 初步推荐引导：有卡片且无选项（未进入最终推荐）时展示固定文案 + 「继续提问」
+    if (cards.length > 0 && !options.length && !isFinalCards) {
+      bubble.appendChild(buildContinuePanel());
+    }
   }
 
   // 渲染一条历史消息（保留选项文本为只读列表；AI 消息保留 markdown 格式）
@@ -633,19 +776,30 @@ S7｜最终推荐
       appendMessage(content, true);
     } else if (msg.role === 'assistant') {
       const { body, options } = parseOptions(content);
-      const text = body || content;
       const item = document.createElement('div');
       item.className = 'chat__item chat__item--bot';
       item.innerHTML = `
         ${BOT_AVATAR}
         <div class="chat__content">
-          <div class="chat__bubble chat__bubble--bot"><div class="chat__bubble-text">${mdToHtml(stripMultiTag(text))}</div></div>
+          <div class="chat__bubble chat__bubble--bot"></div>
         </div>
       `;
+      const bubble = item.querySelector('.chat__bubble');
+
+      // 正文与推荐卡片按原顺序渲染
+      splitCardSegments(body || content || '').forEach((seg) => {
+        if (seg.type === 'text') {
+          const div = document.createElement('div');
+          div.className = 'chat__bubble-text';
+          div.innerHTML = mdToHtml(stripMultiTag(seg.text));
+          bubble.appendChild(div);
+        } else if (seg.type === 'card') {
+          bubble.appendChild(buildCardEl(seg.card));
+        }
+      });
 
       // 历史选项：保留文本，仅作展示，不可再点击
       if (options.length > 0) {
-        const bubble = item.querySelector('.chat__bubble');
         const list = document.createElement('div');
         list.className = 'option-list option-list--readonly';
         options.forEach((opt, i) => {
@@ -791,6 +945,43 @@ S7｜最终推荐
     if (e.target.dataset && e.target.dataset.close) closeSummarySheet();
   });
   document.getElementById('summaryClose').addEventListener('click', closeSummarySheet);
+
+  // ===== 套餐详情弹层（点击推荐卡打开）=====
+  function openPkgSheet(card) {
+    const mod = TIER_MOD[card.tier] || 'value';
+    const price = fmtMoney(card.price);
+    const orig = fmtMoney(card.orig);
+    const save = (parseFloat(card.price) && parseFloat(card.orig) && parseFloat(card.orig) > parseFloat(card.price))
+      ? fmtMoney(parseFloat(card.orig) - parseFloat(card.price)) : '';
+    let html = '<div class="pkg-detail">' +
+      '<div class="pkg-detail__tag pkg--' + mod + '-tag">' + escapeHtml(card.tier || '推荐') + '</div>' +
+      '<div class="pkg-detail__name">' + escapeHtml(card.name || '套餐') + '</div>' +
+      (card.city ? '<div class="pkg-detail__city">' + escapeHtml(card.city) + ' · 会员价</div>' : '') +
+      '<div class="pkg-detail__price"><b>¥' + escapeHtml(price) + '</b>' +
+        (orig ? '<em>原价 ¥' + escapeHtml(orig) + '</em>' : '') +
+        (save ? '<span class="pkg__save">立省 ¥' + escapeHtml(save) + '</span>' : '') +
+      '</div>';
+    if (card.coverage && card.coverage.length) {
+      html += '<div class="pkg-detail__sec">覆盖重点</div><div class="pkg-detail__chips">' +
+        card.coverage.map((c) => '<span class="pkg__check">' + escapeHtml(c) + '</span>').join('') + '</div>';
+    }
+    if (card.note) {
+      html += '<div class="pkg-detail__sec">需要注意</div><p class="pkg-detail__note">' + escapeHtml(card.note) + '</p>';
+    }
+    html += '<p class="pkg-detail__tip">套餐与价格为卓正门店实时为准，本卡信息来自体检知识库；具体预约与加项请以官方渠道确认为准。</p>' +
+      '</div>';
+    pkgSheetBody.innerHTML = html;
+    pkgSheet.hidden = false;
+  }
+
+  function closePkgSheet() {
+    pkgSheet.hidden = true;
+  }
+
+  pkgSheet.addEventListener('click', (e) => {
+    if (e.target.dataset && e.target.dataset.close) closePkgSheet();
+  });
+  document.getElementById('pkgSheetClose').addEventListener('click', closePkgSheet);
 
   // ===== 开场白（框架：直接渲染，不走接口，同时写入 messages 保持对话结构完整）=====
   // options 中的项点击即发送
@@ -1056,6 +1247,7 @@ S7｜最终推荐
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeSummarySheet();
+      closePkgSheet();
       closeMoreMenu();
     }
   });
