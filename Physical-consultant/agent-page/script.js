@@ -47,10 +47,11 @@ S4｜快速风险筛查
 选项：以前体检发现异常 / 家人有癌症或重大疾病 / 长期吸烟 / 有慢性疾病 / 都没有 / 不清楚
 记录 risk_tags[]。此阶段禁止继续展开追问，回答后直接进入 S5 推荐。
 
-S5｜初步推荐（需求确认结束后触发，必须严格依据知识库，用结构化卡片输出）
+S5｜初步推荐（需求确认结束后触发，必须严格依据知识库，用结构化卡片对比输出）
 {KNOWLEDGE}
-基于上述知识库，结合年龄、性别、体检目的、风险标签、历史体检数据，输出 3 张【套餐卡】（档位依次为：最推荐 / 性价比方案 / 更全面方案），字段格式见下方「#结构化推荐卡输出」。
-开头用 1-2 句话简述推荐依据；卡块之间空一行；卡块结束后不要再列选项，前端会自动在卡下展示固定提示与「继续提问」按钮；若用户需要预约、浏览其他套餐，ta 会主动提出，你按对话规则响应即可。
+基于上述知识库，结合年龄、性别、体检目的、风险标签、历史体检数据，输出 **2 张【套餐卡】**：第 1 张档位=最推荐，第 2 张档位=性价比方案。每张卡必须填「对比」字段，客观写清与另一档的差异（多的/少的检查，会员价差额），只讲客观事实，不加"选它更好/够了就选它"等主观话。卡块间空一行。
+随后单独输出一块【推荐理由】…【理由完】，用 1-3 句话说明为何这样搭配推荐。
+随后不要再列选项——前端会自动在下方展示普通引导文字与「继续提问」按钮。
 
 S6｜精准追问
 只问会改变套餐推荐的问题，按下述分支选择，最多 3 个：
@@ -61,28 +62,29 @@ S6｜精准追问
 · 男性健康：「男性健康方面更关注哪类？」泌尿系统 / 前列腺 / 常规检查
 用户选择"查看推荐套餐"或"浏览其他套餐"时不进入 S6。
 
-S7｜最终推荐
-同样以知识库为准，输出 1 张【套餐卡】（档位：最终推荐），再输出"### 个性化调整"要点（支持增加/删除项目、更换套餐；可用①②或◆，禁止数字编号列表）。
-随后另起一行输出题干「这个最终方案可以吗？」，再单独一行「选项：」，逐行列出：就按这个方案帮我预约 / 想再调整一下方案。知识库未包含的项目，必须标注"需单独加项，以门店为准"。
+S7｜最终方案推荐
+综合精准回答与预算，为用户确定一个**整体方案**：由 1 张"主套餐"【套餐卡】（档位=最推荐/主套餐）+ 按需的若干"加项"【套餐卡】（档位=加项）组合；若无需加项则不输出加项卡。每张卡都带「价格」（加项用"另付，以门店报价为准"）与客观说明。
+主套餐卡与加项卡之后，输出【推荐理由】…【理由完】，讲清"为何这样组合"（如吸烟→加低剂量CT、家族史→套餐已含/再加胃肠镜），可含预算紧张时的降档替代建议。
+随后另起一行输出题干「这个方案可以吗？」，再单独一行「选项：」，逐行列出：就按这个方案帮我预约 / 想再调整一下方案。
 
-#结构化推荐卡输出（S5 用 3 张、S7 用 1 张；前端据此渲染成卡片）
-每张卡必须以【套餐卡】开头、以【卡完】结束；每个字段独占一行，格式严格为「字段：值」，字段之间不要空行。字段仅限：档位、名称、城市、价格、原价、覆盖、注意。示例：
+#结构化推荐卡输出（S5 两张、S7 一张或多张；前端据此渲染成卡片）
+每张卡必须以【套餐卡】开头、以【卡完】结束；每个字段独占一行，格式严格为「字段：值」，字段之间不要空行。字段仅限：档位、名称、价格、原价、对比、覆盖。示例：
 【套餐卡】
 档位：最推荐
 名称：女性标准版（含妇科）
-城市：上海
 价格：2250
 原价：2812.5
+对比：较基础版新增颈动脉彩超、便潜血、EB病毒DNA、贫血三项、肝功十项、心脑血管风险计算
 覆盖：血脂四项；颈动脉彩超；便潜血；EB病毒DNA；贫血三项；肝功十项；心脑血管风险计算
-注意：无心脏彩超、无脊柱DR；无痛胃肠镜需单独加项
 【卡完】
+【推荐理由】您40-49岁、有家族史且关注心脑血管…【理由完】
 字段约束：
-· 价格与覆盖、注意必须来自知识库，禁止编造
-· 价格/原价只填数字（人民币），前端自动加「¥」并计算省额
-· 档位取值：最推荐 / 性价比方案 / 更全面方案 / 最终推荐
-· 覆盖：用「；」分隔，至少 4 项、最多 8 项
-· 注意：写知识库中该档的短板与需加项；确实没有时写"无明显短板"
-· 卡片是纯展示信息，点击由用户触发「查看详情」，不需要在卡内或卡后放数字编号与"以上推荐…"等列表
+· 档位取值：最推荐 / 性价比方案 / 更全面方案 / 加项；主套餐卡如需可写"主套餐"
+· S5 每张卡必须带「对比」，内容需以"较 XX版"开头客观写明与另一档的差异（多的/少的检查及会员价差额），只讲客观事实，禁止"选它更好"等主观话
+· S7 加项卡用「对比」写该加项针对的用户情况（如需给谁加、回应哪个风险）
+· 价格/原价只填数字（人民币，如 2250），前端自动加「¥」并显示原价划线；加项卡把「价格」填为"另付"、注明以门店报价为准
+· 覆盖、对比必须来自知识库，禁止编造；覆盖用「；」分隔，至少 4 项、最多 8 项（详情抽屉展示用）
+· 价格与覆盖存在时前端会自动补详情抽屉，不需要卡内放数字编号列表
 
 #套餐调整规则
 · 用户要求降低预算：说明必须保留的项目、可以减少的项目、可节省的金额
@@ -538,9 +540,9 @@ S7｜最终推荐
   }
 
   // 渲染 AI 回复：正文 markdown 渲染 + 选项按钮（支持单选/多选）
-  // ===== 结构化推荐卡：AI 以「【套餐卡】…【卡完】」输出，前端解析为卡片 =====
+  // ===== 结构化推荐卡：AI 以「【套餐卡】…【卡完】」与「【推荐理由】…【理由完】」输出 =====
   function parseCardField(line) {
-    const m = line.match(/^\s*(档位|名称|城市|价格|原价|覆盖|注意)[：:]\s*(.+)$/);
+    const m = line.match(/^\s*(档位|名称|城市|价格|原价|对比|覆盖|注意)[：:]\s*(.+)$/);
     return m ? [m[1], m[2].trim()] : null;
   }
 
@@ -549,11 +551,12 @@ S7｜最终推荐
     const re = /【\s*套餐卡\s*】([\s\S]*?)【\s*卡完\s*】/g;
     let mm;
     while ((mm = re.exec(reply || '')) !== null) {
-      const card = { tier: '', name: '', city: '', price: '', orig: '', coverage: [], note: '' };
+      const card = { tier: '', name: '', city: '', price: '', orig: '', diff: '', coverage: [], note: '' };
       mm[1].split('\n').forEach((ln) => {
         const kv = parseCardField(ln);
         if (!kv) return;
         if (kv[0] === '覆盖') card.coverage = kv[1].split(/[；;、]/).map((s) => s.trim()).filter(Boolean);
+        else if (kv[0] === '对比') card.diff = kv[1];
         else if (kv[0] === '档位') card.tier = kv[1];
         else if (kv[0] === '名称') card.name = kv[1];
         else if (kv[0] === '城市') card.city = kv[1];
@@ -566,27 +569,48 @@ S7｜最终推荐
     return cards;
   }
 
-  // 把正文按卡块切成有序片段（文字段 / 卡段），保证"正文→卡→正文"的原顺序渲染
+  // 解析推荐理由块（S5/S7 通用，渲染为浅色独立卡片）
+  function parseReason(reply) {
+    const m = /【\s*推荐理由\s*】([\s\S]*?)【\s*理由完\s*】/.exec(reply || '');
+    if (!m) return '';
+    return m[1].trim();
+  }
+
+  // 从文本中移除推荐理由标记块，避免正文重复展示
+  function stripReasonBlocks(text) {
+    if (!text) return text;
+    return text.replace(/【\s*推荐理由\s*】[\s\S]*?【\s*理由完\s*】/g, '');
+  }
+
+  // 把正文按块切成有序片段（文字段 / 套餐卡 / 推荐理由），保持原顺序渲染
   function splitCardSegments(text) {
     if (!text) return [];
     const segs = [];
-    const re = /【\s*套餐卡\s*】/g;
+    const markerRe = /【\s*(套餐卡|推荐理由)\s*】/g;
+    const closerRe = { '套餐卡': /【\s*卡完\s*】/, '推荐理由': /【\s*理由完\s*】/ };
     let m;
     let cursor = 0;
-    while ((m = re.exec(text)) !== null) {
+    while ((m = markerRe.exec(text)) !== null) {
       const head = text.slice(cursor, m.index).trim();
       if (head) segs.push({ type: 'text', text: head });
-      const endTag = '【卡完】';
-      const end = text.indexOf(endTag, m.index);
-      if (end === -1) {
+      const kind = m[1];
+      const endMatch = closerRe[kind].exec(text.slice(m.index + m[0].length));
+      if (!endMatch) {
+        // 块未闭合：直接作为文字，避免丢内容
         const rest = text.slice(m.index).trim();
         if (rest) segs.push({ type: 'text', text: rest });
         cursor = text.length;
         break;
       }
-      const parsed = parseCardBlocks(text.slice(m.index, end + endTag.length));
-      if (parsed.length) segs.push({ type: 'card', card: parsed[0] });
-      cursor = end + endTag.length;
+      const endAbs = m.index + m[0].length + endMatch.index + endMatch[0].length;
+      const inner = text.slice(m.index + m[0].length, m.index + m[0].length + endMatch.index);
+      if (kind === '套餐卡') {
+        const parsed = parseCardBlocks('【套餐卡】' + inner + '【卡完】');
+        if (parsed.length) segs.push({ type: 'card', card: parsed[0] });
+      } else {
+        segs.push({ type: 'reason', text: inner.trim() });
+      }
+      cursor = endAbs;
     }
     const tail = text.slice(cursor).trim();
     if (tail) segs.push({ type: 'text', text: tail });
@@ -600,38 +624,50 @@ S7｜最终推荐
     return (Math.round(n * 10) / 10).toString();
   }
 
-  const TIER_MOD = { '最推荐': 'best', '性价比方案': 'value', '更全面方案': 'full', '最终推荐': 'final' };
+  const TIER_MOD = { '最推荐': 'best', '性价比方案': 'value', '更全面方案': 'full', '加项': 'best', '主套餐': 'best' };
   const TIER_SHORT = { '最推荐': '最推荐', '性价比方案': '性价比', '更全面方案': '更全面', '最终推荐': '最终推荐' };
 
-  // 渲染单张推荐卡（可点击 → 查看套餐详情）
+  // 渲染单张推荐卡（白底 + 左侧绿色竖条；点击 → 套餐详情抽屉）
   function buildCardEl(card) {
-    const mod = TIER_MOD[card.tier] || 'value';
+    const isAddon = card.tier === '加项';
+    const mod = TIER_MOD[card.tier] || (isAddon ? 'best' : 'value');
     const el = document.createElement('button');
     el.type = 'button';
     el.className = 'pkg pkg--' + mod;
     const price = fmtMoney(card.price);
     const orig = fmtMoney(card.orig);
-    const save = (parseFloat(card.price) && parseFloat(card.orig) && parseFloat(card.orig) > parseFloat(card.price))
-      ? fmtMoney(parseFloat(card.orig) - parseFloat(card.price)) : '';
+    const numericPrice = parseFloat(card.price);
     let html = '<span class="pkg__head">' +
       '<span class="pkg__tag">' + escapeHtml(card.tier || '推荐') + '</span>' +
       '<span class="pkg__name">' + escapeHtml(card.name || '套餐') + '</span>' +
-      (card.city ? '<span class="pkg__loc">' + escapeHtml(card.city) + ' · 会员价</span>' : '') +
       '</span>';
     html += '<span class="pkg__price">' +
-      '<b>¥' + escapeHtml(price) + '</b>' +
-      (orig ? '<em>原价 ¥' + escapeHtml(orig) + '</em>' : '') +
-      (save ? '<span class="pkg__save">立省 ¥' + escapeHtml(save) + '</span>' : '') +
+      (isAddon || !(numericPrice > 0)
+        ? '<b>' + escapeHtml(card.price || '另付') + '</b>' + (card.orig ? '<em>' + escapeHtml(card.orig) + '</em>' : '')
+        : '<b>¥' + escapeHtml(price) + '</b>' + (orig ? '<em>原价 ¥' + escapeHtml(orig) + '</em>' : '')) +
       '</span>';
-    if (card.coverage && card.coverage.length) {
-      html += '<span class="pkg__checks">' + card.coverage.slice(0, 8).map((c) => '<span class="pkg__check">' + escapeHtml(c) + '</span>').join('') + '</span>';
+    // 差异/对比行（客观，放在卡内显眼位置；AI 在对比值里写明"较哪个档"）
+    if (card.diff) {
+      const label = isAddon ? '为何加' : '对比';
+      html += '<span class="pkg__row pkg__row--diff"><span class="pkg__k">' + escapeHtml(label) + '</span><span class="pkg__v">' + escapeHtml(card.diff) + '</span></span>';
     }
-    if (card.note) {
-      html += '<span class="pkg__row pkg__row--note"><span class="pkg__k">注意</span><span class="pkg__v">' + escapeHtml(card.note) + '</span></span>';
+    // 覆盖/价格信息存在且非加项时，卡片可点击展开详情
+    const hasDetail = !isAddon && card.coverage && card.coverage.length;
+    if (hasDetail) {
+      html += '<span class="pkg__foot">点击查看套餐详情 ›</span>';
     }
-    html += '<span class="pkg__foot">点击查看套餐详情 ›</span>';
     el.innerHTML = html;
-    el.addEventListener('click', () => openPkgSheet(card));
+    if (hasDetail) el.addEventListener('click', () => openPkgSheet(card));
+    return el;
+  }
+
+  // 推荐理由块：渲染为浅色独立卡片（区别于套餐卡）
+  function buildReasonEl(reason, title) {
+    const el = document.createElement('div');
+    el.className = 'pkg__reason';
+    el.innerHTML = '<p class="pkg__reason__title">' + escapeHtml(title || '为什么这样推荐') + '</p>' +
+      '<p class="pkg__reason__text"></p>';
+    el.querySelector('.pkg__reason__text').textContent = reason;
     return el;
   }
 
@@ -661,9 +697,12 @@ S7｜最终推荐
     bubble.innerHTML = '';
 
     const cards = parseCardBlocks(reply);
-    const isFinalCards = cards.length > 0 && cards.some((c) => c.tier === '最终推荐');
+    const reasonText = parseReason(reply) || '';
+    // S5：有套餐卡且无选项（S5 不列选项）；S7：套餐/加项卡 + 选项
+    const isS5Recommend = cards.length > 0 && options.length === 0;
+    let reasonShown = false;
 
-    // 按原顺序渲染：文字段（markdown）与卡片交替
+    // 按原顺序渲染：文字段（markdown）与卡片/理由块交替
     splitCardSegments(body || '').forEach((seg) => {
       if (seg.type === 'text') {
         const div = document.createElement('div');
@@ -672,8 +711,15 @@ S7｜最终推荐
         bubble.appendChild(div);
       } else if (seg.type === 'card') {
         bubble.appendChild(buildCardEl(seg.card));
+      } else if (seg.type === 'reason') {
+        bubble.appendChild(buildReasonEl(seg.text, '为什么这样推荐'));
+        reasonShown = true;
       }
     });
+    // 兜底：理由标记可能已被按文字渲染（旧逻辑）而 segment 缺失时，仍补一次
+    if (!reasonShown && reasonText) {
+      bubble.appendChild(buildReasonEl(reasonText, '为什么这样推荐'));
+    }
 
     if (options.length > 0) {
       const list = document.createElement('div');
@@ -762,8 +808,8 @@ S7｜最终推荐
       bubble.appendChild(skip);
     }
 
-    // S5 初步推荐引导：有卡片且无选项（未进入最终推荐）时展示固定文案 + 「继续提问」
-    if (cards.length > 0 && !options.length && !isFinalCards) {
+    // S5 初步推荐引导：有卡片且无选项时展示普通引导文字 + 轻量「继续提问」
+    if (isS5Recommend) {
       bubble.appendChild(buildContinuePanel());
     }
   }
@@ -786,7 +832,7 @@ S7｜最终推荐
       `;
       const bubble = item.querySelector('.chat__bubble');
 
-      // 正文与推荐卡片按原顺序渲染
+      // 正文与推荐卡片/理由块按原顺序渲染
       splitCardSegments(body || content || '').forEach((seg) => {
         if (seg.type === 'text') {
           const div = document.createElement('div');
@@ -795,6 +841,8 @@ S7｜最终推荐
           bubble.appendChild(div);
         } else if (seg.type === 'card') {
           bubble.appendChild(buildCardEl(seg.card));
+        } else if (seg.type === 'reason') {
+          bubble.appendChild(buildReasonEl(seg.text, '为什么这样推荐'));
         }
       });
 
@@ -951,16 +999,21 @@ S7｜最终推荐
     const mod = TIER_MOD[card.tier] || 'value';
     const price = fmtMoney(card.price);
     const orig = fmtMoney(card.orig);
-    const save = (parseFloat(card.price) && parseFloat(card.orig) && parseFloat(card.orig) > parseFloat(card.price))
-      ? fmtMoney(parseFloat(card.orig) - parseFloat(card.price)) : '';
+    const isAddon = card.tier === '加项';
     let html = '<div class="pkg-detail">' +
       '<div class="pkg-detail__tag pkg--' + mod + '-tag">' + escapeHtml(card.tier || '推荐') + '</div>' +
       '<div class="pkg-detail__name">' + escapeHtml(card.name || '套餐') + '</div>' +
-      (card.city ? '<div class="pkg-detail__city">' + escapeHtml(card.city) + ' · 会员价</div>' : '') +
-      '<div class="pkg-detail__price"><b>¥' + escapeHtml(price) + '</b>' +
-        (orig ? '<em>原价 ¥' + escapeHtml(orig) + '</em>' : '') +
-        (save ? '<span class="pkg__save">立省 ¥' + escapeHtml(save) + '</span>' : '') +
+      (card.city ? '<div class="pkg-detail__city">' + escapeHtml(card.city) + '</div>' : '') +
+      '<div class="pkg-detail__price"><b>' + (isAddon ? escapeHtml(card.price || '另付') : '¥' + escapeHtml(price)) + '</b>' +
+        (orig ? (isAddon ? '<em>' + escapeHtml(orig) + '</em>' : '<em>原价 ¥' + escapeHtml(orig) + '</em>') : '') +
       '</div>';
+    if (card.diff) {
+      html += '<div class="pkg-detail__sec">差异说明</div><p class="pkg-detail__note">' + escapeHtml(card.diff) + '</p>';
+    }
+    if (card.coverage && card.coverage.length) {
+      html += '<div class="pkg-detail__sec">覆盖重点</div><div class="pkg-detail__chips">' +
+        card.coverage.map((c) => '<span class="pkg__check">' + escapeHtml(c) + '</span>').join('') + '</div>';
+    }
     if (card.coverage && card.coverage.length) {
       html += '<div class="pkg-detail__sec">覆盖重点</div><div class="pkg-detail__chips">' +
         card.coverage.map((c) => '<span class="pkg__check">' + escapeHtml(c) + '</span>').join('') + '</div>';

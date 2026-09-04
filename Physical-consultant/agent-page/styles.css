@@ -702,6 +702,8 @@ ul {
 }
 .pkg:first-child { margin-top: 0; }
 .pkg:active { transform: scale(0.985); box-shadow: 0 2px 8px rgba(13,138,138,.16); }
+.pkg:not([onclick]) { cursor: default; }
+.pkg:not([onclick]):active { transform: none; box-shadow: 0 4px 14px rgba(13,138,138,.08); }
 
 .pkg--best::before { background: linear-gradient(180deg,#14a3a3,#0e8f8f); }
 .pkg--best .pkg__tag { background: linear-gradient(135deg,#14a3a3,#0e8f8f); color: #fff; }
@@ -735,6 +737,8 @@ ul {
 }
 .pkg__row { display: flex; gap: 8px; margin-top: 9px; font-size: 12px; line-height: 1.6; color: #4a5058; align-items: flex-start; }
 .pkg__row--note .pkg__k { color: #c98a2b; }
+.pkg__row--diff { background: rgba(14,143,143,.05); border-radius: 8px; padding: 6px 8px; }
+.pkg__row--diff .pkg__k { color: #0d8a8a; width: auto; padding: 0 6px 0 0; white-space: nowrap; }
 .pkg__k { flex-shrink: 0; font-size: 11px; font-weight: 700; color: #0d8a8a; width: 34px; }
 .pkg__v { flex: 1; word-break: break-word; }
 .pkg__foot { margin-top: 9px; font-size: 11px; color: #0d8a8a; text-align: right; }
@@ -743,28 +747,40 @@ ul {
 .chat__bubble .pkg { max-width: 100%; }
 .chat__bubble .pkg + .pkg { margin-top: 10px; }
 
-/* S5 底部固定引导 + 继续提问按钮 */
-.rec-guide {
+/* 推荐理由（浅色独立卡片，区别于套餐卡） */
+.pkg__reason {
   margin-top: 12px;
   background: #f4f9f7;
   border: 1px solid rgba(14,143,143,.15);
   border-radius: 14px;
-  padding: 11px 12px;
+  padding: 12px 13px 13px;
 }
-.rec-guide__text { font-size: 12px; line-height: 1.8; color: #4a5058; }
+.pkg__reason__title { font-size: 12.5px; font-weight: 700; color: #0a6f6f; margin-bottom: 5px; }
+.pkg__reason__text { font-size: 12px; line-height: 1.8; color: #4a5058; }
+
+/* S5 底部固定引导：普通文字排版 + 轻量「继续提问」按钮 */
+.rec-guide { margin-top: 12px; }
+.rec-guide__text { font-size: 12px; line-height: 1.8; color: #6b737c; padding: 0 2px; }
 .rec-guide__btn {
   margin-top: 9px;
   width: 100%;
-  background: linear-gradient(135deg,#14a3a3,#0e8f8f);
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  padding: 9px 0;
-  font-size: 14px;
-  font-weight: 600;
-  transition: transform 0.12s ease, opacity 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  background: rgba(14,143,143,.06);
+  border: 1px solid rgba(14,143,143,.18);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #0e8f8f;
+  text-align: left;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
-.rec-guide__btn:active { transform: scale(0.98); }
+.rec-guide__btn::after { content: '›'; margin-left: auto; color: #b0d4d4; font-size: 16px; transition: color .15s ease, transform .15s ease; }
+.rec-guide__btn:active { background: rgba(14,143,143,.14); transform: scale(0.98); }
+.rec-guide__btn:active::after { color: #0e8f8f; transform: translateX(2px); }
 .rec-guide__btn:disabled { opacity: .6; }
 
 /* 套餐详情弹层内容 */
