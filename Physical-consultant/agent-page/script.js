@@ -694,6 +694,19 @@ S7｜最终方案推荐
   const TIER_MOD = { '最推荐': 'best', '性价比方案': 'value', '更全面方案': 'full', '加项': 'best', '主套餐': 'best' };
   const TIER_SHORT = { '最推荐': '最推荐', '性价比方案': '性价比', '更全面方案': '更全面', '最终推荐': '最终推荐' };
 
+  // 跳转独立套餐详情页（按套餐名称解析性别/档位/是否含妇科）
+  function goPkgDetail(name) {
+    const n = String(name || '');
+    if (/男/.test(n)) {
+      const t = /基础版/.test(n) ? 0 : (/全面版/.test(n) ? 2 : 1);
+      window.location.href = 'pkg-detail.html?g=male&t=' + t + '&gyn=0';
+    } else {
+      const t = /基础版/.test(n) ? 0 : (/全面版/.test(n) ? 2 : 1);
+      const gyn = /含妇科/.test(n) ? 1 : 0;
+      window.location.href = 'pkg-detail.html?g=female&t=' + t + '&gyn=' + gyn;
+    }
+  }
+
   // 渲染单张推荐卡（白底 + 左侧绿色竖条；点击 → 套餐详情抽屉）
   function buildCardEl(card) {
     const isAddon = card.tier === '加项';
@@ -722,13 +735,13 @@ S7｜最终方案推荐
       const label = isAddon ? '为何加' : '对比';
       html += '<span class="pkg__row pkg__row--diff"><span class="pkg__k">' + escapeHtml(label) + '</span><span class="pkg__v">' + escapeHtml(card.diff) + '</span></span>';
     }
-    // 覆盖/价格信息存在且非加项时，卡片可点击展开详情
-    const hasDetail = !isAddon && card.coverage && card.coverage.length;
+    // 覆盖/价格信息存在且非加项时，卡片可点击跳转独立套餐详情页
+    const hasDetail = !isAddon && card.name;
     if (hasDetail) {
       html += '<span class="pkg__foot">点击查看套餐详情 ›</span>';
     }
     el.innerHTML = html;
-    if (hasDetail) el.addEventListener('click', () => openPkgSheet(card));
+    if (hasDetail) el.addEventListener('click', () => goPkgDetail(card.name));
     return el;
   }
 
