@@ -182,7 +182,8 @@ S7｜最终方案推荐
 3. 妈妈
 · 严禁"只提问不列选项"或"把选项写进段落里"；每次提问都必须带出「选项：」及至少 2 个选项
 · 题干与「选项：」之间、选项与选项之间不要空行；选项块之后不要再输出"请选择""等你回答"等多余文字
-· 除选项外，推荐、说明、总结中禁止使用「1. 2. 3.」阿拉伯数字编号列表，改用 ### 小标题、短句或「◆ ● ▪」表达
+· 除选项外，推荐、说明、总结中不要使用「1. 2. 3.」阿拉伯数字编号列表，改用 ### 小标题、短句或「◆ ● ▪」表达
+· **可以使用标准 Markdown**：### 小标题、**加粗**、无序列表、表格（| 表头 | 分隔行 |）、> 引用、--- 分割线都会被前端正常渲染；请规范书写、**标记务必成对闭合**，不要输出孤立或未闭合的符号，也**不要输出围栏代码块**（聊天气泡里没有意义）
 · 用户认可方案、表示"就按这个""可以了""去预约"时，单独输出一行【生成小结】结束（前后不要其他内容），前端会据此生成《体检方案推荐小结》
 · 语言亲和、简洁：普通提问每次不超过 200 字，推荐输出不超过 350 字
 
@@ -654,26 +655,102 @@ S7｜最终方案推荐
   }
 
   // 轻量 Markdown 渲染：标题、加粗、斜体、行内代码、无序/有序列表、段落
+  // 清理残留的结构化标记：成对出现时已被解析成卡片/理由卡，剩下的都是未闭合的残留，去掉避免用户看到裸标记
+  function stripLooseMarkers(text) {
+    return String(text || '')
+      .replace(/【\s*(?:套餐卡|卡完|推荐理由|理由完|生成小结)\s*】/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  // 轻量 Markdown 渲染：标题、段落、加粗/斜体/删除线/行内代码、围栏代码块、引用、分割线、
+  // 链接、无序/有序列表、表格；并兜底清理未闭合的强调标记，避免用户看到裸 ** 或 ~~
   function mdToHtml(text) {
-    const lines = text.split('\n');
+    const lines = stripLooseMarkers(text).split('\n');
     let html = '';
     let inList = false;
     let listType = '';
-    const closeList = () => { if (inList) { html += '</' + listType + '>'; inList = false; } };
-    const inline = (s) => s
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    const closeList = () => { if (inList) { html += '</' + listType + '>'; inList = false; listType = ''; } };
 
-    for (const raw of lines) {
-      const line = escapeHtml(raw).trim();
+    // 行内：先转义再还原语法，保证用户输入不会被当成 HTML 执行
+    const inline = (s) => escapeHtml(s)
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
+      .replace(/~~([^~\n]+)~~/g, '<del>$1</del>')
+      .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+      // 兜底：抹掉未成对 / 孤立的强调标记
+      .replace(/\*\*/g, '')
+      .replace(/~~/g, '');
+
+    const isTableRow = (s) => /^\s*\|.*\|\s*$/.test(s);
+    const isTableSep = (s) => /^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$/.test(s) && s.indexOf('-') !== -1;
+    const splitRow = (s) => s.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim());
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
       if (line === '') { closeList(); continue; }
+
+      // 围栏代码块
+      if (/^```/.test(line)) {
+        closeList();
+        const buf = [];
+        i++;
+        while (i < lines.length && !/^```/.test(lines[i].trim())) { buf.push(lines[i]); i++; }
+        html += '<pre><code>' + escapeHtml(buf.join('\n')) + '</code></pre>';
+        continue;
+      }
+
+      // 分割线：--- / *** / ___
+      if (/^([-*_])\s*(?:\1\s*){2,}$/.test(line)) {
+        closeList();
+        html += '<hr />';
+        continue;
+      }
+
+      // 表格：表头行 + 分隔行
+      if (isTableRow(line) && i + 1 < lines.length && isTableSep(lines[i + 1].trim())) {
+        closeList();
+        const head = splitRow(line);
+        i += 2;
+        const rows = [];
+        while (i < lines.length && isTableRow(lines[i].trim())) { rows.push(splitRow(lines[i].trim())); i++; }
+        i--;
+        html += '<table><thead><tr>' + head.map((c) => '<th>' + inline(c) + '</th>').join('') + '</tr></thead>';
+        if (rows.length) {
+          html += '<tbody>' + rows.map((r) => '<tr>' + r.map((c) => '<td>' + inline(c) + '</td>').join('') + '</tr>').join('') + '</tbody>';
+        }
+        html += '</table>';
+        continue;
+      }
+
+      // 引用块：连续 > 行合并为一段
+      if (/^>/.test(line)) {
+        closeList();
+        const buf = [];
+        while (i < lines.length && /^\s*>/.test(lines[i])) { buf.push(lines[i].trim().replace(/^>\s?/, '')); i++; }
+        i--;
+        html += '<blockquote>' + inline(buf.join(' ')) + '</blockquote>';
+        continue;
+      }
+
       const h = line.match(/^(#{1,6})\s+(.*)$/);
       if (h) { closeList(); const l = h[1].length; html += '<h' + l + '>' + inline(h[2]) + '</h' + l + '>'; continue; }
+
       const ul = line.match(/^[-*+]\s+(.*)$/);
-      if (ul) { if (!inList || listType !== 'ul') { closeList(); html += '<ul>'; inList = true; listType = 'ul'; } html += '<li>' + inline(ul[1]) + '</li>'; continue; }
+      if (ul) {
+        if (!inList || listType !== 'ul') { closeList(); html += '<ul>'; inList = true; listType = 'ul'; }
+        html += '<li>' + inline(ul[1]) + '</li>';
+        continue;
+      }
+
       const ol = line.match(/^\d+[.、)]\s+(.*)$/);
-      if (ol) { if (!inList || listType !== 'ol') { closeList(); html += '<ol>'; inList = true; listType = 'ol'; } html += '<li>' + inline(ol[1]) + '</li>'; continue; }
+      if (ol) {
+        if (!inList || listType !== 'ol') { closeList(); html += '<ol>'; inList = true; listType = 'ol'; }
+        html += '<li>' + inline(ol[1]) + '</li>';
+        continue;
+      }
+
       closeList(); html += '<p>' + inline(line) + '</p>';
     }
     closeList();

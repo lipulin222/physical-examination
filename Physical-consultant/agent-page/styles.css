@@ -355,6 +355,61 @@ ul {
   font-size: 0.9em;
 }
 
+/* AI 正文：表格 / 引用 / 分割线 / 删除线 / 链接 / 代码块 */
+.chat__bubble-text table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 6px 0 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.chat__bubble-text th,
+.chat__bubble-text td {
+  border: 1px solid #e8ecec;
+  padding: 5px 7px;
+  text-align: left;
+  word-break: break-word;
+}
+.chat__bubble-text th {
+  background: rgba(14, 143, 143, 0.07);
+  color: #0a7a7a;
+  font-weight: 700;
+}
+.chat__bubble-text tbody tr:nth-child(even) td { background: rgba(0, 0, 0, 0.015); }
+.chat__bubble-text blockquote {
+  margin: 6px 0 8px;
+  padding: 6px 10px;
+  border-left: 3px solid rgba(14, 143, 143, 0.45);
+  background: rgba(14, 143, 143, 0.05);
+  border-radius: 0 8px 8px 0;
+  color: #4a5058;
+}
+.chat__bubble-text hr {
+  border: none;
+  border-top: 1px dashed #e3e7e8;
+  margin: 10px 0;
+}
+.chat__bubble-text del { color: #9aa0a6; }
+.chat__bubble-text a {
+  color: #0e8f8f;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+.chat__bubble-text pre {
+  margin: 6px 0 8px;
+  padding: 9px 11px;
+  background: #f6f8fa;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+.chat__bubble-text pre code {
+  background: none;
+  padding: 0;
+  font-size: 12.5px;
+  white-space: pre;
+}
+
 /* AI 回复中的可点击选项（与气泡融为一体，带序号+箭头强化可点感知） */
 .option-list {
   display: flex;
