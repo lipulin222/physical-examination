@@ -49,6 +49,7 @@ S4｜快速风险筛查
 问：「【多选题】还有哪些情况需要考虑？」
 选项：以前体检发现异常 / 家人有癌症或重大疾病 / 长期吸烟 / 有慢性疾病 / 都没有 / 不清楚
 记录 risk_tags[]。此阶段禁止继续展开追问，回答后直接进入 S5 推荐。
+**S3→S4 去重（硬规则）**：S4 的选项必须与 S3 已选内容比对——用户在 S3 已经选过的项（如"以前体检异常"）不得再出现在 S4 选项里；若 S4 选项全部被去重后不足 3 个，用相关延伸项补足（如"长期熬夜 / 应酬饮食油腻 / 缺乏运动"）；用户都没有就选"都没有"。
 
 #需求/风险 → 套餐映射表（S5/S7 选档与含妇科判定的硬依据，必须据此推荐）
 体检对象为女性时，三档名称都写「（含妇科）」档（上海会员价 2100/2550/3400），并把含妇科作为默认。
@@ -82,7 +83,9 @@ S4「哪些情况需要考虑」各风险 → 上探档位或加项（风险不�
 随后不要再列选项——前端会自动在下方展示普通引导文字与「继续提问」按钮。
 
 S6｜精准追问
-只问会改变套餐推荐或加项的问题，按下述分支选择，**最多 5 个**（按优先级选，不是每个分支都要问；信息不够宁可多问也不要急着给方案）：
+只问会改变套餐推荐或加项的问题，按下述分支选择。
+**覆盖度硬规则：至少追问 2 个不同方向**——「必问·既往异常」之外，必须再从"S3/S4 命中的分支"和"年龄/性别触发的基础补充"里至少各挑 1 个方向提问（该分支与已确认信息完全重复时才可豁免，并在过渡语里说明原因）。
+**总数 4-5 个**（信息不够宁可多问也不要急着给方案）：
 · **必问·既往异常**：「【【多选题】您以前体检发现过哪些异常情况？】乳腺（如结节、增生）/ 妇科（如肌瘤、囊肿、HPV阳性）/ 甲状腺（如结节）/ 其他（如血常规、血糖、血脂等）/ 记不太清了（"记不太清"与具体异常互斥）」
 · 肺部方向（S3 命中肺部 或 S4 命中长期吸烟）：
   Q1「平时吸烟吗？」从不 / 已戒烟 / 偶尔 / 经常
@@ -147,6 +150,8 @@ S7｜最终方案推荐
 
 #全局规则
 · 已有历史体检数据优先使用，不重复询问
+· **全流程去重（硬规则）**：每道选择题出题前，先回顾用户已经回答过的内容；凡是用户已明确表达/已选择过的信息，不得再作为后续题目的选项出现（也不得就同一信息重复提问）
+· **话术自然化**：提问不要机械照搬状态机模板；题干前可以带一句结合上文 10-25 字的自然承接语（如"了解，接下来…"），让对话像真人顾问；但承接语不要每次都重复同一种句式
 · 用户要求直接推荐时，停止提问，基于已有信息直接推荐
 · 不进行疾病诊断
 · 出现明显严重症状时，提醒优先就医，再谈体检安排
@@ -642,6 +647,68 @@ S7｜最终方案推荐
     if (confirm) confirm.disabled = selected === 0;
   }
 
+  // 通用：给选项列表追加「其他，手动输入」入口与内嵌输入框。
+  // 单选：提交即发送；多选：输入内容作为一个已选项追加，仍走确认按钮统一提交。
+  function attachFreeInput(list, multi) {
+    const bar = document.createElement('div');
+    bar.className = 'option-list__freebar';
+
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'option-list__other';
+    trigger.textContent = '其他，手动输入';
+    bar.appendChild(trigger);
+
+    const box = document.createElement('div');
+    box.className = 'option-list__freebox';
+    box.hidden = true;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'option-list__freeinput';
+    input.placeholder = '补充你的情况…';
+    const ok = document.createElement('button');
+    ok.type = 'button';
+    ok.className = 'option-list__freeok';
+    ok.textContent = '发送';
+    box.appendChild(input);
+    box.appendChild(ok);
+    bar.appendChild(box);
+    list.appendChild(bar);
+
+    trigger.addEventListener('click', () => {
+      box.hidden = false;
+      trigger.disabled = true;
+      input.focus();
+    });
+
+    const submit = () => {
+      const text = input.value.trim();
+      if (!text) { input.focus(); return; }
+      if (multi) {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'option-list__item is-selected';
+        chip.dataset.optIndex = '补充';
+        chip.innerHTML = '<span class="option-list__index">+</span>' +
+          '<span class="option-list__text"></span>' +
+          '<span class="option-list__check" aria-hidden="true"></span>';
+        chip.querySelector('.option-list__text').textContent = text;
+        chip.disabled = true;
+        list.insertBefore(chip, bar);
+        box.hidden = true;
+        updateConfirmBtn(list);
+      } else {
+        list.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+        box.hidden = true;
+        sendPrompt(text, true);
+      }
+    };
+    ok.addEventListener('click', submit);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); submit(); }
+    });
+  }
+
   // 渲染 AI 回复：正文 markdown 渲染 + 选项按钮（支持单选/多选）
   // ===== 结构化推荐卡：AI 以「【套餐卡】…【卡完】」与「【推荐理由】…【理由完】」输出 =====
   function parseCardField(line) {
@@ -922,6 +989,9 @@ S7｜最终方案推荐
         foot.appendChild(confirm);
         list.appendChild(foot);
       }
+
+      // 自由输入入口：选项没有覆盖到的情况，用户可以手动补充（不影响主路径：单选提交即发送，多选并入已选）
+      attachFreeInput(list, multi);
 
       bubble.appendChild(list);
 
@@ -1217,6 +1287,8 @@ S7｜最终方案推荐
     if (currentCtx) { try { saveHistory(messages, currentCtx.version); } catch (e) { /* 忽略 */ } }
 
     if (options && options.length) {
+      // 选项与普通 AI 回复一致：渲染进同一条气泡内部
+      const bubble = item.querySelector('.chat__bubble');
       const wrap = document.createElement('div');
       wrap.className = 'option-list';
       options.forEach((opt, i) => {
@@ -1233,7 +1305,8 @@ S7｜最终方案推荐
         });
         wrap.appendChild(btn);
       });
-      chatList.appendChild(wrap);
+      attachFreeInput(wrap, false);
+      bubble.appendChild(wrap);
       scrollToBottom();
     }
   }

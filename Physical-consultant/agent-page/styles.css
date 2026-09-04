@@ -440,6 +440,62 @@ ul {
   cursor: default;
 }
 
+/* 自由输入入口：选项未覆盖时用户可手动补充 */
+.option-list__freebar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.option-list__other {
+  align-self: flex-start;
+  padding: 4px 2px;
+  font-size: 12.5px;
+  color: #0e8f8f;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.option-list__other:disabled {
+  color: #c8c8c8;
+  text-decoration: none;
+  cursor: default;
+}
+.option-list__freebox {
+  display: flex;
+  gap: 6px;
+}
+.option-list__freeinput {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid rgba(14, 143, 143, 0.3);
+  border-radius: 8px;
+  font-size: 13.5px;
+  color: #1a1a1a;
+  background: #fff;
+}
+.option-list__freeinput:focus {
+  outline: none;
+  border-color: #0e8f8f;
+}
+.option-list__freeok {
+  flex-shrink: 0;
+  padding: 0 14px;
+  border: none;
+  border-radius: 8px;
+  background: #0e8f8f;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+.option-list__freeok:disabled {
+  background: #c8c8c8;
+  cursor: default;
+}
+
 /* 选项解析失败兜底：原 bot 回复里没识别到选项时，提示用户一键让顾问重出 */
 .opt-fallback {
   margin-top: 8px;
