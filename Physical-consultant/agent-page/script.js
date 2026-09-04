@@ -1060,6 +1060,43 @@ S7｜最终方案推荐
     }
   }
 
+  // 按原顺序渲染正文片段：文字段 / 套餐卡 / 推荐理由（收集不渲染）。
+  // 理由块之后的文字（如 S7 的「这个方案可以吗？」题干）延后返回，由调用方放到理由卡下方、紧邻选项
+  function renderReplySegments(bubble, body, fallbackContent) {
+    let reasonHtml = '';
+    let pendingQuestion = '';
+    let cardCount = 0;
+    let reasonSeen = false;
+    splitCardSegments(body || fallbackContent || '').forEach((seg) => {
+      if (seg.type === 'text') {
+        if (reasonSeen) { pendingQuestion += (pendingQuestion ? '\n' : '') + seg.text; return; }
+        const div = document.createElement('div');
+        div.className = 'chat__bubble-text';
+        div.innerHTML = mdToHtml(stripMultiTag(seg.text));
+        bubble.appendChild(div);
+      } else if (seg.type === 'card') {
+        cardCount++;
+        bubble.appendChild(buildCardEl(seg.card));
+      } else if (seg.type === 'reason') {
+        reasonSeen = true;
+        if (!reasonHtml) reasonHtml = seg.text;
+      }
+    });
+    return { reasonHtml: reasonHtml, pendingQuestion: pendingQuestion, cardCount: cardCount };
+  }
+
+  // 统一收尾：【推荐理由】卡固定在所有套餐卡/加项卡下方；题干文字再放到理由卡下方、选项上方
+  function appendReasonAndQuestion(bubble, reasonHtml, fallbackReason, pendingQuestion) {
+    const reason = reasonHtml || fallbackReason || '';
+    if (reason) bubble.appendChild(buildReasonEl(reason, '为什么这样推荐'));
+    if (pendingQuestion) {
+      const div = document.createElement('div');
+      div.className = 'chat__bubble-text';
+      div.innerHTML = mdToHtml(stripMultiTag(pendingQuestion));
+      bubble.appendChild(div);
+    }
+  }
+
   function renderBotReply(typingEl, reply) {
     const { body, options } = parseOptions(reply);
     const multi = isMultiSelect(reply);
@@ -1075,26 +1112,9 @@ S7｜最终方案推荐
     // 是否"初步推荐"轮：以模型声明的阶段为准，避免 S7 漏列选项时被误判成 S5、渲染出「继续提问」
     const isS5Recommend = currentPhase === 'S5' && cards.length > 0;
 
-    // 先按原顺序渲染文字段与套餐/加项卡；理由块先收集，等所有卡片渲染完再统一追加到卡片下方，
-    // 保证【推荐理由】始终是一张独立的卡片、且位于所有套餐卡与加项卡下面（不依赖 AI 的输出顺序）
-    let reasonHtml = '';
-    splitCardSegments(body || '').forEach((seg) => {
-      if (seg.type === 'text') {
-        const div = document.createElement('div');
-        div.className = 'chat__bubble-text';
-        div.innerHTML = mdToHtml(stripMultiTag(seg.text));
-        bubble.appendChild(div);
-      } else if (seg.type === 'card') {
-        bubble.appendChild(buildCardEl(seg.card));
-      } else if (seg.type === 'reason') {
-        if (!reasonHtml) reasonHtml = seg.text;
-      }
-    });
-    // 兜底：segment 未解析出理由时，用正则提取的结果补上
-    if (!reasonHtml && reasonText) reasonHtml = reasonText;
-    if (reasonHtml) {
-      bubble.appendChild(buildReasonEl(reasonHtml, '为什么这样推荐'));
-    }
+    // 渲染顺序：文字与卡片 → 推荐理由卡 → 题干（如「这个方案可以吗？」）→ 可点击选项
+    const segs = renderReplySegments(bubble, body, '');
+    appendReasonAndQuestion(bubble, segs.reasonHtml, reasonText, segs.pendingQuestion);
 
     if (options.length > 0) {
       renderOptions(bubble, body, options, multi, false);
@@ -1150,26 +1170,9 @@ S7｜最终方案推荐
       `;
       const bubble = item.querySelector('.chat__bubble');
 
-      // 先渲染文字段与套餐/加项卡；理由统一追加到所有卡片下方，保持与实时渲染一致
-      let reasonHtml = '';
-      let cardCount = 0;
-      splitCardSegments(body || content || '').forEach((seg) => {
-        if (seg.type === 'text') {
-          const div = document.createElement('div');
-          div.className = 'chat__bubble-text';
-          div.innerHTML = mdToHtml(stripMultiTag(seg.text));
-          bubble.appendChild(div);
-        } else if (seg.type === 'card') {
-          cardCount++;
-          bubble.appendChild(buildCardEl(seg.card));
-        } else if (seg.type === 'reason') {
-          if (!reasonHtml) reasonHtml = seg.text;
-        }
-      });
-      if (!reasonHtml) reasonHtml = parseReason(content) || '';
-      if (reasonHtml) {
-        bubble.appendChild(buildReasonEl(reasonHtml, '为什么这样推荐'));
-      }
+      // 与实时渲染保持一致：文字与卡片 → 推荐理由卡 → 题干（如有）→ 选项
+      const segs = renderReplySegments(bubble, body, content);
+      appendReasonAndQuestion(bubble, segs.reasonHtml, parseReason(content) || '', segs.pendingQuestion);
 
       // 历史选项：已答过的题目保留文本、不可点击；最后一条回复保留可点击，刷新后仍可继续对话
       if (options.length > 0) {
@@ -1178,7 +1181,7 @@ S7｜最终方案推荐
 
       // 初步推荐轮（有套餐卡、不列选项）且用户还没往下走：补回「继续提问」引导。
       // 否则从套餐详情页返回、走历史回放渲染时这条入口就消失了，流程卡在这里无法继续
-      if (interactive && cardCount > 0 && options.length === 0) {
+      if (interactive && segs.cardCount > 0 && options.length === 0) {
         bubble.appendChild(buildContinuePanel());
       }
 
