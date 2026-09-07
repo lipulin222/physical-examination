@@ -1666,7 +1666,6 @@ S7｜最终方案推荐
 
   // 快捷入口：上传外院体检报告 / 浏览全部套餐 / 既往体检异常 / 预约购买
   const CHIP_PROMPTS = {
-    packages: '我想先看看你们有哪些体检套餐。',
     history: '我以前体检发现过异常项，帮我把这个考虑进去。'
   };
   const CHIP_NOTICES = {
@@ -1679,6 +1678,18 @@ S7｜最终方案推荐
       if (action === 'report') {
         reportInput.value = ''; // 允许连续选择同一份文件
         reportInput.click();
+        return;
+      }
+      // 浏览全部套餐：直接进套餐详情页。性别取 S1 已确定的体检对象，未确定时默认女性；
+      // 详情页内有三档价格对比与完整项目矩阵，比在对话里罗列更直观
+      if (action === 'packages') {
+        const target = detectExamTarget();
+        if (target === 'child') {
+          showToast('儿童套餐为独立方案，详情请咨询健康顾问');
+          return;
+        }
+        const g = target === 'male' ? 'male' : 'female';
+        window.location.href = 'pkg-detail.html?g=' + g + '&t=1&gyn=' + (g === 'female' ? '1' : '0');
         return;
       }
       // 提问型入口：直接以用户身份发起
