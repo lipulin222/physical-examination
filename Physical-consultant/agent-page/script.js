@@ -1419,7 +1419,7 @@ S7｜最终方案推荐
     } catch (err) {
       const isNetErr = err && (err instanceof TypeError || /failed to fetch|networkerror/i.test(String(err.message)));
       typing.textContent = isNetErr
-        ? '回复失败：网络或跨域(CORS)请求被拦截。请确认通过线上地址访问；本地直接打开文件会因接口跨域白名单限制而失败。'
+        ? '回复失败：暂时无法连接 AI 服务。可能是服务正在维护，或当前网络 / 访问域名未被接口允许，请稍后重试。'
         : '回复失败：' + err.message + '。请稍后重试。';
       // 回滚本轮 user 帧：对话没有推进，留着它会在重试后形成两条连续 user，导致模型答非所问
       if (messages.length && messages[messages.length - 1].role === 'user') messages.pop();
