@@ -40,7 +40,7 @@
       --secondary: #E8F3F6;
       --secondary-foreground: #00566B;
       --muted: #EDF6F8;
-      --muted-foreground: #6E7478;
+      --muted-foreground: #63696D;   /* 次要文本 · 对 #F6F6F6 对比度 ≥4.5:1 */
       --accent: var(--zz-blue-pale);
       --accent-foreground: #00556A;
       --destructive: #C0392B;
@@ -109,7 +109,7 @@
     .refresh-link:hover { color: var(--primary); }
 
     /* ===== Hero ===== */
-    .hero { max-width: var(--container-3xl); margin: 0 auto; padding: 4rem 1.5rem 3.5rem; }
+    .hero { max-width: var(--container-3xl); margin: 0 auto; padding: 4rem 1.5rem 3.5rem; background: linear-gradient(180deg, #EAF4F8 0%, rgba(234,244,248,0) 100%); }
     .hero-eyebrow { font-size: .75rem; font-weight: 500; letter-spacing: .4em; color: var(--primary); }
     .hero-title { margin-top: 1.5rem; font-size: 2.5rem; font-weight: 700; line-height: 1.25; letter-spacing: .05em; }
     .hero-desc { margin-top: 1.5rem; max-width: 36rem; line-height: 2; color: var(--muted-foreground); }
@@ -165,10 +165,10 @@
     .h4 { margin: 1.5rem 0 .75rem; font-family: var(--zz-font-sans); font-size: 1.0625rem; font-weight: 600; color: var(--foreground); }
 
     /* ===== 正文排版 ===== */
-    .prose p { line-height: 2; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .prose p { line-height: 2; color: var(--foreground); }
     .prose p + p { margin-top: 1rem; }
     .prose ul, .prose ol { margin-top: .75rem; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: .5rem; }
-    .prose ul > li, .prose ol > li { position: relative; padding-left: 1.25rem; line-height: 1.875; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .prose ul > li, .prose ol > li { position: relative; padding-left: 1.25rem; line-height: 1.875; color: var(--foreground); }
     .prose ul > li::before { content: ''; position: absolute; left: .125rem; top: .8em; width: .4rem; height: .4rem; border-radius: 9999px; background: var(--primary); }
     .prose ol > li { counter-increment: p-ol; }
     .prose ol { counter-reset: p-ol; }
@@ -210,7 +210,7 @@
     .goal-quant-value { margin-top: .375rem; font-weight: 500; line-height: 1.625; color: var(--accent-foreground); }
     .goal-row { display: grid; grid-template-columns: 110px 1fr; gap: .375rem; }
     .goal-row-label { font-size: .875rem; font-weight: 500; color: var(--primary); }
-    .goal-row-value { line-height: 2; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .goal-row-value { line-height: 2; color: var(--foreground); }
     @media (max-width: 640px) {
       .goal-row { grid-template-columns: 1fr; gap: .25rem; }
       .goal-row-label { margin-top: .5rem; }
@@ -229,7 +229,7 @@
     .action-list { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; }
     .action-card { border: 1px solid var(--border); border-radius: 1rem; background: var(--card); padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
     .action-title { font-size: 1.125rem; font-weight: 600; line-height: 1.5; }
-    .action-text { margin-top: .75rem; line-height: 2; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .action-text { margin-top: .75rem; line-height: 2; color: var(--foreground); }
     .planb { margin-top: 1rem; border-radius: .75rem; background: color-mix(in oklab, var(--secondary) 60%, transparent); padding: .75rem 1rem; font-size: .875rem; line-height: 1.625; color: var(--secondary-foreground); }
     .planb strong { color: var(--primary); }
 
@@ -261,7 +261,7 @@
       border-radius: 9999px; background: var(--accent);
       font-size: .75rem; font-weight: 600; color: var(--accent-foreground);
     }
-    .phase-list-item { line-height: 1.625; color: color-mix(in oklab, var(--foreground) 90%, transparent); }
+    .phase-list-item { line-height: 1.625; color: var(--foreground); }
     .phase-foot { margin-top: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .75rem; }
     .phase-complete { border-radius: .75rem; background: color-mix(in oklab, var(--accent) 70%, transparent); padding: .75rem 1rem; font-size: .875rem; line-height: 1.625; color: var(--accent-foreground); }
     .phase-miss { border-radius: .75rem; background: color-mix(in oklab, var(--secondary) 60%, transparent); padding: .75rem 1rem; font-size: .875rem; line-height: 1.625; color: var(--secondary-foreground); }
@@ -272,14 +272,14 @@
     .plan-table { width: 100%; text-align: left; font-size: .875rem; border-collapse: collapse; }
     .plan-table thead tr { border-bottom: 1px solid var(--border); background: color-mix(in oklab, var(--secondary) 60%, transparent); }
     .plan-table th { padding: 1rem 1.25rem; font-weight: 500; font-size: .75rem; letter-spacing: .1em; color: var(--secondary-foreground); white-space: nowrap; }
-    .plan-table td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); line-height: 1.625; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .plan-table td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); line-height: 1.625; color: var(--foreground); }
     .plan-table tr:last-child td { border-bottom: none; }
     .plan-table tbody tr:nth-child(even) td { background: color-mix(in oklab, var(--background) 50%, transparent); }
     .plan-table td:first-child { font-weight: 500; white-space: nowrap; color: var(--primary); }
     .check-grid { margin-top: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem; }
     .check-item { border: 1px solid var(--border); border-radius: .75rem; background: var(--card); padding: 1rem 1.25rem; font-size: .875rem; font-weight: 500; line-height: 1.5; }
     .plain-list { margin-top: 1rem; display: flex; flex-direction: column; gap: .5rem; }
-    .plain-list li { position: relative; padding-left: 1.25rem; line-height: 1.875; color: color-mix(in oklab, var(--foreground) 85%, transparent); }
+    .plain-list li { position: relative; padding-left: 1.25rem; line-height: 1.875; color: var(--foreground); }
     .plain-list li::before { content: ''; position: absolute; left: .125rem; top: .8em; width: .4rem; height: .4rem; border-radius: 9999px; background: var(--primary); }
 
     /* ===== Loading ===== */
@@ -324,7 +324,7 @@
 
     /* ===== 04「让计划成为行动」= 健康辅助功能选择 ===== */
     .section--launch { background: linear-gradient(180deg, #EAF4F8 0%, rgba(234,244,248,0) 100%); scroll-margin-top: 5rem; }
-    .launch-text { line-height: 2; color: color-mix(in srgb, var(--foreground) 88%, transparent); margin-bottom: 1.5rem; }
+    .launch-text { line-height: 2; color: var(--foreground); margin-bottom: 1.5rem; }
     .hm-panel { margin-top: 2rem; }
     /* 功能项：功能名（上）→ 卡片（标题+示例）→ 功能说明（下）；三列（移动端单列） */
     .hm-fs { display: grid; grid-template-columns: 1fr; gap: 2.25rem 1.5rem; }
@@ -362,7 +362,7 @@
     .hm-f--weekly .hm-f__card { background: linear-gradient(160deg, color-mix(in srgb, var(--zz-blue-light) 18%, var(--card)) 0%, var(--card) 60%); border-color: color-mix(in srgb, var(--zz-blue-light) 42%, var(--card)); }
     .hm-recipe-day { font-size: .75rem; color: var(--muted-foreground); margin: 0 0 .375rem; }
     .hm-recipe-day b { color: var(--zz-accent-orange-deep); font-weight: 700; }
-    .hm-recipe-line { display: flex; align-items: baseline; gap: .5rem; font-size: .75rem; line-height: 1.7; color: color-mix(in srgb, var(--foreground) 92%, transparent); width: 100%; }
+    .hm-recipe-line { display: flex; align-items: baseline; gap: .5rem; font-size: .75rem; line-height: 1.7; color: var(--foreground); width: 100%; }
     .hm-recipe-line em { flex-shrink: 0; width: 2.4em; font-style: normal; font-weight: 600; color: var(--zz-accent-orange-deep); font-size: .6875rem; }
     .hm-recipe-line span { flex: 1; }
     /* 每日打卡 widget 卡片（居中：MEMO 标题 / 分隔 / emoji 任务 / 改善点 / 今天已完成） */
