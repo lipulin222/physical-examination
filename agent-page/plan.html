@@ -15,7 +15,8 @@
     }
     @font-face {
       font-family: "ZZ-ZhunYuan";
-      src: url("../branding-pic/fonts/方正准圆_GBK.ttf") format("truetype");
+      src: url("../branding-pic/fonts/方正准圆_GBK.woff2") format("woff2"),
+           url("../branding-pic/fonts/方正准圆_GBK.ttf") format("truetype");
       font-display: swap;
     }
     @font-face {
@@ -28,6 +29,13 @@
       font-family: "ZZ-Myriad";
       src: url("../branding-pic/fonts/MyriadPro-Bold.otf") format("opentype");
       font-weight: 700;
+      font-display: swap;
+    }
+    /* 标题内西文：Myriad Pro Bold 映射到 400 字重，与方正粗圆的视觉字重匹配，且不触发合成加粗 */
+    @font-face {
+      font-family: "ZZ-Myriad-Title";
+      src: url("../branding-pic/fonts/MyriadPro-Bold.otf") format("opentype");
+      font-weight: 400;
       font-display: swap;
     }
 
@@ -48,11 +56,11 @@
       --zz-text: #595757;     /* 深灰色 · 文本 */
       --zz-accent-yellow: #FFEE6F; /* 极小比例点缀 */
       --zz-accent-orange: #F18E1D; /* 极小比例点缀 */
-      --zz-accent-orange-deep: #B3670F; /* 橙色文字（保证对比度） */
+      --zz-accent-orange-deep: #9A5A0B; /* 橙色文字（保证对比度） */
 
       /* 品牌专用字体：中文标题 方正粗圆 / 中文正文 方正准圆；西文与数字 Myriad Pro */
-      --zz-font-title: "ZZ-CuYuan", "ZZ-ZhunYuan", "PingFang SC", "Microsoft YaHei", sans-serif;
-      --zz-font-body: "ZZ-ZhunYuan", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --zz-font-title: "ZZ-Myriad-Title", "ZZ-CuYuan", "ZZ-ZhunYuan", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --zz-font-body: "ZZ-Myriad", "ZZ-ZhunYuan", "PingFang SC", "Microsoft YaHei", sans-serif;
       --zz-font-en: "ZZ-Myriad", "Helvetica Neue", Arial, sans-serif;
       --zz-font-sans: var(--zz-font-body); /* 兼容：正文默认字体 */
 
@@ -194,8 +202,8 @@
 
     /* ===== 正文排版 ===== */
     .prose p { line-height: 2; color: var(--foreground); }
-    .prose p + p { margin-top: 1rem; }
-    .prose ul, .prose ol { margin-top: .75rem; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+    .prose p + p { margin-top: 1.5rem; } /* 段间距需大于行距（VI 排版规则） */
+    .prose ul, .prose ol { margin-top: 1.5rem; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: .75rem; }
     .prose ul > li, .prose ol > li { position: relative; padding-left: 1.25rem; line-height: 1.875; color: var(--foreground); }
     .prose ul > li::before { content: ''; position: absolute; left: .125rem; top: .8em; width: .4rem; height: .4rem; border-radius: 9999px; background: var(--primary); }
     .prose ol > li { counter-increment: p-ol; }
@@ -234,7 +242,7 @@
     .goal-title { margin-top: .25rem; font-size: 1.25rem; font-weight: 700; line-height: 1.4; }
     .goal-body { padding: 1.75rem; display: flex; flex-direction: column; gap: 1.25rem; }
     .goal-quant { border-radius: .75rem; background: color-mix(in oklab, var(--accent) 70%, transparent); padding: 1rem 1.25rem; }
-    .goal-quant-label { font-size: .75rem; font-weight: 500; letter-spacing: .15em; color: color-mix(in oklab, var(--accent-foreground) 70%, transparent); }
+    .goal-quant-label { font-size: .75rem; font-weight: 500; letter-spacing: .15em; color: var(--accent-foreground); }
     .goal-quant-value { margin-top: .375rem; font-weight: 500; line-height: 1.625; color: var(--accent-foreground); }
     .goal-row { display: grid; grid-template-columns: 110px 1fr; gap: .375rem; }
     .goal-row-label { font-size: .875rem; font-weight: 500; color: var(--primary); }
