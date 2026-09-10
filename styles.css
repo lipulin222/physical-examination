@@ -506,6 +506,15 @@ body {
 .plan-offer { margin-top: 16px; }
 .plan-offer__text { font-size: 14px; line-height: 1.8; color: var(--ink-2); }
 .plan-offer__btn { margin-top: 12px; }
+/* 「制定个人健康改善计划」与下方「预约线下复查」(.fu-btn) 保持一致：去掉阴影，圆角/内距/字号统一 */
+.lifestyle__cta.plan-offer__btn {
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 14px;
+  letter-spacing: 0;
+  box-shadow: none;
+}
+.lifestyle__cta.plan-offer__btn:active { box-shadow: 0 4px 10px rgba(0, 111, 138, 0.18); }
 .plan-offer-points li { line-height: 1.9; }
 
 /* 06 随访计划：四个结构化部分 */
