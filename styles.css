@@ -503,7 +503,7 @@ body {
 .lifestyle__cta { margin-top: 16px; }
 
 /* 05 生活干预方向：单卡片内的计划引导区 */
-.plan-offer { margin-top: 16px; padding: 14px 16px; border-radius: 12px; background: rgba(0, 111, 138, 0.07); border: 1px solid rgba(0, 111, 138, 0.18); }
+.plan-offer { margin-top: 16px; }
 .plan-offer__text { font-size: 14px; line-height: 1.8; color: var(--ink-2); }
 .plan-offer__btn { margin-top: 12px; }
 .plan-offer-points li { line-height: 1.9; }
