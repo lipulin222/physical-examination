@@ -1,3 +1,36 @@
+/* ===== 品牌专用字体（VI p30-38）：中文标题 方正粗圆 / 中文正文 方正准圆；西文与数字 Myriad Pro ===== */
+@font-face {
+  font-family: "ZZ-CuYuan";
+  src: url("branding-pic/fonts/方正粗圆_GBK.woff2") format("woff2"),
+       url("branding-pic/fonts/方正粗圆_GBK.woff") format("woff");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ZZ-ZhunYuan";
+  src: url("branding-pic/fonts/方正准圆_GBK.woff2") format("woff2"),
+       url("branding-pic/fonts/方正准圆_GBK.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "ZZ-Myriad";
+  src: url("branding-pic/fonts/MyriadPro-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "ZZ-Myriad";
+  src: url("branding-pic/fonts/MyriadPro-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-display: swap;
+}
+/* 标题内西文：Myriad Pro Bold 映射到 400 字重，与方正粗圆的视觉字重匹配，且不触发合成加粗 */
+@font-face {
+  font-family: "ZZ-Myriad-Title";
+  src: url("branding-pic/fonts/MyriadPro-Bold.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   /* ===== 卓正医疗 VI 色彩系统（2025.01） ===== */
   --zz-blue-1: #006F8A;      /* 卓正蓝1 标志标准色 */
@@ -33,7 +66,11 @@
   --radius-lg: 26px;
   --shadow: 0 12px 40px rgba(17, 20, 24, 0.07);
   --shadow-sm: 0 4px 16px rgba(17, 20, 24, 0.045);
-  --font: "Inter", "Noto Sans SC", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* 品牌专用字体：中文标题 方正粗圆 / 中文正文 方正准圆；西文与数字 Myriad Pro */
+  --zz-font-title: "ZZ-Myriad-Title", "ZZ-CuYuan", "ZZ-ZhunYuan", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --zz-font-body: "ZZ-Myriad", "ZZ-ZhunYuan", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --zz-font-en: "ZZ-Myriad", "ZZ-ZhunYuan", "Helvetica Neue", Arial, sans-serif;
+  --font: var(--zz-font-body);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -578,6 +615,17 @@ body {
 .disclaimer {
   font-size: 11px; line-height: 1.6; color: var(--ink-3); text-align: center;
   padding: 4px 14px 16px;
+}
+
+/* ===== 品牌字体收口（VI p30-38） ===== */
+/* 中文标题 / 强调统一走方正粗圆；方正粗圆本身即粗体字形，统一 400 字重以免浏览器合成加粗。
+   该组内的西文与数字由 ZZ-Myriad-Title 承接（Myriad Pro Bold 映射到 400）。 */
+.overview__eyebrow, .overview__name, .module__title, .module__num,
+.issue__summary, .issue__metric-val, .sysmap__detail-head strong, .sysmap__detail-title,
+.sysmap__metric-val, .lifestyle__title, .lifestyle__h, .fu-block__title, .fu-num,
+.trend__cmp-val, .page b, .page strong {
+  font-family: var(--zz-font-title);
+  font-weight: 400;
 }
 
 @media (min-width: 480px) {

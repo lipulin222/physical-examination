@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>体检报告解读 · Physical Examination</title>
   <meta name="description" content="专业、清晰、易懂的体检报告智能解读，帮您读懂每一项指标背后的健康含义。" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <!-- 品牌专用字体由 styles.css 的 @font-face 本地加载，无需外部字体服务 -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -124,8 +122,8 @@
                   .box--good { fill: #D9EEF2; }         /* 正常：卓正浅蓝 */
                   .box--none { fill: #F0F1F3; }         /* 无数据：浅灰 */
                   .box-text {
-                    font-family: "Inter", "Noto Sans SC", "PingFang SC", -apple-system, "Microsoft YaHei", sans-serif;
-                    font-size: 38px; font-weight: 500; fill: #3C4448;
+                    font-family: var(--zz-font-title);
+                    font-size: 38px; font-weight: 400; fill: #3C4448;
                     text-anchor: middle; dominant-baseline: middle;
                   }
                   .lead { fill: none; stroke: #A7B2B8; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 8 6; }
